@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>うどんログ — さぬきうどん記録・交流サービス</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+      background: #FAFAF8;
+      color: #1a1a1a;
+      line-height: 1.7;
+      font-size: 16px;
+    }
+
+    .container {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 2rem 1.25rem 4rem;
+    }
+
+    /* Hero */
+    .hero {
+      background: #FFF8F0;
+      border-radius: 16px;
+      padding: 4rem 2rem 3rem;
+      text-align: center;
+      border: 0.5px solid #F0D9C0;
+      margin-bottom: 2rem;
+    }
+
+    .noodle-art {
+      font-size: 72px;
+      margin-bottom: 1.5rem;
+      line-height: 1;
+    }
+
+    .badge {
+      display: inline-block;
+      background: #FAEEDA;
+      color: #633806;
+      font-size: 12px;
+      padding: 4px 14px;
+      border-radius: 999px;
+      margin-bottom: 1.5rem;
+      font-weight: 500;
+    }
+
+    .hero-title {
+      font-size: 32px;
+      font-weight: 500;
+      color: #1a1a1a;
+      line-height: 1.3;
+      margin-bottom: 1rem;
+    }
+
+    .hero-title span { color: #BA7517; }
+
+    .hero-sub {
+      font-size: 16px;
+      color: #666;
+      line-height: 1.7;
+      max-width: 480px;
+      margin: 0 auto 2rem;
+    }
+
+    .cta-group {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .btn-primary {
+      background: #BA7517;
+      color: #FFF8F0;
+      border: none;
+      padding: 14px 32px;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .btn-primary:hover { background: #9A6010; }
+
+    .btn-secondary {
+      background: transparent;
+      color: #BA7517;
+      border: 1.5px solid #BA7517;
+      padding: 14px 32px;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .btn-secondary:hover { background: #FFF8F0; }
+
+    /* Stats */
+    .stat-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 2rem;
+    }
+
+    .stat {
+      background: #fff;
+      border: 0.5px solid #e5e5e0;
+      border-radius: 8px;
+      padding: 1rem;
+      text-align: center;
+    }
+
+    .stat-num {
+      font-size: 24px;
+      font-weight: 500;
+      color: #BA7517;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: #888;
+      margin-top: 2px;
+    }
+
+    /* Section */
+    .section { margin-bottom: 2.5rem; }
+
+    .section-label {
+      font-size: 12px;
+      color: #BA7517;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      margin-bottom: 0.5rem;
+    }
+
+    .section-title {
+      font-size: 22px;
+      font-weight: 500;
+      color: #1a1a1a;
+      margin-bottom: 0.5rem;
+    }
+
+    .section-desc {
+      font-size: 15px;
+      color: #666;
+      line-height: 1.7;
+      margin-bottom: 1.5rem;
+    }
+
+    /* Feature cards */
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+    }
+
+    .feature-card {
+      background: #fff;
+      border: 0.5px solid #e5e5e0;
+      border-radius: 12px;
+      padding: 1.25rem;
+    }
+
+    .feature-icon {
+      font-size: 24px;
+      color: #BA7517;
+      margin-bottom: 12px;
+    }
+
+    .feature-title {
+      font-size: 15px;
+      font-weight: 500;
+      color: #1a1a1a;
+      margin-bottom: 6px;
+    }
+
+    .feature-desc {
+      font-size: 13px;
+      color: #666;
+      line-height: 1.6;
+    }
+
+    /* Divider */
+    .divider {
+      border: none;
+      border-top: 0.5px solid #e5e5e0;
+      margin: 2rem 0;
+    }
+
+    /* Stamp demo */
+    .stamp-demo {
+      background: #fff;
+      border: 0.5px solid #e5e5e0;
+      border-radius: 12px;
+      padding: 1.5rem;
+    }
+
+    .stamp-shop-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .shop-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #FAEEDA;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    .stamp-shop { font-size: 15px; font-weight: 500; margin-bottom: 2px; }
+    .stamp-count { font-size: 12px; color: #888; }
+
+    .stamp-rank {
+      margin-left: auto;
+      font-size: 12px;
+      color: #BA7517;
+      font-weight: 500;
+    }
+
+    .stamps {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .stamp {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+
+    .stamp.filled {
+      background: #FAEEDA;
+      border: 1.5px solid #EF9F27;
+    }
+
+    .stamp.empty {
+      background: #F5F5F3;
+      border: 1.5px solid #E0E0DA;
+    }
+
+    .stamp-hint {
+      margin-top: 12px;
+      font-size: 12px;
+      color: #888;
+    }
+
+    /* Post demo */
+    .posts { display: flex; flex-direction: column; gap: 10px; }
+
+    .post-demo {
+      background: #fff;
+      border: 0.5px solid #e5e5e0;
+      border-radius: 12px;
+      padding: 1.25rem;
+    }
+
+    .post-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: #FAEEDA;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 500;
+      color: #633806;
+      flex-shrink: 0;
+    }
+
+    .avatar.green { background: #E1F5EE; color: #085041; }
+
+    .post-user { font-size: 13px; font-weight: 500; }
+    .post-handle { font-size: 12px; color: #888; }
+    .post-time { margin-left: auto; font-size: 11px; color: #888; }
+
+    .post-body {
+      font-size: 14px;
+      line-height: 1.7;
+      margin-bottom: 10px;
+    }
+
+    .post-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+
+    .tag {
+      font-size: 12px;
+      color: #185FA5;
+      background: #E6F1FB;
+      padding: 3px 10px;
+      border-radius: 999px;
+    }
+
+    .post-actions {
+      display: flex;
+      gap: 16px;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 0.5px solid #e5e5e0;
+    }
+
+    .action {
+      font-size: 12px;
+      color: #888;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .action i { font-size: 14px; }
+    .action-location { margin-left: auto; }
+
+    /* How to use */
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 12px;
+    }
+
+    .flow-step {
+      text-align: center;
+      padding: 1.25rem 1rem;
+      background: #F5F5F3;
+      border-radius: 12px;
+    }
+
+    .step-num {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #BA7517;
+      color: #FFF8F0;
+      font-size: 13px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 10px;
+    }
+
+    .step-title {
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: 4px;
+    }
+
+    .step-desc {
+      font-size: 12px;
+      color: #666;
+      line-height: 1.5;
+    }
+
+    /* CTA bottom */
+    .cta-bottom {
+      background: #FFF8F0;
+      border: 0.5px solid #F0D9C0;
+      border-radius: 16px;
+      padding: 3rem 2rem;
+      text-align: center;
+    }
+
+    .cta-bottom-title {
+      font-size: 22px;
+      font-weight: 500;
+      margin-bottom: 0.75rem;
+    }
+
+    .cta-bottom-sub {
+      font-size: 15px;
+      color: #666;
+      margin-bottom: 1.5rem;
+      line-height: 1.7;
+    }
+
+    .cta-note {
+      font-size: 12px;
+      color: #888;
+      margin-top: 1rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 480px) {
+      .hero { padding: 3rem 1.25rem 2rem; }
+      .hero-title { font-size: 26px; }
+      .stat-row { grid-template-columns: repeat(3, 1fr); }
+      .stat-num { font-size: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <!-- Hero -->
+    <section class="hero">
+      <div class="noodle-art">🍜</div>
+      <div class="badge">香川県民のための、香川県民による</div>
+      <h1 class="hero-title">食べたうどん、<span>全部覚えてる？</span></h1>
+      <p class="hero-sub">「あの店、また行きたいけど名前が思い出せない」<br>日常すぎて記憶に残らないさぬきうどんを、記録して・つながる。</p>
+      <div class="cta-group">
+        <a href="#" class="btn-primary">無料で始める →</a>
+        <a href="#howto" class="btn-secondary">使い方を見る</a>
+      </div>
+    </section>
+
+    <!-- Stats -->
+    <div class="stat-row">
+      <div class="stat">
+        <div class="stat-num">1,200+</div>
+        <div class="stat-label">香川県内の登録店舗数</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">週5回</div>
+        <div class="stat-label">平均うどん訪問頻度</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">0円</div>
+        <div class="stat-label">利用料金</div>
+      </div>
+    </div>
+
+    <!-- Features -->
+    <section class="section">
+      <div class="section-label">課題</div>
+      <h2 class="section-title">「また来た気がする」を卒業しよう</h2>
+      <p class="section-desc">うどんを食べるのが日常すぎて、どこに行ったかも何回行ったかも記憶に残らない。それが香川県民あるある。</p>
+      <div class="features">
+        <div class="feature-card">
+          <div class="feature-icon"><i class="ti ti-map-pin" aria-hidden="true"></i></div>
+          <div class="feature-title">お店の記録</div>
+          <p class="feature-desc">行った店・食べたメニュー・訪問日時をワンタップで記録。後から検索できる自分だけのうどん手帳。</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon"><i class="ti ti-square-check" aria-hidden="true"></i></div>
+          <div class="feature-title">スタンプカード</div>
+          <p class="feature-desc">店ごとに何回訪れたかをスタンプで可視化。常連度が一目でわかる。</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon"><i class="ti ti-brand-x" aria-hidden="true"></i></div>
+          <div class="feature-title">X連携で交流</div>
+          <p class="feature-desc">Xアカウントと連携して感想やおすすめを投稿。うどんがきっかけの新しいつながりが生まれる。</p>
+        </div>
+      </div>
+    </section>
+
+    <hr class="divider">
+
+    <!-- Stamp demo -->
+    <section class="section">
+      <div class="section-label">スタンプカード機能</div>
+      <h2 class="section-title">常連度を見える化する</h2>
+      <p class="section-desc">お気に入りの店に行くたびにスタンプが増えていく。達成感とともに、自分のうどん人生を振り返れる。</p>
+      <div class="stamp-demo">
+        <div class="stamp-shop-row">
+          <div class="shop-icon">🏪</div>
+          <div>
+            <div class="stamp-shop">山越うどん</div>
+            <div class="stamp-count">通算 18回 訪問</div>
+          </div>
+          <div class="stamp-rank">常連 ★★★</div>
+        </div>
+        <div class="stamps">
+          <div class="stamp filled">🍜</div>
+          <div class="stamp filled">🍜</div>
+          <div class="stamp filled">🍜</div>
+          <div class="stamp filled">🍜</div>
+          <div class="stamp filled">🍜</div>
+          <div class="stamp filled">🍜</div>
+          <div class="stamp filled">🍜</div>
+          <div class="stamp filled">🍜</div>
+          <div class="stamp filled">🍜</div>
+          <div class="stamp filled">🍜</div>
+          <div class="stamp empty"></div>
+          <div class="stamp empty"></div>
+        </div>
+        <p class="stamp-hint">あと2回で次のバッジ獲得！</p>
+      </div>
+    </section>
+
+    <hr class="divider">
+
+    <!-- Post demo -->
+    <section class="section">
+      <div class="section-label">交流機能</div>
+      <h2 class="section-title">うどんがきっかけで、つながる</h2>
+      <p class="section-desc">Xアカウントと連携して、食べた感想やおすすめメニューを投稿。同じ店を愛する人を見つけよう。</p>
+      <div class="posts">
+        <div class="post-demo">
+          <div class="post-header">
+            <div class="avatar">さぬ</div>
+            <div>
+              <div class="post-user">さぬきうどん太郎</div>
+              <div class="post-handle">@sanuki_udon</div>
+            </div>
+            <div class="post-time">今日</div>
+          </div>
+          <p class="post-body">がもううどん行ってきた！やっぱり釜玉が最高。朝6時から行列できてたけど並んだ価値あり。卵の黄身がとろとろで麺のコシが完璧やった🍜</p>
+          <div class="post-tags">
+            <span class="tag">#がもううどん</span>
+            <span class="tag">#釜玉</span>
+            <span class="tag">#坂出市</span>
+          </div>
+          <div class="post-actions">
+            <div class="action"><i class="ti ti-heart"></i> 24</div>
+            <div class="action"><i class="ti ti-message"></i> 5</div>
+            <div class="action"><i class="ti ti-repeat"></i> 8</div>
+            <div class="action action-location"><i class="ti ti-map-pin"></i> 坂出市</div>
+          </div>
+        </div>
+        <div class="post-demo">
+          <div class="post-header">
+            <div class="avatar green">う</div>
+            <div>
+              <div class="post-user">うどんハンター</div>
+              <div class="post-handle">@udon_hunter88</div>
+            </div>
+            <div class="post-time">3時間前</div>
+          </div>
+          <p class="post-body">中村うどん、通算20回目達成！バッジもらえた🎉 ここのぶっかけはほんとに飽きない。冷やしが特におすすめ。</p>
+          <div class="post-tags">
+            <span class="tag">#中村うどん</span>
+            <span class="tag">#ぶっかけ</span>
+            <span class="tag">#20回達成</span>
+          </div>
+          <div class="post-actions">
+            <div class="action"><i class="ti ti-heart"></i> 61</div>
+            <div class="action"><i class="ti ti-message"></i> 12</div>
+            <div class="action"><i class="ti ti-repeat"></i> 19</div>
+            <div class="action action-location"><i class="ti ti-map-pin"></i> 丸亀市</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <hr class="divider">
+
+    <!-- How to use -->
+    <section class="section" id="howto">
+      <div class="section-label">使い方</div>
+      <h2 class="section-title">3ステップで始められる</h2>
+      <div class="flow">
+        <div class="flow-step">
+          <div class="step-num">1</div>
+          <div class="step-title">Xでログイン</div>
+          <p class="step-desc">Xアカウントで一発登録。プロフィールが自動で設定される。</p>
+        </div>
+        <div class="flow-step">
+          <div class="step-num">2</div>
+          <div class="step-title">店を記録する</div>
+          <p class="step-desc">行った店を検索して「食べた！」ボタンを押すだけ。</p>
+        </div>
+        <div class="flow-step">
+          <div class="step-num">3</div>
+          <div class="step-title">投稿・交流</div>
+          <p class="step-desc">感想を書いて投稿。同じ店のファンとつながれる。</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA bottom -->
+    <div class="cta-bottom">
+      <h2 class="cta-bottom-title">さあ、今日のうどんから記録しよう</h2>
+      <p class="cta-bottom-sub">「また行きたいけど店名わからん」をもう言わない。<br>あなたのうどん歴を、ここに刻もう。</p>
+      <div class="cta-group">
+        <a href="#" class="btn-primary">Xアカウントで無料登録 →</a>
+      </div>
+      <p class="cta-note">登録無料・広告なし・香川県民限定（予定）</p>
+    </div>
+
+  </div>
+</body>
+</html>
