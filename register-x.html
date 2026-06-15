@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Xで登録 — うどんログ</title>
+  <title>アカウント登録 — うどんログ</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -31,7 +31,6 @@
       max-width: 420px;
     }
 
-    /* ロゴ・ヘッダー */
     .logo {
       text-align: center;
       margin-bottom: 2rem;
@@ -44,12 +43,8 @@
       margin-bottom: 4px;
     }
 
-    .logo-sub {
-      font-size: 14px;
-      color: #888;
-    }
+    .logo-sub { font-size: 14px; color: #888; }
 
-    /* ステップ表示 */
     .steps {
       display: flex;
       align-items: center;
@@ -63,12 +58,12 @@
       height: 8px;
       border-radius: 50%;
       background: #e5e5e0;
+      transition: background 0.2s;
     }
 
     .step-dot.active { background: #BA7517; }
     .step-dot.done { background: #5BAD6F; }
 
-    /* ステップ1: Xで認証 */
     .step-panel { display: none; }
     .step-panel.active { display: block; }
 
@@ -95,12 +90,11 @@
       background: #000;
       color: #fff;
       border: none;
-      padding: 14px;
+      padding: 13px;
       border-radius: 8px;
       font-size: 15px;
       font-weight: 500;
       cursor: pointer;
-      text-decoration: none;
     }
 
     .btn-x:hover { background: #222; }
@@ -129,53 +123,8 @@
       border-top: 0.5px solid #e5e5e0;
     }
 
-    /* メールリンク */
-    .link-email {
-      display: block;
-      text-align: center;
-      font-size: 14px;
-      color: #BA7517;
-      text-decoration: none;
-    }
-
-    .link-email:hover { text-decoration: underline; }
-
-    /* ステップ2: 認証済み確認 */
-    .x-connected {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      background: #F0FAF3;
-      border: 0.5px solid #A8D9B5;
-      border-radius: 10px;
-      padding: 12px 14px;
-      margin-bottom: 1.5rem;
-    }
-
-    .x-avatar {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      background: #000;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-
-    .x-avatar svg { width: 20px; height: 20px; fill: #fff; }
-
-    .x-name { font-size: 14px; font-weight: 500; }
-    .x-handle { font-size: 12px; color: #888; }
-
-    .check-icon {
-      margin-left: auto;
-      color: #5BAD6F;
-      font-size: 20px;
-    }
-
-    /* フォーム */
-    .form-group { margin-bottom: 1.25rem; }
+    /* フォーム共通 */
+    .form-group { margin-bottom: 1rem; }
 
     label {
       display: block;
@@ -194,6 +143,7 @@
 
     input[type="text"],
     input[type="email"],
+    input[type="password"],
     select,
     textarea {
       width: 100%;
@@ -205,6 +155,7 @@
       background: #fff;
       outline: none;
       font-family: inherit;
+      transition: border-color 0.15s, box-shadow 0.15s;
     }
 
     input:focus, select:focus, textarea:focus {
@@ -214,18 +165,98 @@
 
     textarea { resize: vertical; min-height: 72px; line-height: 1.5; }
 
-    .city-note {
-      font-size: 12px;
-      color: #aaa;
-      margin-top: 4px;
+    /* パスワード入力欄 */
+    .password-wrap {
+      position: relative;
     }
+
+    .password-wrap input { padding-right: 42px; }
+
+    .toggle-pw {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #aaa;
+      font-size: 17px;
+      padding: 0;
+      line-height: 1;
+    }
+
+    .toggle-pw:hover { color: #666; }
+
+    /* メール登録ボタン */
+    .btn-email {
+      width: 100%;
+      background: #BA7517;
+      color: #fff;
+      border: none;
+      padding: 13px;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      margin-top: 0.25rem;
+    }
+
+    .btn-email:hover { background: #9A6010; }
+    .btn-email:disabled { background: #d0b080; cursor: not-allowed; }
+
+    /* 認証済みバッジ（ステップ2） */
+    .auth-badge {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-radius: 10px;
+      padding: 12px 14px;
+      margin-bottom: 1.5rem;
+    }
+
+    .auth-badge.x-badge {
+      background: #F0FAF3;
+      border: 0.5px solid #A8D9B5;
+    }
+
+    .auth-badge.email-badge {
+      background: #FFF8EE;
+      border: 0.5px solid #F0D9C0;
+    }
+
+    .badge-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .badge-icon.x { background: #000; }
+    .badge-icon.x svg { width: 18px; height: 18px; fill: #fff; }
+    .badge-icon.email { background: #FAEEDA; font-size: 18px; }
+
+    .badge-label { font-size: 14px; font-weight: 500; }
+    .badge-sub { font-size: 12px; color: #888; }
+
+    .badge-check {
+      margin-left: auto;
+      font-size: 20px;
+      color: #5BAD6F;
+    }
+
+    .city-note { font-size: 12px; color: #aaa; margin-top: 4px; }
 
     /* 利用規約 */
     .terms {
       display: flex;
       align-items: flex-start;
       gap: 8px;
-      margin-bottom: 1.5rem;
+      margin-bottom: 1.25rem;
+      margin-top: 0.25rem;
     }
 
     .terms input[type="checkbox"] {
@@ -236,16 +267,10 @@
       flex-shrink: 0;
     }
 
-    .terms-text {
-      font-size: 13px;
-      color: #666;
-      line-height: 1.5;
-    }
-
+    .terms-text { font-size: 13px; color: #666; line-height: 1.5; }
     .terms-text a { color: #BA7517; text-decoration: none; }
     .terms-text a:hover { text-decoration: underline; }
 
-    /* 登録ボタン */
     .btn-primary {
       width: 100%;
       background: #BA7517;
@@ -261,7 +286,7 @@
     .btn-primary:hover { background: #9A6010; }
     .btn-primary:disabled { background: #d0b080; cursor: not-allowed; }
 
-    /* ステップ3: 完了 */
+    /* 完了 */
     .success-icon {
       width: 64px;
       height: 64px;
@@ -276,12 +301,7 @@
       color: #5BAD6F;
     }
 
-    .success-title {
-      text-align: center;
-      font-size: 20px;
-      font-weight: 500;
-      margin-bottom: 0.5rem;
-    }
+    .success-title { text-align: center; font-size: 20px; font-weight: 500; margin-bottom: 0.5rem; }
 
     .success-desc {
       text-align: center;
@@ -308,7 +328,6 @@
 
     .btn-start:hover { background: #9A6010; }
 
-    /* フッター */
     .footer-link {
       text-align: center;
       margin-top: 1.5rem;
@@ -319,11 +338,10 @@
     .footer-link a { color: #BA7517; text-decoration: none; }
     .footer-link a:hover { text-decoration: underline; }
 
-    /* loading */
     .loading {
       display: none;
       text-align: center;
-      padding: 1rem 0;
+      padding: 1.5rem 0;
     }
 
     .spinner {
@@ -342,23 +360,21 @@
 <body>
 
   <div class="card">
-    <!-- ロゴ -->
     <div class="logo">
       <div class="logo-title">うどんログ</div>
       <div class="logo-sub">さぬきうどん記録・交流サービス</div>
     </div>
 
-    <!-- ステップインジケーター -->
     <div class="steps">
       <div class="step-dot active" id="dot1"></div>
       <div class="step-dot" id="dot2"></div>
       <div class="step-dot" id="dot3"></div>
     </div>
 
-    <!-- ステップ1: Xで認証 -->
+    <!-- ステップ1: 登録方法を選ぶ -->
     <div class="step-panel active" id="step1">
-      <div class="step-title">Xアカウントで登録</div>
-      <p class="step-desc">Xアカウントと連携することで、うどんの感想投稿や他のユーザーとの交流ができるようになります。</p>
+      <div class="step-title">アカウント登録</div>
+      <p class="step-desc">登録方法を選んでください。どちらでも無料で始められます。</p>
 
       <button class="btn-x" onclick="connectX()">
         <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.253 5.622 5.912-5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
@@ -367,13 +383,30 @@
 
       <div class="divider">または</div>
 
-      <a href="register-email.html" class="link-email">メールアドレスで登録する</a>
+      <div class="form-group">
+        <label for="email">メールアドレス</label>
+        <input type="email" id="email" placeholder="example@email.com">
+      </div>
+
+      <div class="form-group">
+        <label for="password">パスワード</label>
+        <div class="password-wrap">
+          <input type="password" id="password" placeholder="8文字以上">
+          <button class="toggle-pw" type="button" onclick="togglePassword()" id="toggle-pw-btn" aria-label="パスワードを表示">
+            <i class="ti ti-eye" id="pw-icon"></i>
+          </button>
+        </div>
+      </div>
+
+      <button class="btn-email" id="email-btn" onclick="connectEmail()" disabled>
+        メールアドレスで続ける
+      </button>
     </div>
 
     <!-- ローディング -->
     <div class="loading" id="loading">
       <div class="spinner"></div>
-      <div style="font-size:14px; color:#888;">Xと接続しています...</div>
+      <div style="font-size:14px; color:#888;" id="loading-text">接続しています...</div>
     </div>
 
     <!-- ステップ2: プロフィール入力 -->
@@ -381,15 +414,26 @@
       <div class="step-title">プロフィールを設定</div>
       <p class="step-desc">うどんログ内で表示される情報を入力してください。</p>
 
-      <div class="x-connected">
-        <div class="x-avatar">
+      <!-- X連携バッジ -->
+      <div class="auth-badge x-badge" id="x-badge" style="display:none;">
+        <div class="badge-icon x">
           <svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.253 5.622 5.912-5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
         </div>
         <div>
-          <div class="x-name">@your_x_account</div>
-          <div class="x-handle">連携済み</div>
+          <div class="badge-label">@your_x_account</div>
+          <div class="badge-sub">Xアカウント連携済み</div>
         </div>
-        <i class="ti ti-circle-check-filled check-icon" aria-hidden="true"></i>
+        <i class="ti ti-circle-check-filled badge-check" aria-hidden="true"></i>
+      </div>
+
+      <!-- メールバッジ -->
+      <div class="auth-badge email-badge" id="email-badge" style="display:none;">
+        <div class="badge-icon email">✉️</div>
+        <div>
+          <div class="badge-label" id="email-badge-addr"></div>
+          <div class="badge-sub">メールアドレス登録</div>
+        </div>
+        <i class="ti ti-circle-check-filled badge-check" style="color:#BA7517;" aria-hidden="true"></i>
       </div>
 
       <div class="form-group">
@@ -453,38 +497,71 @@
       <a href="index.html" class="btn-start">うどんログを始める →</a>
     </div>
 
-    <!-- フッター -->
     <div class="footer-link" id="footer-link">
       すでにアカウントをお持ちの方は <a href="#">ログイン</a>
     </div>
   </div>
 
   <script>
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
+    const emailBtn = document.getElementById('email-btn');
     const agreeCheckbox = document.getElementById('agree');
     const submitBtn = document.getElementById('submit-btn');
     const nicknameInput = document.getElementById('nickname');
 
+    function validateEmail(v) {
+      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+    }
+
+    function updateEmailBtn() {
+      const ok = validateEmail(emailInput.value) && passwordInput.value.length >= 8;
+      emailBtn.disabled = !ok;
+    }
+
+    emailInput.addEventListener('input', updateEmailBtn);
+    passwordInput.addEventListener('input', updateEmailBtn);
+
+    function togglePassword() {
+      const isText = passwordInput.type === 'text';
+      passwordInput.type = isText ? 'password' : 'text';
+      document.getElementById('pw-icon').className = isText ? 'ti ti-eye' : 'ti ti-eye-off';
+    }
+
     function updateSubmitBtn() {
-      const agreed = agreeCheckbox.checked;
-      const hasNickname = nicknameInput.value.trim().length > 0;
-      submitBtn.disabled = !(agreed && hasNickname);
+      submitBtn.disabled = !(agreeCheckbox.checked && nicknameInput.value.trim().length > 0);
     }
 
     agreeCheckbox.addEventListener('change', updateSubmitBtn);
     nicknameInput.addEventListener('input', updateSubmitBtn);
 
-    function connectX() {
+    function showStep2(method) {
       document.getElementById('step1').classList.remove('active');
       document.getElementById('loading').style.display = 'block';
       document.getElementById('dot1').classList.remove('active');
+
+      const duration = method === 'x' ? 1800 : 900;
+      document.getElementById('loading-text').textContent =
+        method === 'x' ? 'Xと接続しています...' : 'メールアドレスを確認しています...';
 
       setTimeout(() => {
         document.getElementById('loading').style.display = 'none';
         document.getElementById('step2').classList.add('active');
         document.getElementById('dot1').classList.add('done');
         document.getElementById('dot2').classList.add('active');
-      }, 1800);
+
+        if (method === 'x') {
+          document.getElementById('x-badge').style.display = 'flex';
+        } else {
+          const badge = document.getElementById('email-badge');
+          document.getElementById('email-badge-addr').textContent = emailInput.value;
+          badge.style.display = 'flex';
+        }
+      }, duration);
     }
+
+    function connectX() { showStep2('x'); }
+    function connectEmail() { showStep2('email'); }
 
     function completeRegister() {
       document.getElementById('step2').classList.remove('active');
