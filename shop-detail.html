@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>店舗詳細 — うどんログ</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --amber: #BA7517;
+      --amber-light: #FFF8EE;
+      --amber-border: #F0D9C0;
+      --bg: #FAFAF8;
+      --white: #fff;
+      --border: #e5e5e0;
+      --text: #1a1a1a;
+      --text-sub: #666;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      font-size: 16px;
+      min-height: 100vh;
+      padding-bottom: 4rem;
+    }
+
+    /* ヘッダー */
+    .page-header {
+      position: sticky;
+      top: 0;
+      background: rgba(250,250,248,0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 0.5px solid var(--border);
+      padding: 0 1.25rem;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      z-index: 100;
+    }
+
+    .back-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--white);
+      border: 0.5px solid var(--border);
+      color: #444;
+      text-decoration: none;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    .back-btn:hover { background: #f5f5f0; }
+
+    .header-title {
+      font-size: 16px;
+      font-weight: 500;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 1.5rem 1.25rem;
+    }
+
+    /* ショップヒーロー */
+    .shop-hero {
+      background: var(--white);
+      border: 0.5px solid var(--border);
+      border-radius: 16px;
+      padding: 1.75rem 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .shop-hero-top {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      margin-bottom: 1.25rem;
+    }
+
+    .shop-hero-icon {
+      width: 60px;
+      height: 60px;
+      background: var(--amber);
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      flex-shrink: 0;
+    }
+
+    .shop-hero-name {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .shop-hero-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .shop-hero-city {
+      font-size: 14px;
+      color: var(--text-sub);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .type-badge {
+      font-size: 12px;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 99px;
+    }
+
+    .type-self  { background: #EEF4FF; color: #3B6FD4; }
+    .type-ippan { background: #F0FFF4; color: #2E8B57; }
+    .type-men   { background: #FFF5E0; color: #BA7517; }
+
+    /* 評価サマリー */
+    .rating-summary {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      background: var(--amber-light);
+      border: 0.5px solid var(--amber-border);
+      border-radius: 12px;
+      padding: 14px 16px;
+      margin-bottom: 1.25rem;
+    }
+
+    .rating-score {
+      font-size: 36px;
+      font-weight: 700;
+      color: var(--amber);
+      line-height: 1;
+    }
+
+    .rating-stars {
+      display: flex;
+      gap: 2px;
+      margin-bottom: 4px;
+    }
+
+    .star { color: var(--amber); font-size: 16px; }
+    .star.empty { color: #e0d8cc; }
+
+    .rating-count { font-size: 13px; color: var(--text-sub); }
+
+    .rating-bars {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .bar-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--text-sub);
+    }
+
+    .bar-track {
+      flex: 1;
+      height: 6px;
+      background: #e5e5e0;
+      border-radius: 99px;
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      background: var(--amber);
+      border-radius: 99px;
+    }
+
+    /* アクションボタン */
+    .action-buttons {
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn-primary {
+      flex: 1;
+      background: var(--amber);
+      color: #fff;
+      border: none;
+      padding: 12px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: background 0.15s;
+    }
+
+    .btn-primary:hover { background: #9A6010; }
+
+    .btn-secondary {
+      flex: 1;
+      background: var(--white);
+      color: var(--text);
+      border: 0.5px solid var(--border);
+      padding: 12px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: background 0.15s;
+    }
+
+    .btn-secondary:hover { background: #f5f5f0; }
+
+    /* セクション */
+    .section {
+      background: var(--white);
+      border: 0.5px solid var(--border);
+      border-radius: 16px;
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .section-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: #888;
+      letter-spacing: 0.05em;
+      margin-bottom: 1rem;
+    }
+
+    /* 基本情報 */
+    .info-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 10px 0;
+      border-bottom: 0.5px solid var(--border);
+      font-size: 14px;
+    }
+
+    .info-row:last-child { border-bottom: none; }
+
+    .info-icon {
+      color: var(--amber);
+      font-size: 17px;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .info-label { color: var(--text-sub); min-width: 70px; flex-shrink: 0; }
+    .info-value { color: var(--text); font-weight: 500; }
+
+    .map-link {
+      color: var(--amber);
+      text-decoration: none;
+      font-size: 13px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      margin-top: 6px;
+    }
+
+    .map-link:hover { text-decoration: underline; }
+
+    /* 投稿一覧 */
+    .posts-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+
+    .post-card {
+      border: 0.5px solid var(--border);
+      border-radius: 12px;
+      padding: 1rem;
+      margin-bottom: 10px;
+    }
+
+    .post-card:last-child { margin-bottom: 0; }
+
+    .post-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .post-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      flex-shrink: 0;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .post-user-name { font-size: 14px; font-weight: 600; }
+    .post-date { font-size: 12px; color: #aaa; margin-top: 1px; }
+
+    .post-stars {
+      display: flex;
+      gap: 2px;
+      margin-left: auto;
+    }
+
+    .post-star { font-size: 13px; color: var(--amber); }
+    .post-star.empty { color: #e0d8cc; }
+
+    .post-menu {
+      display: inline-block;
+      background: var(--amber-light);
+      color: var(--amber);
+      font-size: 12px;
+      font-weight: 600;
+      padding: 2px 10px;
+      border-radius: 99px;
+      margin-bottom: 6px;
+    }
+
+    .post-photo {
+      width: 100%;
+      height: 160px;
+      object-fit: cover;
+      border-radius: 8px;
+      margin-bottom: 8px;
+      background: #f0ede8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      color: #ccc;
+    }
+
+    .post-comment { font-size: 14px; color: var(--text); line-height: 1.6; }
+
+    .post-likes {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-top: 10px;
+      font-size: 13px;
+      color: #aaa;
+      cursor: pointer;
+    }
+
+    .post-likes:hover { color: #e05a77; }
+    .post-likes.liked { color: #e05a77; }
+
+    /* 「もっと見る」ボタン */
+    .btn-more {
+      width: 100%;
+      background: var(--bg);
+      border: 0.5px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      font-size: 14px;
+      color: var(--text-sub);
+      cursor: pointer;
+      margin-top: 10px;
+      transition: background 0.15s;
+    }
+
+    .btn-more:hover { background: #f0ede8; }
+
+    /* トースト */
+    .toast {
+      position: fixed;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: #1a1a1a;
+      color: #fff;
+      padding: 12px 20px;
+      border-radius: 99px;
+      font-size: 14px;
+      opacity: 0;
+      transition: opacity 0.3s, transform 0.3s;
+      pointer-events: none;
+      white-space: nowrap;
+      z-index: 999;
+    }
+
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    @media (max-width: 480px) {
+      .rating-bars { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ヘッダー -->
+  <div class="page-header">
+    <a href="shops.html" class="back-btn">
+      <i class="ti ti-arrow-left"></i>
+    </a>
+    <div class="header-title" id="headerTitle">店舗詳細</div>
+  </div>
+
+  <div class="container">
+
+    <!-- ショップヒーロー -->
+    <div class="shop-hero">
+      <div class="shop-hero-top">
+        <div class="shop-hero-icon">🍜</div>
+        <div>
+          <div class="shop-hero-name" id="shopName">—</div>
+          <div class="shop-hero-meta">
+            <span class="shop-hero-city">
+              <i class="ti ti-map-pin" style="font-size:13px"></i>
+              <span id="shopCity">—</span>
+            </span>
+            <span class="type-badge" id="shopTypeBadge">—</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 評価サマリー -->
+      <div class="rating-summary">
+        <div>
+          <div class="rating-score" id="avgScore">4.2</div>
+          <div class="rating-stars" id="avgStars"></div>
+          <div class="rating-count" id="reviewCount">38件の記録</div>
+        </div>
+        <div class="rating-bars" id="ratingBars"></div>
+      </div>
+
+      <!-- アクションボタン -->
+      <div class="action-buttons">
+        <a id="recordBtn" href="#" class="btn-primary">
+          <i class="ti ti-plus"></i> 食べた！記録する
+        </a>
+        <a id="mapBtn" href="#" target="_blank" rel="noopener" class="btn-secondary">
+          <i class="ti ti-map"></i> 地図を見る
+        </a>
+      </div>
+    </div>
+
+    <!-- 基本情報 -->
+    <div class="section">
+      <div class="section-title">基本情報</div>
+      <div class="info-row">
+        <i class="ti ti-bowl-chopsticks info-icon"></i>
+        <span class="info-label">スタイル</span>
+        <span class="info-value" id="infoType">—</span>
+      </div>
+      <div class="info-row">
+        <i class="ti ti-star info-icon"></i>
+        <span class="info-label">代表メニュー</span>
+        <span class="info-value" id="infoDish">—</span>
+      </div>
+      <div class="info-row">
+        <i class="ti ti-map-pin info-icon"></i>
+        <span class="info-label">エリア</span>
+        <span class="info-value" id="infoCity">—</span>
+      </div>
+      <div class="info-row">
+        <i class="ti ti-clock info-icon"></i>
+        <span class="info-label">営業時間</span>
+        <span class="info-value">7:00〜14:00（麺切れ次第終了）</span>
+      </div>
+      <div class="info-row">
+        <i class="ti ti-calendar-off info-icon"></i>
+        <span class="info-label">定休日</span>
+        <span class="info-value">水曜日</span>
+      </div>
+    </div>
+
+    <!-- 投稿一覧 -->
+    <div class="section">
+      <div class="posts-header">
+        <div class="section-title" style="margin-bottom:0">みんなの投稿</div>
+        <span style="font-size:13px;color:#aaa;" id="postsCount"></span>
+      </div>
+      <div id="postsList"></div>
+      <button class="btn-more" onclick="alert('会員登録後にすべての投稿を見ることができます。')">
+        もっと見る <i class="ti ti-chevron-down"></i>
+      </button>
+    </div>
+
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // SHOPSデータ（shops.htmlと共通）
+    const SHOPS = [
+      { id:1,  name:"竹清",              city:"高松市", type:"セルフ",  dish:"半熟卵天・ちくわ天" },
+      { id:2,  name:"うどんバカ一代",    city:"高松市", type:"セルフ",  dish:"釜バター・ぶっかけ" },
+      { id:3,  name:"鶴丸うどん",        city:"高松市", type:"一般",    dish:"かけうどん・ざるうどん" },
+      { id:4,  name:"めりけんや",        city:"高松市", type:"セルフ",  dish:"ぶっかけ・かけうどん" },
+      { id:5,  name:"池上製麺所",        city:"高松市", type:"製麺所",  dish:"釜玉・かけうどん" },
+      { id:6,  name:"さか枝うどん",      city:"高松市", type:"セルフ",  dish:"かけうどん" },
+      { id:7,  name:"渡辺うどん",        city:"高松市", type:"セルフ",  dish:"しょうゆうどん" },
+      { id:8,  name:"春日うどん",        city:"高松市", type:"一般",    dish:"かけうどん・天ぷら" },
+      { id:9,  name:"上原屋本店",        city:"高松市", type:"セルフ",  dish:"かけうどん・ぶっかけ" },
+      { id:10, name:"わら家",            city:"高松市", type:"一般",    dish:"釜揚げうどん" },
+      { id:11, name:"日の出製麺所",      city:"坂出市", type:"製麺所",  dish:"ひやかけ・釜玉" },
+      { id:12, name:"宮武うどん",        city:"坂出市", type:"セルフ",  dish:"かけうどん・ぶっかけ" },
+      { id:13, name:"おか泉",            city:"坂出市", type:"一般",    dish:"ひや天おろし" },
+      { id:14, name:"つるや",            city:"坂出市", type:"セルフ",  dish:"かけうどん" },
+      { id:15, name:"なかむら",          city:"坂出市", type:"セルフ",  dish:"かけうどん・冷やしうどん" },
+      { id:16, name:"がもううどん",      city:"坂出市", type:"製麺所",  dish:"かけうどん・釜玉" },
+      { id:17, name:"田村うどん",        city:"坂出市", type:"製麺所",  dish:"釜玉・ぶっかけ" },
+      { id:18, name:"彦江製麺所",        city:"丸亀市", type:"製麺所",  dish:"かけうどん" },
+      { id:19, name:"大庄屋",            city:"丸亀市", type:"一般",    dish:"釜揚げうどん・かけうどん" },
+      { id:20, name:"中村うどん",        city:"丸亀市", type:"製麺所",  dish:"かまたま・かけうどん" },
+      { id:21, name:"まつや",            city:"丸亀市", type:"セルフ",  dish:"かけうどん・天ぷら" },
+      { id:22, name:"藤川うどん",        city:"丸亀市", type:"一般",    dish:"しょうゆうどん・かけうどん" },
+      { id:23, name:"山下うどん",        city:"善通寺市", type:"セルフ", dish:"ぶっかけうどん" },
+      { id:24, name:"長田 in 香の香",    city:"善通寺市", type:"一般",   dish:"釜揚げうどん" },
+      { id:25, name:"三嶋製麺所",        city:"善通寺市", type:"製麺所", dish:"かけうどん・釜玉" },
+      { id:26, name:"よしや",            city:"善通寺市", type:"セルフ", dish:"かけうどん" },
+      { id:27, name:"柳川うどん",        city:"観音寺市", type:"一般",   dish:"かけうどん・天ぷら" },
+      { id:28, name:"三好うどん",        city:"観音寺市", type:"セルフ", dish:"かけうどん" },
+      { id:29, name:"本家 綿谷",         city:"丸亀市", type:"セルフ",  dish:"肉うどん・ぶっかけ" },
+      { id:30, name:"山越うどん",        city:"綾川町", type:"製麺所",  dish:"釜玉・かけうどん" },
+      { id:31, name:"おくやま",          city:"綾川町", type:"製麺所",  dish:"釜玉・しょうゆ" },
+      { id:32, name:"岡田製麺所",        city:"綾川町", type:"製麺所",  dish:"かけうどん" },
+      { id:33, name:"川福本店",          city:"高松市", type:"一般",    dish:"かけうどん・鍋焼きうどん" },
+      { id:34, name:"手打十段 うどんバカ一代 2号店", city:"高松市", type:"セルフ", dish:"釜バター" },
+      { id:35, name:"谷川製麺所",        city:"さぬき市", type:"製麺所", dish:"かけうどん・釜玉" },
+      { id:36, name:"なかむら",          city:"まんのう町", type:"製麺所", dish:"かけうどん" },
+      { id:37, name:"山内うどん",        city:"まんのう町", type:"製麺所", dish:"かけうどん・釜玉" },
+      { id:38, name:"須崎食料品",        city:"まんのう町", type:"製麺所", dish:"かけうどん" },
+      { id:39, name:"よしや",            city:"高松市", type:"セルフ",  dish:"かけうどん・天ぷら" },
+      { id:40, name:"たむら",            city:"さぬき市", type:"セルフ", dish:"しょうゆうどん・かけうどん" },
+      { id:41, name:"もり家",            city:"さぬき市", type:"セルフ", dish:"釜揚げうどん" },
+      { id:42, name:"山田家",            city:"さぬき市", type:"一般",   dish:"釜揚げうどん" },
+      { id:43, name:"松下製麺所",        city:"高松市", type:"製麺所",  dish:"かけうどん・しょうゆ" },
+      { id:44, name:"はゆか",            city:"高松市", type:"製麺所",  dish:"釜玉・かけうどん" },
+      { id:45, name:"中西うどん",        city:"高松市", type:"セルフ",  dish:"かけうどん・ぶっかけ" },
+      { id:46, name:"岡じま",            city:"高松市", type:"セルフ",  dish:"かけうどん" },
+      { id:47, name:"小縣家",            city:"まんのう町", type:"製麺所", dish:"しょうゆうどん・釜玉" },
+      { id:48, name:"宮川製麺所",        city:"三豊市", type:"製麺所",  dish:"かけうどん" },
+      { id:49, name:"三徳うどん",        city:"三豊市", type:"セルフ",  dish:"かけうどん・ぶっかけ" },
+      { id:50, name:"池田製麺",          city:"東かがわ市", type:"製麺所", dish:"かけうどん・釜玉" },
+    ];
+
+    // ダミー投稿データ
+    const DUMMY_POSTS = [
+      {
+        user: "うどん太郎",
+        color: "#BA7517",
+        initial: "太",
+        rating: 5,
+        menu: "半熟卵天うどん",
+        comment: "天ぷらがサクサクで最高！揚げたてを乗せてもらえて、卵の半熟具合も絶妙でした。朝早く並ぶ価値あり！",
+        date: "2026年6月14日",
+        likes: 12,
+        hasPhoto: true,
+      },
+      {
+        user: "さぬき花子",
+        color: "#3B6FD4",
+        initial: "花",
+        rating: 4,
+        menu: "ちくわ天うどん",
+        comment: "麺のコシが素晴らしい。出汁も上品でクセになる味です。週1で来てます。",
+        date: "2026年6月10日",
+        likes: 8,
+        hasPhoto: false,
+      },
+      {
+        user: "高松うどん人",
+        color: "#2E8B57",
+        initial: "人",
+        rating: 5,
+        menu: "かけうどん（小）＋えび天",
+        comment: "香川に来たら絶対外せない一軒。シンプルなかけうどんが一番うまい。出汁が澄んでいて飽きない。",
+        date: "2026年6月5日",
+        likes: 21,
+        hasPhoto: true,
+      },
+    ];
+
+    // ダミー評価分布
+    const RATING_DIST = { 5: 22, 4: 10, 3: 4, 2: 1, 1: 1 };
+
+    // URLパラメータからお店を取得
+    const params = new URLSearchParams(location.search);
+    const shopId = parseInt(params.get('id'));
+    const shop = SHOPS.find(s => s.id === shopId);
+
+    if (!shop) {
+      document.body.innerHTML = '<div style="padding:2rem;text-align:center;"><p>店舗が見つかりませんでした。</p><a href="shops.html">店舗一覧へ戻る</a></div>';
+    } else {
+      // 基本情報を表示
+      document.title = `${shop.name} — うどんログ`;
+      document.getElementById('headerTitle').textContent = shop.name;
+      document.getElementById('shopName').textContent = shop.name;
+      document.getElementById('shopCity').textContent = shop.city;
+      document.getElementById('infoType').textContent = shop.type + '式';
+      document.getElementById('infoDish').textContent = shop.dish;
+      document.getElementById('infoCity').textContent = shop.city;
+
+      // タイプバッジ
+      const badge = document.getElementById('shopTypeBadge');
+      badge.textContent = shop.type;
+      if (shop.type === 'セルフ') badge.className = 'type-badge type-self';
+      else if (shop.type === '一般') badge.className = 'type-badge type-ippan';
+      else badge.className = 'type-badge type-men';
+
+      // 記録・地図ボタン
+      document.getElementById('recordBtn').href =
+        `record.html?name=${encodeURIComponent(shop.name)}&city=${encodeURIComponent(shop.city)}&type=${encodeURIComponent(shop.type)}`;
+      document.getElementById('mapBtn').href =
+        `https://www.google.com/maps/search/${encodeURIComponent(shop.name + ' ' + shop.city)}`;
+
+      // 評価サマリー
+      const total = Object.values(RATING_DIST).reduce((a, b) => a + b, 0);
+      const avg = (Object.entries(RATING_DIST).reduce((a, [k, v]) => a + Number(k) * v, 0) / total).toFixed(1);
+      document.getElementById('avgScore').textContent = avg;
+      document.getElementById('reviewCount').textContent = `${total}件の記録`;
+
+      // 星
+      const starsEl = document.getElementById('avgStars');
+      for (let i = 1; i <= 5; i++) {
+        const s = document.createElement('span');
+        s.className = 'star' + (i <= Math.round(avg) ? '' : ' empty');
+        s.textContent = '★';
+        starsEl.appendChild(s);
+      }
+
+      // 評価バー
+      const barsEl = document.getElementById('ratingBars');
+      [5,4,3,2,1].forEach(n => {
+        const pct = Math.round((RATING_DIST[n] / total) * 100);
+        barsEl.innerHTML += `
+          <div class="bar-row">
+            <span>${n}★</span>
+            <div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div>
+            <span>${pct}%</span>
+          </div>`;
+      });
+
+      // 投稿一覧
+      document.getElementById('postsCount').textContent = `${DUMMY_POSTS.length}件表示中`;
+      const postsEl = document.getElementById('postsList');
+      postsEl.innerHTML = DUMMY_POSTS.map((p, i) => `
+        <div class="post-card">
+          <div class="post-header">
+            <div class="post-avatar" style="background:${p.color}">${p.initial}</div>
+            <div>
+              <div class="post-user-name">${p.user}</div>
+              <div class="post-date">${p.date}</div>
+            </div>
+            <div class="post-stars">
+              ${[1,2,3,4,5].map(n => `<span class="post-star${n <= p.rating ? '' : ' empty'}">★</span>`).join('')}
+            </div>
+          </div>
+          <span class="post-menu">${p.menu}</span>
+          ${p.hasPhoto ? `<div class="post-photo" style="font-size:48px">🍜</div>` : ''}
+          <div class="post-comment">${p.comment}</div>
+          <div class="post-likes" onclick="toggleLike(this)">
+            <i class="ti ti-heart"></i> ${p.likes}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function toggleLike(el) {
+      el.classList.toggle('liked');
+      const icon = el.querySelector('i');
+      const isLiked = el.classList.contains('liked');
+      icon.className = isLiked ? 'ti ti-heart-filled' : 'ti ti-heart';
+      const count = parseInt(el.textContent.trim());
+      el.innerHTML = `<i class="ti ti-heart${isLiked ? '-filled' : ''}"></i> ${isLiked ? count + 1 : count - 1}`;
+      el.classList.toggle('liked', isLiked);
+    }
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2500);
+    }
+  </script>
+
+</body>
+</html>

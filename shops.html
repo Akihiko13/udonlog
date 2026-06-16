@@ -273,6 +273,25 @@
       padding-top: 10px;
     }
 
+    .btn-detail {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      width: 100%;
+      background: transparent;
+      color: var(--amber);
+      border: 1px solid var(--amber);
+      padding: 8px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      text-decoration: none;
+      margin-bottom: 6px;
+    }
+
+    .btn-detail:hover { background: #FFF8EE; }
+
     .btn-taberu {
       width: 100%;
       background: var(--amber);
@@ -529,6 +548,7 @@
               ${s.city}
             </div>
             <div class="card-dish">${s.dish}</div>
+            <a class="btn-detail" href="shop-detail.html?id=${s.id}"><i class="ti ti-info-circle" aria-hidden="true"></i> 詳細</a>
             ${done
               ? `<button class="btn-taberu done" onclick="toggleVisit(${s.id}, this)"><i class="ti ti-check" aria-hidden="true"></i> 記録済み</button>`
               : `<a class="btn-taberu" href="record.html?name=${encodeURIComponent(s.name)}&city=${encodeURIComponent(s.city)}&type=${encodeURIComponent(s.type)}"><i class="ti ti-plus" aria-hidden="true"></i> 食べた！</a>`
