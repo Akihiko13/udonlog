@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>うどん記録を投稿 — うどんログ</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+      background: #FAFAF8;
+      color: #1a1a1a;
+      line-height: 1.7;
+      font-size: 16px;
+      min-height: 100vh;
+      padding: 2rem 1.25rem 4rem;
+    }
+
+    .container {
+      max-width: 520px;
+      margin: 0 auto;
+    }
+
+    /* ヘッダー */
+    .page-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 2rem;
+    }
+
+    .back-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: #fff;
+      border: 0.5px solid #e5e5e0;
+      color: #444;
+      text-decoration: none;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    .back-btn:hover { background: #f5f5f0; }
+
+    .page-title {
+      font-size: 18px;
+      font-weight: 500;
+    }
+
+    /* カード */
+    .card {
+      background: #fff;
+      border: 0.5px solid #e5e5e0;
+      border-radius: 16px;
+      padding: 1.75rem 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .card-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: #888;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+    }
+
+    /* お店情報バッジ */
+    .shop-badge {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      background: #FFF8EE;
+      border: 0.5px solid #F0D9C0;
+      border-radius: 12px;
+      padding: 14px 16px;
+    }
+
+    .shop-icon {
+      width: 44px;
+      height: 44px;
+      background: #BA7517;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      flex-shrink: 0;
+    }
+
+    .shop-info-name {
+      font-size: 17px;
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+
+    .shop-info-meta {
+      font-size: 13px;
+      color: #888;
+      display: flex;
+      gap: 8px;
+    }
+
+    .shop-type-badge {
+      background: #FAEEDA;
+      color: #BA7517;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 99px;
+    }
+
+    .change-shop {
+      margin-left: auto;
+      font-size: 13px;
+      color: #BA7517;
+      text-decoration: none;
+      flex-shrink: 0;
+    }
+
+    .change-shop:hover { text-decoration: underline; }
+
+    /* フォーム */
+    .form-group { margin-bottom: 1.25rem; }
+    .form-group:last-child { margin-bottom: 0; }
+
+    label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      color: #444;
+      margin-bottom: 6px;
+    }
+
+    .optional {
+      font-size: 11px;
+      color: #aaa;
+      font-weight: 400;
+    }
+
+    input[type="text"],
+    input[type="date"],
+    textarea,
+    select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 0.5px solid #d0d0ca;
+      border-radius: 8px;
+      font-size: 14px;
+      color: #1a1a1a;
+      background: #fff;
+      outline: none;
+      font-family: inherit;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+    input:focus, textarea:focus, select:focus {
+      border-color: #BA7517;
+      box-shadow: 0 0 0 3px rgba(186, 117, 23, 0.1);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 88px;
+      line-height: 1.6;
+    }
+
+    /* 写真アップロード */
+    .photo-upload {
+      border: 1.5px dashed #d0d0ca;
+      border-radius: 12px;
+      padding: 2rem 1rem;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+    }
+
+    .photo-upload:hover {
+      border-color: #BA7517;
+      background: #FDFAF5;
+    }
+
+    .photo-upload input { display: none; }
+
+    .upload-icon {
+      font-size: 32px;
+      color: #ccc;
+      margin-bottom: 8px;
+    }
+
+    .upload-text {
+      font-size: 14px;
+      color: #888;
+      margin-bottom: 4px;
+    }
+
+    .upload-sub { font-size: 12px; color: #bbb; }
+
+    .photo-preview {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .photo-preview-item {
+      position: relative;
+      width: 80px;
+      height: 80px;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .photo-preview-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .photo-preview-item .remove-photo {
+      position: absolute;
+      top: 3px;
+      right: 3px;
+      width: 20px;
+      height: 20px;
+      background: rgba(0,0,0,0.6);
+      color: #fff;
+      border: none;
+      border-radius: 50%;
+      font-size: 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+    }
+
+    /* 評価（星） */
+    .stars {
+      display: flex;
+      gap: 6px;
+    }
+
+    .star-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 28px;
+      color: #e0e0d8;
+      transition: color 0.1s, transform 0.1s;
+      padding: 0;
+      line-height: 1;
+    }
+
+    .star-btn.active { color: #BA7517; }
+    .star-btn:hover { transform: scale(1.15); }
+
+    .star-label {
+      font-size: 13px;
+      color: #888;
+      margin-top: 6px;
+    }
+
+    /* 公開設定 */
+    .visibility-options {
+      display: flex;
+      gap: 10px;
+    }
+
+    .visibility-option {
+      flex: 1;
+      border: 1.5px solid #e5e5e0;
+      border-radius: 10px;
+      padding: 12px;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+      text-align: center;
+    }
+
+    .visibility-option.selected {
+      border-color: #BA7517;
+      background: #FFF8EE;
+    }
+
+    .visibility-option input { display: none; }
+
+    .visibility-icon { font-size: 20px; margin-bottom: 4px; }
+
+    .visibility-label {
+      font-size: 13px;
+      font-weight: 500;
+      color: #333;
+    }
+
+    .visibility-sub {
+      font-size: 11px;
+      color: #aaa;
+      margin-top: 2px;
+    }
+
+    /* 投稿ボタン */
+    .btn-post {
+      width: 100%;
+      background: #BA7517;
+      color: #fff;
+      border: none;
+      padding: 15px;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 1.5rem;
+      transition: background 0.15s;
+    }
+
+    .btn-post:hover { background: #9A6010; }
+
+    /* トースト */
+    .toast {
+      position: fixed;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: #1a1a1a;
+      color: #fff;
+      padding: 12px 20px;
+      border-radius: 99px;
+      font-size: 14px;
+      opacity: 0;
+      transition: opacity 0.3s, transform 0.3s;
+      pointer-events: none;
+      white-space: nowrap;
+      z-index: 999;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+
+    <!-- ヘッダー -->
+    <div class="page-header">
+      <a href="shops.html" class="back-btn" id="backBtn">
+        <i class="ti ti-arrow-left"></i>
+      </a>
+      <h1 class="page-title">うどん記録を投稿</h1>
+    </div>
+
+    <!-- お店情報 -->
+    <div class="card">
+      <div class="card-title">お店</div>
+      <div class="shop-badge">
+        <div class="shop-icon">🍜</div>
+        <div>
+          <div class="shop-info-name" id="shopName">—</div>
+          <div class="shop-info-meta">
+            <span id="shopCity">—</span>
+            <span class="shop-type-badge" id="shopType">—</span>
+          </div>
+        </div>
+        <a href="shops.html" class="change-shop">変更</a>
+      </div>
+    </div>
+
+    <!-- 記録フォーム -->
+    <div class="card">
+      <div class="card-title">記録内容</div>
+
+      <!-- メニュー -->
+      <div class="form-group">
+        <label for="menu">
+          <i class="ti ti-bowl" style="color:#BA7517"></i>
+          食べたメニュー
+        </label>
+        <input type="text" id="menu" placeholder="例：かけうどん、ざるうどん" maxlength="50">
+      </div>
+
+      <!-- 評価 -->
+      <div class="form-group">
+        <label>
+          <i class="ti ti-star" style="color:#BA7517"></i>
+          評価
+        </label>
+        <div class="stars" id="stars">
+          <button class="star-btn" type="button" data-val="1" onclick="setRating(1)">★</button>
+          <button class="star-btn" type="button" data-val="2" onclick="setRating(2)">★</button>
+          <button class="star-btn" type="button" data-val="3" onclick="setRating(3)">★</button>
+          <button class="star-btn" type="button" data-val="4" onclick="setRating(4)">★</button>
+          <button class="star-btn" type="button" data-val="5" onclick="setRating(5)">★</button>
+        </div>
+        <div class="star-label" id="starLabel">タップして評価</div>
+      </div>
+
+      <!-- 感想 -->
+      <div class="form-group">
+        <label for="comment">
+          <i class="ti ti-message" style="color:#BA7517"></i>
+          ひとこと感想
+          <span class="optional">任意</span>
+        </label>
+        <textarea id="comment" placeholder="おいしかった！天ぷらがサクサクで最高でした。" maxlength="200"></textarea>
+      </div>
+
+      <!-- 訪問日 -->
+      <div class="form-group">
+        <label for="visitDate">
+          <i class="ti ti-calendar" style="color:#BA7517"></i>
+          訪問日
+        </label>
+        <input type="date" id="visitDate">
+      </div>
+    </div>
+
+    <!-- 写真 -->
+    <div class="card">
+      <div class="card-title">写真 <span style="font-size:11px;color:#aaa;font-weight:400;">任意・最大4枚</span></div>
+      <label class="photo-upload" for="photoInput" id="photoUploadArea">
+        <input type="file" id="photoInput" accept="image/*" multiple onchange="handlePhotos(event)">
+        <div class="upload-icon"><i class="ti ti-camera"></i></div>
+        <div class="upload-text">写真を追加</div>
+        <div class="upload-sub">タップして選択</div>
+      </label>
+      <div class="photo-preview" id="photoPreview"></div>
+    </div>
+
+    <!-- 公開設定 -->
+    <div class="card">
+      <div class="card-title">公開設定</div>
+      <div class="visibility-options">
+        <label class="visibility-option selected" id="opt-public" onclick="setVisibility('public')">
+          <input type="radio" name="visibility" value="public" checked>
+          <div class="visibility-icon">🌐</div>
+          <div class="visibility-label">全体公開</div>
+          <div class="visibility-sub">みんなに見える</div>
+        </label>
+        <label class="visibility-option" id="opt-private" onclick="setVisibility('private')">
+          <input type="radio" name="visibility" value="private">
+          <div class="visibility-icon">🔒</div>
+          <div class="visibility-label">自分のみ</div>
+          <div class="visibility-sub">自分だけが見える</div>
+        </label>
+      </div>
+    </div>
+
+    <!-- 投稿ボタン -->
+    <button class="btn-post" onclick="submitRecord()">
+      <i class="ti ti-send"></i>
+      記録を投稿する
+    </button>
+
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    let currentRating = 0;
+    let photos = [];
+    let visibility = 'public';
+
+    // URLパラメータからお店情報を取得
+    const params = new URLSearchParams(location.search);
+    const shopName = params.get('name') || '未選択';
+    const shopCity = params.get('city') || '';
+    const shopType = params.get('type') || '';
+
+    document.getElementById('shopName').textContent = shopName;
+    document.getElementById('shopCity').textContent = shopCity;
+    document.getElementById('shopType').textContent = shopType;
+
+    // 今日の日付をデフォルト設定
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('visitDate').value = today;
+
+    // 戻るボタンのリンクをshops.htmlに設定
+    document.getElementById('backBtn').href = 'shops.html';
+
+    // 評価
+    const starLabels = ['', 'いまいち', 'まあまあ', 'おいしい', 'とてもおいしい', '最高！'];
+
+    function setRating(val) {
+      currentRating = val;
+      document.querySelectorAll('.star-btn').forEach((btn, i) => {
+        btn.classList.toggle('active', i < val);
+      });
+      document.getElementById('starLabel').textContent = starLabels[val];
+    }
+
+    // 写真
+    function handlePhotos(e) {
+      const files = Array.from(e.target.files);
+      const remaining = 4 - photos.length;
+      files.slice(0, remaining).forEach(file => {
+        const reader = new FileReader();
+        reader.onload = ev => {
+          photos.push(ev.target.result);
+          renderPhotos();
+        };
+        reader.readAsDataURL(file);
+      });
+      if (files.length > remaining) {
+        showToast('写真は最大4枚までです');
+      }
+    }
+
+    function renderPhotos() {
+      const preview = document.getElementById('photoPreview');
+      preview.innerHTML = photos.map((src, i) => `
+        <div class="photo-preview-item">
+          <img src="${src}" alt="写真${i+1}">
+          <button class="remove-photo" onclick="removePhoto(${i})">×</button>
+        </div>
+      `).join('');
+
+      const uploadArea = document.getElementById('photoUploadArea');
+      uploadArea.style.display = photos.length >= 4 ? 'none' : 'block';
+    }
+
+    function removePhoto(idx) {
+      photos.splice(idx, 1);
+      renderPhotos();
+    }
+
+    // 公開設定
+    function setVisibility(val) {
+      visibility = val;
+      document.getElementById('opt-public').classList.toggle('selected', val === 'public');
+      document.getElementById('opt-private').classList.toggle('selected', val === 'private');
+    }
+
+    // 投稿
+    function submitRecord() {
+      if (shopName === '未選択') {
+        showToast('お店を選んでください');
+        return;
+      }
+      // 現時点ではデモ表示（会員機能実装後に本実装）
+      showToast('記録を投稿しました！（デモ）');
+      setTimeout(() => { location.href = 'shops.html'; }, 1800);
+    }
+
+    // トースト
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2500);
+    }
+  </script>
+
+</body>
+</html>

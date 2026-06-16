@@ -529,11 +529,10 @@
               ${s.city}
             </div>
             <div class="card-dish">${s.dish}</div>
-            <button class="btn-taberu ${done ? 'done' : ''}" onclick="toggleVisit(${s.id}, this)">
-              ${done
-                ? '<i class="ti ti-check" aria-hidden="true"></i> 記録済み'
-                : '<i class="ti ti-plus" aria-hidden="true"></i> 食べた！'}
-            </button>
+            ${done
+              ? `<button class="btn-taberu done" onclick="toggleVisit(${s.id}, this)"><i class="ti ti-check" aria-hidden="true"></i> 記録済み</button>`
+              : `<a class="btn-taberu" href="record.html?name=${encodeURIComponent(s.name)}&city=${encodeURIComponent(s.city)}&type=${encodeURIComponent(s.type)}"><i class="ti ti-plus" aria-hidden="true"></i> 食べた！</a>`
+            }
           </div>
         `;
       }).join('');
@@ -541,17 +540,14 @@
 
     function toggleVisit(id, btn) {
       const shop = SHOPS.find(s => s.id === id);
-      if (visited.has(id)) {
-        visited.delete(id);
-        btn.className = 'btn-taberu';
-        btn.innerHTML = '<i class="ti ti-plus" aria-hidden="true"></i> 食べた！';
-        showToast(`「${shop.name}」の記録を削除しました`);
-      } else {
-        visited.add(id);
-        btn.className = 'btn-taberu done';
-        btn.innerHTML = '<i class="ti ti-check" aria-hidden="true"></i> 記録済み';
-        showToast(`「${shop.name}」を記録しました！`);
-      }
+      // 記録済み → 削除してリンクに戻す
+      visited.delete(id);
+      const a = document.createElement('a');
+      a.className = 'btn-taberu';
+      a.href = `record.html?name=${encodeURIComponent(shop.name)}&city=${encodeURIComponent(shop.city)}&type=${encodeURIComponent(shop.type)}`;
+      a.innerHTML = '<i class="ti ti-plus" aria-hidden="true"></i> 食べた！';
+      btn.replaceWith(a);
+      showToast(`「${shop.name}」の記録を削除しました`);
       saveVisited();
       document.getElementById('nav-count').textContent = `${visited.size}店舗 記録済み`;
     }
