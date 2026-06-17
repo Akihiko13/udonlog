@@ -139,6 +139,98 @@
       color: var(--text-sub);
     }
 
+    /* スタンプ帳（1軒=1スタンプ） */
+    .stamp-book {
+      background: linear-gradient(160deg, #FFFDF8 0%, #FBF3E6 100%);
+      border: 0.5px solid var(--amber-border);
+      border-radius: 16px;
+      padding: 1.5rem 1.25rem;
+      margin-bottom: 2rem;
+    }
+
+    .book-card {
+      margin-bottom: 1.5rem;
+    }
+
+    .book-card:last-child { margin-bottom: 0; }
+
+    .book-card-label {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--amber);
+      margin-bottom: 10px;
+    }
+
+    .book-card-label .complete-tag {
+      background: var(--amber);
+      color: #fff;
+      font-size: 11px;
+      padding: 2px 10px;
+      border-radius: 99px;
+    }
+
+    .stamp-slots {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+    }
+
+    .slot {
+      aspect-ratio: 1;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      position: relative;
+    }
+
+    .slot.empty {
+      border: 2px dashed #d8cdb8;
+      color: #d8cdb8;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .slot.filled {
+      background: var(--white);
+      border: 2px solid var(--amber);
+      box-shadow: 0 1px 4px rgba(186,117,23,0.15);
+      animation: stampPop 0.3s ease;
+    }
+
+    @keyframes stampPop {
+      0% { transform: scale(0); }
+      70% { transform: scale(1.15); }
+      100% { transform: scale(1); }
+    }
+
+    .slot .slot-num {
+      position: absolute;
+      bottom: -2px;
+      right: -2px;
+      background: var(--amber);
+      color: #fff;
+      font-size: 9px;
+      font-weight: 700;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .book-empty {
+      text-align: center;
+      color: #b0a690;
+      font-size: 14px;
+      padding: 1rem 0;
+    }
+
     /* スタンプカードグリッド */
     .stamp-grid {
       display: grid;
@@ -323,7 +415,7 @@
       </div>
       <div class="stat-card">
         <div class="stat-num" id="statStamps">0</div>
-        <div class="stat-label">獲得スタンプ</div>
+        <div class="stat-label">獲得バッジ</div>
       </div>
       <div class="stat-card">
         <div class="stat-num" id="statAreas">0</div>
@@ -331,9 +423,16 @@
       </div>
     </div>
 
-    <!-- スタンプカード -->
+    <!-- スタンプ帳（1軒=1スタンプ） -->
     <div class="section-head">
-      <div class="section-title">🏅 スタンプカード</div>
+      <div class="section-title">📖 スタンプ帳</div>
+      <div class="section-count" id="bookCount">0個</div>
+    </div>
+    <div class="stamp-book" id="stampBook"></div>
+
+    <!-- 達成バッジ -->
+    <div class="section-head">
+      <div class="section-title">🏅 達成バッジ</div>
       <div class="section-count" id="stampCount">0 / 0 獲得</div>
     </div>
 
@@ -494,6 +593,56 @@
       return ids.map(id => SHOPS.find(s => s.id === id)).filter(Boolean);
     }
 
+    // 1枚のスタンプカードあたりのマス数
+    const SLOTS_PER_CARD = 10;
+
+    // スタンプ帳を描画（記録した順に1個ずつスタンプが押される）
+    function renderBook(visited) {
+      const total = visited.length;
+      document.getElementById('bookCount').textContent = `${total}個`;
+      const book = document.getElementById('stampBook');
+
+      if (total === 0) {
+        book.innerHTML = '<div class="book-empty">お店を記録すると、ここにスタンプが1個ずつ押されます🍜</div>';
+        return;
+      }
+
+      // 何枚のカードを表示するか（最低1枚、進行中のカードまで）
+      const cardCount = Math.floor(total / SLOTS_PER_CARD) + (total % SLOTS_PER_CARD === 0 ? 0 : 1);
+      let html = '';
+
+      for (let c = 0; c < cardCount; c++) {
+        const startNum = c * SLOTS_PER_CARD;          // このカードの開始スタンプ番号
+        const filledInCard = Math.min(total - startNum, SLOTS_PER_CARD);
+        const isComplete = filledInCard === SLOTS_PER_CARD;
+
+        let slots = '';
+        for (let i = 0; i < SLOTS_PER_CARD; i++) {
+          const stampIndex = startNum + i;            // 通し番号（0始まり）
+          if (stampIndex < total) {
+            const shop = visited[stampIndex];
+            slots += `
+              <div class="slot filled" title="${shop.name}（${shop.city}）">
+                🍜<span class="slot-num">${stampIndex + 1}</span>
+              </div>`;
+          } else {
+            slots += `<div class="slot empty">${stampIndex + 1}</div>`;
+          }
+        }
+
+        html += `
+          <div class="book-card">
+            <div class="book-card-label">
+              <span>カード ${c + 1}（${filledInCard} / ${SLOTS_PER_CARD}）</span>
+              ${isComplete ? '<span class="complete-tag">✓ コンプリート</span>' : ''}
+            </div>
+            <div class="stamp-slots">${slots}</div>
+          </div>`;
+      }
+
+      book.innerHTML = html;
+    }
+
     function render() {
       const visited = loadVisited();
 
@@ -501,6 +650,9 @@
       const cities = new Set(visited.map(s => s.city));
       document.getElementById('statVisited').textContent = visited.length;
       document.getElementById('statAreas').textContent = cities.size;
+
+      // スタンプ帳（1軒=1スタンプ、10個で1枚完成）
+      renderBook(visited);
 
       // スタンプ判定
       let earnedCount = 0;
