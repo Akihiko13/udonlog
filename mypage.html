@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>マイページ — うどんログ</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --amber: #BA7517;
+      --amber-light: #FFF8EE;
+      --amber-border: #F0D9C0;
+      --bg: #FAFAF8;
+      --white: #fff;
+      --border: #e5e5e0;
+      --text: #1a1a1a;
+      --text-sub: #666;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      font-size: 16px;
+      min-height: 100vh;
+      padding-bottom: 4rem;
+    }
+
+    /* ヘッダー */
+    .page-header {
+      position: sticky;
+      top: 0;
+      background: rgba(250,250,248,0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 0.5px solid var(--border);
+      padding: 0 1.25rem;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      z-index: 100;
+    }
+
+    .back-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--white);
+      border: 0.5px solid var(--border);
+      color: #444;
+      text-decoration: none;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    .back-btn:hover { background: #f5f5f0; }
+
+    .header-title { font-size: 16px; font-weight: 500; }
+
+    .container {
+      max-width: 640px;
+      margin: 0 auto;
+      padding: 1.5rem 1.25rem;
+    }
+
+    /* プロフィール */
+    .profile {
+      background: var(--white);
+      border: 0.5px solid var(--border);
+      border-radius: 16px;
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .profile-avatar {
+      width: 64px;
+      height: 64px;
+      background: var(--amber);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 30px;
+      flex-shrink: 0;
+    }
+
+    .profile-name { font-size: 20px; font-weight: 700; }
+    .profile-sub { font-size: 13px; color: var(--text-sub); }
+
+    /* 統計バー */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 1.5rem;
+    }
+
+    .stat-card {
+      background: var(--white);
+      border: 0.5px solid var(--border);
+      border-radius: 14px;
+      padding: 1rem;
+      text-align: center;
+    }
+
+    .stat-num {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--amber);
+      line-height: 1.2;
+    }
+
+    .stat-label { font-size: 12px; color: var(--text-sub); }
+
+    /* セクションタイトル */
+    .section-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+
+    .section-title {
+      font-size: 17px;
+      font-weight: 700;
+    }
+
+    .section-count {
+      font-size: 13px;
+      color: var(--text-sub);
+    }
+
+    /* スタンプカードグリッド */
+    .stamp-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 12px;
+      margin-bottom: 2rem;
+    }
+
+    .stamp-card {
+      background: var(--white);
+      border: 0.5px solid var(--border);
+      border-radius: 16px;
+      padding: 1.25rem 1rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.15s;
+    }
+
+    .stamp-card.earned {
+      border-color: var(--amber-border);
+      background: linear-gradient(160deg, #FFFDF8 0%, #FFF4E4 100%);
+    }
+
+    .stamp-card.earned::after {
+      content: '✓ 獲得';
+      position: absolute;
+      top: 10px;
+      right: -28px;
+      background: var(--amber);
+      color: #fff;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 30px;
+      transform: rotate(45deg);
+    }
+
+    .stamp-card.locked { opacity: 0.55; }
+
+    .stamp-icon {
+      font-size: 40px;
+      margin-bottom: 8px;
+      line-height: 1;
+      filter: grayscale(0);
+    }
+
+    .stamp-card.locked .stamp-icon { filter: grayscale(1); opacity: 0.6; }
+
+    .stamp-name {
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .stamp-desc {
+      font-size: 11px;
+      color: var(--text-sub);
+      line-height: 1.4;
+      margin-bottom: 10px;
+      min-height: 30px;
+    }
+
+    /* 進捗バー */
+    .progress-track {
+      height: 6px;
+      background: #ece8e0;
+      border-radius: 99px;
+      overflow: hidden;
+      margin-bottom: 4px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: var(--amber);
+      border-radius: 99px;
+      transition: width 0.4s;
+    }
+
+    .progress-text { font-size: 11px; color: #aaa; }
+
+    .stamp-card.earned .progress-text {
+      color: var(--amber);
+      font-weight: 600;
+    }
+
+    /* 空状態 */
+    .empty-note {
+      background: var(--amber-light);
+      border: 0.5px solid var(--amber-border);
+      border-radius: 12px;
+      padding: 1.25rem;
+      text-align: center;
+      font-size: 14px;
+      color: var(--text-sub);
+      margin-bottom: 1.5rem;
+    }
+
+    .empty-note a {
+      color: var(--amber);
+      font-weight: 600;
+      text-decoration: none;
+    }
+
+    /* CTAボタン */
+    .btn-go-shops {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      background: var(--amber);
+      color: #fff;
+      border: none;
+      padding: 14px;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 600;
+      text-decoration: none;
+    }
+
+    .btn-go-shops:hover { background: #9A6010; }
+
+    /* 訪問店舗リスト */
+    .visited-list { margin-bottom: 2rem; }
+
+    .visited-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: var(--white);
+      border: 0.5px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 14px;
+      margin-bottom: 8px;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .visited-item:hover { background: #faf8f4; }
+
+    .visited-icon {
+      width: 40px;
+      height: 40px;
+      background: var(--amber-light);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    .visited-name { font-size: 15px; font-weight: 600; }
+    .visited-meta { font-size: 12px; color: var(--text-sub); }
+    .visited-arrow { margin-left: auto; color: #ccc; font-size: 18px; }
+  </style>
+</head>
+<body>
+
+  <!-- ヘッダー -->
+  <div class="page-header">
+    <a href="index.html" class="back-btn"><i class="ti ti-arrow-left"></i></a>
+    <div class="header-title">マイページ</div>
+  </div>
+
+  <div class="container">
+
+    <!-- プロフィール -->
+    <div class="profile">
+      <div class="profile-avatar">🍜</div>
+      <div>
+        <div class="profile-name">うどん好きさん</div>
+        <div class="profile-sub">香川のさぬきうどんを記録中</div>
+      </div>
+    </div>
+
+    <!-- 統計 -->
+    <div class="stats">
+      <div class="stat-card">
+        <div class="stat-num" id="statVisited">0</div>
+        <div class="stat-label">記録した店</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="statStamps">0</div>
+        <div class="stat-label">獲得スタンプ</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="statAreas">0</div>
+        <div class="stat-label">制覇エリア</div>
+      </div>
+    </div>
+
+    <!-- スタンプカード -->
+    <div class="section-head">
+      <div class="section-title">🏅 スタンプカード</div>
+      <div class="section-count" id="stampCount">0 / 0 獲得</div>
+    </div>
+
+    <div id="emptyNote" class="empty-note" style="display:none;">
+      まだ記録がありません。<br>
+      <a href="shops.html">お店一覧</a>から「食べた！」を記録してスタンプを集めよう！
+    </div>
+
+    <div class="stamp-grid" id="stampGrid"></div>
+
+    <!-- 訪問した店舗 -->
+    <div class="section-head">
+      <div class="section-title">🍜 記録したお店</div>
+      <div class="section-count" id="visitedCount">0軒</div>
+    </div>
+    <div class="visited-list" id="visitedList"></div>
+
+    <a href="shops.html" class="btn-go-shops">
+      <i class="ti ti-plus"></i> お店を記録する
+    </a>
+
+  </div>
+
+  <script>
+    // SHOPSデータ（shops.htmlと共通）
+    const SHOPS = [
+      { id:1,  name:"竹清",              city:"高松市", type:"セルフ",  dish:"半熟卵天・ちくわ天" },
+      { id:2,  name:"うどんバカ一代",    city:"高松市", type:"セルフ",  dish:"釜バター・ぶっかけ" },
+      { id:3,  name:"鶴丸うどん",        city:"高松市", type:"一般",    dish:"かけうどん・ざるうどん" },
+      { id:4,  name:"めりけんや",        city:"高松市", type:"セルフ",  dish:"ぶっかけ・かけうどん" },
+      { id:5,  name:"池上製麺所",        city:"高松市", type:"製麺所",  dish:"釜玉・かけうどん" },
+      { id:6,  name:"さか枝うどん",      city:"高松市", type:"セルフ",  dish:"かけうどん" },
+      { id:7,  name:"渡辺うどん",        city:"高松市", type:"セルフ",  dish:"しょうゆうどん" },
+      { id:8,  name:"春日うどん",        city:"高松市", type:"一般",    dish:"かけうどん・天ぷら" },
+      { id:9,  name:"上原屋本店",        city:"高松市", type:"セルフ",  dish:"かけうどん・ぶっかけ" },
+      { id:10, name:"わら家",            city:"高松市", type:"一般",    dish:"釜揚げうどん" },
+      { id:11, name:"日の出製麺所",      city:"坂出市", type:"製麺所",  dish:"ひやかけ・釜玉" },
+      { id:12, name:"宮武うどん",        city:"坂出市", type:"セルフ",  dish:"かけうどん・ぶっかけ" },
+      { id:13, name:"おか泉",            city:"坂出市", type:"一般",    dish:"ひや天おろし" },
+      { id:14, name:"つるや",            city:"坂出市", type:"セルフ",  dish:"かけうどん" },
+      { id:15, name:"なかむら",          city:"坂出市", type:"セルフ",  dish:"かけうどん・冷やしうどん" },
+      { id:16, name:"がもううどん",      city:"坂出市", type:"製麺所",  dish:"かけうどん・釜玉" },
+      { id:17, name:"田村うどん",        city:"坂出市", type:"製麺所",  dish:"釜玉・ぶっかけ" },
+      { id:18, name:"彦江製麺所",        city:"丸亀市", type:"製麺所",  dish:"かけうどん" },
+      { id:19, name:"大庄屋",            city:"丸亀市", type:"一般",    dish:"釜揚げうどん・かけうどん" },
+      { id:20, name:"中村うどん",        city:"丸亀市", type:"製麺所",  dish:"かまたま・かけうどん" },
+      { id:21, name:"まつや",            city:"丸亀市", type:"セルフ",  dish:"かけうどん・天ぷら" },
+      { id:22, name:"藤川うどん",        city:"丸亀市", type:"一般",    dish:"しょうゆうどん・かけうどん" },
+      { id:23, name:"山下うどん",        city:"善通寺市", type:"セルフ", dish:"ぶっかけうどん" },
+      { id:24, name:"長田 in 香の香",    city:"善通寺市", type:"一般",   dish:"釜揚げうどん" },
+      { id:25, name:"三嶋製麺所",        city:"善通寺市", type:"製麺所", dish:"かけうどん・釜玉" },
+      { id:26, name:"よしや",            city:"善通寺市", type:"セルフ", dish:"かけうどん" },
+      { id:27, name:"柳川うどん",        city:"観音寺市", type:"一般",   dish:"かけうどん・天ぷら" },
+      { id:28, name:"三好うどん",        city:"観音寺市", type:"セルフ", dish:"かけうどん" },
+      { id:29, name:"本家 綿谷",         city:"丸亀市", type:"セルフ",  dish:"肉うどん・ぶっかけ" },
+      { id:30, name:"山越うどん",        city:"綾川町", type:"製麺所",  dish:"釜玉・かけうどん" },
+      { id:31, name:"おくやま",          city:"綾川町", type:"製麺所",  dish:"釜玉・しょうゆ" },
+      { id:32, name:"岡田製麺所",        city:"綾川町", type:"製麺所",  dish:"かけうどん" },
+      { id:33, name:"川福本店",          city:"高松市", type:"一般",    dish:"かけうどん・鍋焼きうどん" },
+      { id:34, name:"手打十段 うどんバカ一代 2号店", city:"高松市", type:"セルフ", dish:"釜バター" },
+      { id:35, name:"谷川製麺所",        city:"さぬき市", type:"製麺所", dish:"かけうどん・釜玉" },
+      { id:36, name:"なかむら",          city:"まんのう町", type:"製麺所", dish:"かけうどん" },
+      { id:37, name:"山内うどん",        city:"まんのう町", type:"製麺所", dish:"かけうどん・釜玉" },
+      { id:38, name:"須崎食料品",        city:"まんのう町", type:"製麺所", dish:"かけうどん" },
+      { id:39, name:"よしや",            city:"高松市", type:"セルフ",  dish:"かけうどん・天ぷら" },
+      { id:40, name:"たむら",            city:"さぬき市", type:"セルフ", dish:"しょうゆうどん・かけうどん" },
+      { id:41, name:"もり家",            city:"さぬき市", type:"セルフ", dish:"釜揚げうどん" },
+      { id:42, name:"山田家",            city:"さぬき市", type:"一般",   dish:"釜揚げうどん" },
+      { id:43, name:"松下製麺所",        city:"高松市", type:"製麺所",  dish:"かけうどん・しょうゆ" },
+      { id:44, name:"はゆか",            city:"高松市", type:"製麺所",  dish:"釜玉・かけうどん" },
+      { id:45, name:"中西うどん",        city:"高松市", type:"セルフ",  dish:"かけうどん・ぶっかけ" },
+      { id:46, name:"岡じま",            city:"高松市", type:"セルフ",  dish:"かけうどん" },
+      { id:47, name:"小縣家",            city:"まんのう町", type:"製麺所", dish:"しょうゆうどん・釜玉" },
+      { id:48, name:"宮川製麺所",        city:"三豊市", type:"製麺所",  dish:"かけうどん" },
+      { id:49, name:"三徳うどん",        city:"三豊市", type:"セルフ",  dish:"かけうどん・ぶっかけ" },
+      { id:50, name:"池田製麺",          city:"東かがわ市", type:"製麺所", dish:"かけうどん・釜玉" },
+    ];
+
+    // === スタンプカード定義 ===
+    // 各スタンプは「条件を満たした店舗数 / 目標数」で進捗を判定する。
+    // check(visitedShops) は { current, goal } を返す。
+    // この定義部分はB（会員DB版）でもそのまま再利用できる。
+    const STAMPS = [
+      {
+        id: 'beginner',
+        icon: '🥢',
+        name: 'うどんビギナー',
+        desc: '初めてのうどんを記録',
+        check: (v) => ({ current: Math.min(v.length, 1), goal: 1 }),
+      },
+      {
+        id: 'five',
+        icon: '🍜',
+        name: 'うどん5軒',
+        desc: '5軒のお店を記録',
+        check: (v) => ({ current: Math.min(v.length, 5), goal: 5 }),
+      },
+      {
+        id: 'ten',
+        icon: '🏆',
+        name: 'うどん10軒',
+        desc: '10軒のお店を記録',
+        check: (v) => ({ current: Math.min(v.length, 10), goal: 10 }),
+      },
+      {
+        id: 'takamatsu',
+        icon: '🏙️',
+        name: '高松マスター',
+        desc: '高松市を5軒記録',
+        check: (v) => {
+          const c = v.filter(s => s.city === '高松市').length;
+          return { current: Math.min(c, 5), goal: 5 };
+        },
+      },
+      {
+        id: 'seimenjo',
+        icon: '🏭',
+        name: '製麺所ハンター',
+        desc: '製麺所スタイルを3軒記録',
+        check: (v) => {
+          const c = v.filter(s => s.type === '製麺所').length;
+          return { current: Math.min(c, 3), goal: 3 };
+        },
+      },
+      {
+        id: 'self',
+        icon: '🥡',
+        name: 'セルフの達人',
+        desc: 'セルフ式を5軒記録',
+        check: (v) => {
+          const c = v.filter(s => s.type === 'セルフ').length;
+          return { current: Math.min(c, 5), goal: 5 };
+        },
+      },
+      {
+        id: 'allarea',
+        icon: '🗺️',
+        name: '全エリア制覇',
+        desc: '5つの市町で記録',
+        check: (v) => {
+          const cities = new Set(v.map(s => s.city));
+          return { current: Math.min(cities.size, 5), goal: 5 };
+        },
+      },
+      {
+        id: 'king',
+        icon: '👑',
+        name: 'さぬきうどん王',
+        desc: '全50軒を制覇',
+        check: (v) => ({ current: v.length, goal: 50 }),
+      },
+    ];
+
+    // === localStorageから記録を読み込む（B版ではここをDB取得に差し替える）===
+    function loadVisited() {
+      const raw = localStorage.getItem('visited');
+      const ids = raw ? JSON.parse(raw) : [];
+      return ids.map(id => SHOPS.find(s => s.id === id)).filter(Boolean);
+    }
+
+    function render() {
+      const visited = loadVisited();
+
+      // 統計
+      const cities = new Set(visited.map(s => s.city));
+      document.getElementById('statVisited').textContent = visited.length;
+      document.getElementById('statAreas').textContent = cities.size;
+
+      // スタンプ判定
+      let earnedCount = 0;
+      const grid = document.getElementById('stampGrid');
+      grid.innerHTML = STAMPS.map(stamp => {
+        const { current, goal } = stamp.check(visited);
+        const earned = current >= goal;
+        if (earned) earnedCount++;
+        const pct = Math.round((current / goal) * 100);
+        return `
+          <div class="stamp-card ${earned ? 'earned' : 'locked'}">
+            <div class="stamp-icon">${stamp.icon}</div>
+            <div class="stamp-name">${stamp.name}</div>
+            <div class="stamp-desc">${stamp.desc}</div>
+            <div class="progress-track">
+              <div class="progress-fill" style="width:${pct}%"></div>
+            </div>
+            <div class="progress-text">${earned ? '達成！' : `${current} / ${goal}`}</div>
+          </div>
+        `;
+      }).join('');
+
+      document.getElementById('statStamps').textContent = earnedCount;
+      document.getElementById('stampCount').textContent = `${earnedCount} / ${STAMPS.length} 獲得`;
+
+      // 空状態
+      document.getElementById('emptyNote').style.display = visited.length === 0 ? 'block' : 'none';
+
+      // 訪問店舗リスト
+      document.getElementById('visitedCount').textContent = `${visited.length}軒`;
+      const list = document.getElementById('visitedList');
+      if (visited.length === 0) {
+        list.innerHTML = '<p style="color:#aaa;font-size:14px;text-align:center;padding:1rem;">まだ記録がありません</p>';
+      } else {
+        list.innerHTML = visited.map(s => `
+          <a href="shop-detail.html?id=${s.id}" class="visited-item">
+            <div class="visited-icon">🍜</div>
+            <div>
+              <div class="visited-name">${s.name}</div>
+              <div class="visited-meta">${s.city} ・ ${s.type}</div>
+            </div>
+            <i class="ti ti-chevron-right visited-arrow"></i>
+          </a>
+        `).join('');
+      }
+    }
+
+    render();
+  </script>
+
+</body>
+</html>

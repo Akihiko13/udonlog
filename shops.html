@@ -66,7 +66,13 @@
     .nav-count {
       margin-left: auto;
       font-size: 13px;
-      color: var(--text-muted);
+      color: var(--amber);
+    }
+
+    .nav-count::after {
+      content: ' ›';
+      font-size: 16px;
+      font-weight: 700;
     }
 
     /* SEARCH BAR */
@@ -369,7 +375,7 @@
       もどる
     </a>
     <span class="nav-title">お店を選ぶ</span>
-    <span class="nav-count" id="nav-count"></span>
+    <a href="mypage.html" class="nav-count" id="nav-count" style="text-decoration:none;display:flex;align-items:center;gap:5px;"></a>
   </nav>
 
   <div class="search-bar">
