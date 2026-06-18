@@ -198,6 +198,46 @@
     }
 
     /* アクションボタン */
+    .my-rating {
+      background: #FFF8EE;
+      border: 0.5px solid #F0D9C0;
+      border-radius: 12px;
+      padding: 14px 16px;
+      margin-bottom: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .my-rating-label {
+      font-size: 14px;
+      font-weight: 600;
+      color: #8a6a3a;
+    }
+
+    .my-stars { display: flex; gap: 4px; }
+
+    .my-star {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 26px;
+      color: #e0d8cc;
+      padding: 0;
+      line-height: 1;
+      transition: color 0.1s, transform 0.1s;
+    }
+
+    .my-star.active { color: var(--amber); }
+    .my-star:hover { transform: scale(1.15); }
+
+    .my-rating-text {
+      font-size: 13px;
+      color: #999;
+      margin-left: auto;
+    }
+
     .action-buttons {
       display: flex;
       gap: 10px;
@@ -457,9 +497,22 @@
         <div>
           <div class="rating-score" id="avgScore">4.2</div>
           <div class="rating-stars" id="avgStars"></div>
-          <div class="rating-count" id="reviewCount">38件の記録</div>
+          <div class="rating-count" id="reviewCount">38人のおすすめ度</div>
         </div>
         <div class="rating-bars" id="ratingBars"></div>
+      </div>
+
+      <!-- あなたのおすすめ度（お店ごとに1回・いつでも変更可） -->
+      <div class="my-rating">
+        <div class="my-rating-label">あなたのおすすめ度</div>
+        <div class="my-stars" id="myStars">
+          <button class="my-star" type="button" data-val="1" onclick="setMyRating(1)">★</button>
+          <button class="my-star" type="button" data-val="2" onclick="setMyRating(2)">★</button>
+          <button class="my-star" type="button" data-val="3" onclick="setMyRating(3)">★</button>
+          <button class="my-star" type="button" data-val="4" onclick="setMyRating(4)">★</button>
+          <button class="my-star" type="button" data-val="5" onclick="setMyRating(5)">★</button>
+        </div>
+        <div class="my-rating-text" id="myRatingText">タップして評価</div>
       </div>
 
       <!-- アクションボタン -->
@@ -599,7 +652,10 @@
       const total = Object.values(RATING_DIST).reduce((a, b) => a + b, 0);
       const avg = (Object.entries(RATING_DIST).reduce((a, [k, v]) => a + Number(k) * v, 0) / total).toFixed(1);
       document.getElementById('avgScore').textContent = avg;
-      document.getElementById('reviewCount').textContent = `${total}件の記録`;
+      document.getElementById('reviewCount').textContent = `${total}人のおすすめ度`;
+
+      // あなたのおすすめ度を復元
+      restoreMyRating();
 
       // 星
       const starsEl = document.getElementById('avgStars');
@@ -662,6 +718,31 @@
       t.textContent = msg;
       t.classList.add('show');
       setTimeout(() => t.classList.remove('show'), 2500);
+    }
+
+    // === あなたのおすすめ度（店ごとに保存） ===
+    // ※ B（会員DB）版では shopRatings の読み書きをサーバー保存に差し替える
+    const MY_RATING_LABELS = ['', 'いまいち', 'まあまあ', 'おすすめ', 'かなりおすすめ', '超おすすめ！'];
+
+    function paintMyStars(val) {
+      document.querySelectorAll('.my-star').forEach((b, i) => {
+        b.classList.toggle('active', i < val);
+      });
+      document.getElementById('myRatingText').textContent =
+        val > 0 ? MY_RATING_LABELS[val] : 'タップして評価';
+    }
+
+    function setMyRating(val) {
+      const ratings = JSON.parse(localStorage.getItem('shopRatings') || '{}');
+      ratings[shopId] = val;
+      localStorage.setItem('shopRatings', JSON.stringify(ratings));
+      paintMyStars(val);
+      showToast('おすすめ度を保存しました');
+    }
+
+    function restoreMyRating() {
+      const ratings = JSON.parse(localStorage.getItem('shopRatings') || '{}');
+      paintMyStars(ratings[shopId] || 0);
     }
   </script>
 

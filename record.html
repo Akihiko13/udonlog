@@ -273,32 +273,6 @@
       font-weight: 600;
     }
 
-    /* 評価（星） */
-    .stars {
-      display: flex;
-      gap: 6px;
-    }
-
-    .star-btn {
-      background: none;
-      border: none;
-      cursor: pointer;
-      font-size: 28px;
-      color: #e0e0d8;
-      transition: color 0.1s, transform 0.1s;
-      padding: 0;
-      line-height: 1;
-    }
-
-    .star-btn.active { color: #BA7517; }
-    .star-btn:hover { transform: scale(1.15); }
-
-    .star-label {
-      font-size: 13px;
-      color: #888;
-      margin-top: 6px;
-    }
-
     /* 公開設定 */
     .visibility-options {
       display: flex;
@@ -424,22 +398,6 @@
         <input type="text" id="menuOther" placeholder="その他（自由入力）" maxlength="30" style="margin-top:10px;">
       </div>
 
-      <!-- 評価 -->
-      <div class="form-group">
-        <label>
-          <i class="ti ti-star" style="color:#BA7517"></i>
-          評価
-        </label>
-        <div class="stars" id="stars">
-          <button class="star-btn" type="button" data-val="1" onclick="setRating(1)">★</button>
-          <button class="star-btn" type="button" data-val="2" onclick="setRating(2)">★</button>
-          <button class="star-btn" type="button" data-val="3" onclick="setRating(3)">★</button>
-          <button class="star-btn" type="button" data-val="4" onclick="setRating(4)">★</button>
-          <button class="star-btn" type="button" data-val="5" onclick="setRating(5)">★</button>
-        </div>
-        <div class="star-label" id="starLabel">タップして評価</div>
-      </div>
-
       <!-- 感想 -->
       <div class="form-group">
         <label for="comment">
@@ -502,7 +460,6 @@
   <div class="toast" id="toast"></div>
 
   <script>
-    let currentRating = 0;
     let photos = [];
     let visibility = 'public';
 
@@ -550,17 +507,6 @@
 
     // 戻るボタンのリンクをshops.htmlに設定
     document.getElementById('backBtn').href = 'shops.html';
-
-    // 評価
-    const starLabels = ['', 'いまいち', 'まあまあ', 'おいしい', 'とてもおいしい', '最高！'];
-
-    function setRating(val) {
-      currentRating = val;
-      document.querySelectorAll('.star-btn').forEach((btn, i) => {
-        btn.classList.toggle('active', i < val);
-      });
-      document.getElementById('starLabel').textContent = starLabels[val];
-    }
 
     // 写真
     function handlePhotos(e) {
@@ -627,7 +573,6 @@
         type: shopType,
         menus: menus,                      // 集計用（選択チップの配列）
         menu: menus.join('・'),            // 表示用（従来互換の文字列）
-        rating: currentRating,
         comment: document.getElementById('comment').value.trim(),
         visitDate: document.getElementById('visitDate').value,
         visibility: visibility,
