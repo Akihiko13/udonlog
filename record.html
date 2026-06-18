@@ -420,9 +420,9 @@
 
     <!-- 写真 -->
     <div class="card">
-      <div class="card-title">写真 <span style="font-size:11px;color:#aaa;font-weight:400;">任意・最大4枚</span></div>
+      <div class="card-title">写真 <span style="font-size:11px;color:#aaa;font-weight:400;" id="photoNote">任意・1枚</span></div>
       <label class="photo-upload" for="photoInput" id="photoUploadArea">
-        <input type="file" id="photoInput" accept="image/*" multiple onchange="handlePhotos(event)">
+        <input type="file" id="photoInput" accept="image/*" onchange="handlePhotos(event)">
         <div class="upload-icon"><i class="ti ti-camera"></i></div>
         <div class="upload-text">写真を追加</div>
         <div class="upload-sub">タップして選択</div>
@@ -462,6 +462,11 @@
   <script>
     let photos = [];
     let visibility = 'public';
+
+    // 写真の枚数上限（会員種別で変わる）
+    // ※ B（会員機能）実装後は isPremium をログイン中の会員情報から判定する
+    const isPremium = false;                 // 無料会員=false / 有料会員=true
+    const MAX_PHOTOS = isPremium ? 4 : 1;
 
     // メニュー選択肢（集計しやすいよう表記を統一）
     const MENU_OPTIONS = [
@@ -508,10 +513,19 @@
     // 戻るボタンのリンクをshops.htmlに設定
     document.getElementById('backBtn').href = 'shops.html';
 
+    // 写真の枚数表示・複数選択可否を会員種別に合わせる
+    document.getElementById('photoNote').textContent =
+      isPremium ? `任意・最大${MAX_PHOTOS}枚` : '任意・1枚';
+      // 有料会員制を導入したら下記に戻す:
+      // isPremium ? `任意・最大${MAX_PHOTOS}枚` : '任意・1枚（有料会員は複数枚）';
+    if (isPremium) {
+      document.getElementById('photoInput').setAttribute('multiple', '');
+    }
+
     // 写真
     function handlePhotos(e) {
       const files = Array.from(e.target.files);
-      const remaining = 4 - photos.length;
+      const remaining = MAX_PHOTOS - photos.length;
       files.slice(0, remaining).forEach(file => {
         const reader = new FileReader();
         reader.onload = ev => {
@@ -521,7 +535,11 @@
         reader.readAsDataURL(file);
       });
       if (files.length > remaining) {
-        showToast('写真は最大4枚までです');
+        showToast(`写真は${MAX_PHOTOS}枚までです`);
+        // 有料会員制を導入したら下記に戻す:
+        // showToast(isPremium
+        //   ? `写真は最大${MAX_PHOTOS}枚までです`
+        //   : '複数枚の写真は有料会員でアップできます');
       }
     }
 
@@ -535,7 +553,7 @@
       `).join('');
 
       const uploadArea = document.getElementById('photoUploadArea');
-      uploadArea.style.display = photos.length >= 4 ? 'none' : 'block';
+      uploadArea.style.display = photos.length >= MAX_PHOTOS ? 'none' : 'block';
     }
 
     function removePhoto(idx) {
