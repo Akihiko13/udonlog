@@ -245,6 +245,34 @@
       line-height: 1;
     }
 
+    /* メニュー選択チップ */
+    .menu-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .menu-chip {
+      border: 1px solid #d0d0ca;
+      background: #fff;
+      color: #555;
+      border-radius: 99px;
+      padding: 7px 14px;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.12s;
+      user-select: none;
+    }
+
+    .menu-chip:hover { border-color: #BA7517; }
+
+    .menu-chip.selected {
+      background: #BA7517;
+      border-color: #BA7517;
+      color: #fff;
+      font-weight: 600;
+    }
+
     /* 評価（星） */
     .stars {
       display: flex;
@@ -385,13 +413,15 @@
     <div class="card">
       <div class="card-title">記録内容</div>
 
-      <!-- メニュー -->
+      <!-- メニュー（選択式・複数選択可） -->
       <div class="form-group">
-        <label for="menu">
+        <label>
           <i class="ti ti-bowl" style="color:#BA7517"></i>
           食べたメニュー
+          <span class="optional">複数選択可</span>
         </label>
-        <input type="text" id="menu" placeholder="例：かけうどん、ざるうどん" maxlength="50">
+        <div class="menu-chips" id="menuChips"></div>
+        <input type="text" id="menuOther" placeholder="その他（自由入力）" maxlength="30" style="margin-top:10px;">
       </div>
 
       <!-- 評価 -->
@@ -476,6 +506,31 @@
     let photos = [];
     let visibility = 'public';
 
+    // メニュー選択肢（集計しやすいよう表記を統一）
+    const MENU_OPTIONS = [
+      'かけ', 'ぶっかけ', '釜玉', '釜あげ', 'ざる', 'しょうゆ',
+      'おろし', '肉うどん', 'きつね', 'カレーうどん', '天ぷら', 'わかめ',
+    ];
+    const selectedMenus = new Set();
+
+    // チップを描画
+    (function renderMenuChips() {
+      const wrap = document.getElementById('menuChips');
+      wrap.innerHTML = MENU_OPTIONS.map(m =>
+        `<span class="menu-chip" data-menu="${m}" onclick="toggleMenu('${m}', this)">${m}</span>`
+      ).join('');
+    })();
+
+    function toggleMenu(menu, el) {
+      if (selectedMenus.has(menu)) {
+        selectedMenus.delete(menu);
+        el.classList.remove('selected');
+      } else {
+        selectedMenus.add(menu);
+        el.classList.add('selected');
+      }
+    }
+
     // URLパラメータからお店情報を取得
     const params = new URLSearchParams(location.search);
     const shopId = parseInt(params.get('id'));
@@ -556,6 +611,11 @@
 
       // 訪問ログに1件「追加」する（同じ店でも何度でも記録できる＝杯数になる）
       // ※ B（会員DB）版ではこの保存部分をサーバー保存に差し替える
+      // 選択したメニュー＋その他（自由入力）をまとめる
+      const otherMenu = document.getElementById('menuOther').value.trim();
+      const menus = [...selectedMenus];
+      if (otherMenu) menus.push(otherMenu);
+
       const logs = JSON.parse(localStorage.getItem('logs') || '[]');
       logs.push({
         logId: Date.now(),                 // 1回の訪問を一意に識別
@@ -563,7 +623,8 @@
         name: shopName,
         city: shopCity,
         type: shopType,
-        menu: document.getElementById('menu').value.trim(),
+        menus: menus,                      // 集計用（選択チップの配列）
+        menu: menus.join('・'),            // 表示用（従来互換の文字列）
         rating: currentRating,
         comment: document.getElementById('comment').value.trim(),
         visitDate: document.getElementById('visitDate').value,
