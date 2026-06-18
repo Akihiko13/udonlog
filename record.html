@@ -552,15 +552,12 @@
         return;
       }
 
-      // 記録済み店舗ID一覧（スタンプ帳・バッジが参照する）に追加
+      // 訪問ログに1件「追加」する（同じ店でも何度でも記録できる＝杯数になる）
       // ※ B（会員DB）版ではこの保存部分をサーバー保存に差し替える
-      const visited = new Set(JSON.parse(localStorage.getItem('visited') || '[]'));
-      visited.add(shopId);
-      localStorage.setItem('visited', JSON.stringify([...visited]));
-
-      // 記録の詳細（メニュー・評価・感想など）も保存しておく
-      const records = JSON.parse(localStorage.getItem('records') || '{}');
-      records[shopId] = {
+      const logs = JSON.parse(localStorage.getItem('logs') || '[]');
+      logs.push({
+        logId: Date.now(),                 // 1回の訪問を一意に識別
+        shopId: shopId,
         name: shopName,
         city: shopCity,
         type: shopType,
@@ -571,8 +568,13 @@
         visibility: visibility,
         photoCount: photos.length,
         savedAt: new Date().toISOString(),
-      };
-      localStorage.setItem('records', JSON.stringify(records));
+      });
+      localStorage.setItem('logs', JSON.stringify(logs));
+
+      // 記録した店のID一覧（shops.htmlの「記録済み」表示用）も更新
+      const visited = new Set(JSON.parse(localStorage.getItem('visited') || '[]'));
+      visited.add(shopId);
+      localStorage.setItem('visited', JSON.stringify([...visited]));
 
       showToast('記録を投稿しました！');
       setTimeout(() => { location.href = 'mypage.html'; }, 1500);

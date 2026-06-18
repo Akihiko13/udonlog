@@ -505,7 +505,14 @@
     let currentArea = '全て';
     let currentType = '全て';
     let searchQuery = '';
-    const visited = new Set(JSON.parse(localStorage.getItem('visited') || '[]'));
+    // 訪問ログから「店ごとの杯数」と「記録済み店舗」を集計
+    const logs = JSON.parse(localStorage.getItem('logs') || '[]');
+    const visitCount = {};
+    logs.forEach(l => { visitCount[l.shopId] = (visitCount[l.shopId] || 0) + 1; });
+    // logsがあればそれを優先、無ければ旧visitedを使う
+    const visited = new Set(
+      logs.length > 0 ? logs.map(l => l.shopId) : JSON.parse(localStorage.getItem('visited') || '[]')
+    );
 
     function saveVisited() {
       localStorage.setItem('visited', JSON.stringify([...visited]));
@@ -531,7 +538,7 @@
       const label = document.getElementById('result-label');
       const navCount = document.getElementById('nav-count');
 
-      navCount.textContent = `${visited.size}店舗 記録済み`;
+      navCount.textContent = `${visited.size}店 / ${logs.length}杯`;
       label.textContent = `${filtered.length}件のお店`;
 
       if (filtered.length === 0) {
@@ -555,10 +562,11 @@
             </div>
             <div class="card-dish">${s.dish}</div>
             <a class="btn-detail" href="shop-detail.html?id=${s.id}"><i class="ti ti-info-circle" aria-hidden="true"></i> 詳細</a>
-            ${done
-              ? `<button class="btn-taberu done" onclick="toggleVisit(${s.id}, this)"><i class="ti ti-check" aria-hidden="true"></i> 記録済み</button>`
-              : `<a class="btn-taberu" href="record.html?id=${s.id}&name=${encodeURIComponent(s.name)}&city=${encodeURIComponent(s.city)}&type=${encodeURIComponent(s.type)}"><i class="ti ti-plus" aria-hidden="true"></i> 食べた！</a>`
-            }
+            <a class="btn-taberu ${done ? 'done' : ''}" href="record.html?id=${s.id}&name=${encodeURIComponent(s.name)}&city=${encodeURIComponent(s.city)}&type=${encodeURIComponent(s.type)}">
+              ${done
+                ? `<i class="ti ti-plus" aria-hidden="true"></i> もう一杯！（${visitCount[s.id] || 0}杯）`
+                : '<i class="ti ti-plus" aria-hidden="true"></i> 食べた！'}
+            </a>
           </div>
         `;
       }).join('');

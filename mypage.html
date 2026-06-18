@@ -96,6 +96,47 @@
     .profile-name { font-size: 20px; font-weight: 700; }
     .profile-sub { font-size: 13px; color: var(--text-sub); }
 
+    /* うどん杯数パネル */
+    .bowl-panel {
+      background: linear-gradient(135deg, #BA7517 0%, #D89030 100%);
+      border-radius: 16px;
+      padding: 1.25rem 1.25rem 1.4rem;
+      margin-bottom: 1rem;
+      color: #fff;
+    }
+
+    .bowl-panel-title {
+      font-size: 13px;
+      font-weight: 600;
+      opacity: 0.95;
+      margin-bottom: 0.9rem;
+    }
+
+    .bowl-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+
+    .bowl-item {
+      text-align: center;
+      background: rgba(255,255,255,0.15);
+      border-radius: 12px;
+      padding: 0.75rem 0.25rem;
+    }
+
+    .bowl-num {
+      font-size: 26px;
+      font-weight: 800;
+      line-height: 1.1;
+    }
+
+    .bowl-label {
+      font-size: 11px;
+      opacity: 0.9;
+      margin-top: 2px;
+    }
+
     /* 統計バー */
     .stats {
       display: grid;
@@ -407,6 +448,29 @@
       </div>
     </div>
 
+    <!-- うどん杯数（期間集計） -->
+    <div class="bowl-panel">
+      <div class="bowl-panel-title">🍜 食べたうどん</div>
+      <div class="bowl-grid">
+        <div class="bowl-item">
+          <div class="bowl-num" id="cntWeek">0</div>
+          <div class="bowl-label">今週</div>
+        </div>
+        <div class="bowl-item">
+          <div class="bowl-num" id="cntMonth">0</div>
+          <div class="bowl-label">今月</div>
+        </div>
+        <div class="bowl-item">
+          <div class="bowl-num" id="cntYear">0</div>
+          <div class="bowl-label">今年</div>
+        </div>
+        <div class="bowl-item">
+          <div class="bowl-num" id="cntTotal">0</div>
+          <div class="bowl-label">これまで</div>
+        </div>
+      </div>
+    </div>
+
     <!-- 統計 -->
     <div class="stats">
       <div class="stat-card">
@@ -586,41 +650,88 @@
       },
     ];
 
-    // === localStorageから記録を読み込む（B版ではここをDB取得に差し替える）===
-    function loadVisited() {
-      const raw = localStorage.getItem('visited');
-      const ids = raw ? JSON.parse(raw) : [];
-      return ids.map(id => SHOPS.find(s => s.id === id)).filter(Boolean);
+    // === localStorageから訪問ログを読み込む（B版ではここをDB取得に差し替える）===
+    // logs = 訪問1回ごとのエントリ配列。同じ店の複数回記録もそれぞれ1件。
+    function loadLogs() {
+      let logs = JSON.parse(localStorage.getItem('logs') || '[]');
+
+      // 旧データ（logs導入前にvisitedだけで記録していた分）を1回だけ移行する
+      if (logs.length === 0) {
+        const oldIds = JSON.parse(localStorage.getItem('visited') || '[]');
+        if (oldIds.length > 0) {
+          const oldRecords = JSON.parse(localStorage.getItem('records') || '{}');
+          logs = oldIds.map(id => {
+            const shop = SHOPS.find(s => s.id === id);
+            const r = oldRecords[id] || {};
+            return shop ? {
+              logId: id,
+              shopId: id,
+              name: shop.name, city: shop.city, type: shop.type,
+              menu: r.menu || '', rating: r.rating || 0, comment: r.comment || '',
+              visitDate: r.visitDate || '', savedAt: r.savedAt || '',
+            } : null;
+          }).filter(Boolean);
+          localStorage.setItem('logs', JSON.stringify(logs));
+        }
+      }
+      return logs;
+    }
+
+    // ログ → 店舗マスタを補完（cityやtypeが欠けていてもSHOPSから引く）
+    function shopOf(log) {
+      return SHOPS.find(s => s.id === log.shopId) || log;
+    }
+
+    // === 期間ごとの杯数を集計 ===
+    function countByPeriod(logs) {
+      const now = new Date();
+      const startOfDay = d => new Date(d.getFullYear(), d.getMonth(), d.getDate());
+      // 今週（月曜始まり）
+      const dow = (now.getDay() + 6) % 7;          // 月=0 ... 日=6
+      const weekStart = startOfDay(new Date(now)); weekStart.setDate(weekStart.getDate() - dow);
+      const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+      const yearStart  = new Date(now.getFullYear(), 0, 1);
+
+      let week = 0, month = 0, year = 0;
+      logs.forEach(l => {
+        if (!l.visitDate) return;
+        const d = new Date(l.visitDate);
+        if (isNaN(d)) return;
+        if (d >= yearStart)  year++;
+        if (d >= monthStart) month++;
+        if (d >= weekStart)  week++;
+      });
+      return { week, month, year, total: logs.length };
     }
 
     // 1枚のスタンプカードあたりのマス数
     const SLOTS_PER_CARD = 10;
 
-    // スタンプ帳を描画（記録した順に1個ずつスタンプが押される）
-    function renderBook(visited) {
-      const total = visited.length;
+    // スタンプ帳を描画（記録した順に1杯=1スタンプ）
+    function renderBook(logs) {
+      const total = logs.length;
       document.getElementById('bookCount').textContent = `${total}個`;
       const book = document.getElementById('stampBook');
 
       if (total === 0) {
-        book.innerHTML = '<div class="book-empty">お店を記録すると、ここにスタンプが1個ずつ押されます🍜</div>';
+        book.innerHTML = '<div class="book-empty">うどんを記録すると、ここにスタンプが1杯ごとに押されます🍜</div>';
         return;
       }
 
-      // 何枚のカードを表示するか（最低1枚、進行中のカードまで）
       const cardCount = Math.floor(total / SLOTS_PER_CARD) + (total % SLOTS_PER_CARD === 0 ? 0 : 1);
       let html = '';
 
       for (let c = 0; c < cardCount; c++) {
-        const startNum = c * SLOTS_PER_CARD;          // このカードの開始スタンプ番号
+        const startNum = c * SLOTS_PER_CARD;
         const filledInCard = Math.min(total - startNum, SLOTS_PER_CARD);
         const isComplete = filledInCard === SLOTS_PER_CARD;
 
         let slots = '';
         for (let i = 0; i < SLOTS_PER_CARD; i++) {
-          const stampIndex = startNum + i;            // 通し番号（0始まり）
+          const stampIndex = startNum + i;
           if (stampIndex < total) {
-            const shop = visited[stampIndex];
+            const log = logs[stampIndex];
+            const shop = shopOf(log);
             slots += `
               <div class="slot filled" title="${shop.name}（${shop.city}）">
                 🍜<span class="slot-num">${stampIndex + 1}</span>
@@ -644,21 +755,31 @@
     }
 
     function render() {
-      const visited = loadVisited();
+      const logs = loadLogs();
 
-      // 統計
-      const cities = new Set(visited.map(s => s.city));
-      document.getElementById('statVisited').textContent = visited.length;
+      // ユニークな訪問店舗（バッジ・店舗一覧で使用）
+      const uniqueShops = [...new Map(logs.map(l => [l.shopId, shopOf(l)])).values()];
+      const cities = new Set(uniqueShops.map(s => s.city));
+
+      // 期間ごとの杯数
+      const period = countByPeriod(logs);
+      document.getElementById('cntWeek').textContent  = period.week;
+      document.getElementById('cntMonth').textContent = period.month;
+      document.getElementById('cntYear').textContent  = period.year;
+      document.getElementById('cntTotal').textContent = period.total;
+
+      // 統計（上段カード）
+      document.getElementById('statVisited').textContent = uniqueShops.length;
       document.getElementById('statAreas').textContent = cities.size;
 
-      // スタンプ帳（1軒=1スタンプ、10個で1枚完成）
-      renderBook(visited);
+      // スタンプ帳（1杯=1スタンプ）
+      renderBook(logs);
 
-      // スタンプ判定
+      // 達成バッジ判定（ユニーク店舗ベース）
       let earnedCount = 0;
       const grid = document.getElementById('stampGrid');
       grid.innerHTML = STAMPS.map(stamp => {
-        const { current, goal } = stamp.check(visited);
+        const { current, goal } = stamp.check(uniqueShops);
         const earned = current >= goal;
         if (earned) earnedCount++;
         const pct = Math.round((current / goal) * 100);
@@ -679,22 +800,26 @@
       document.getElementById('stampCount').textContent = `${earnedCount} / ${STAMPS.length} 獲得`;
 
       // 空状態
-      document.getElementById('emptyNote').style.display = visited.length === 0 ? 'block' : 'none';
+      document.getElementById('emptyNote').style.display = logs.length === 0 ? 'block' : 'none';
 
-      // 訪問店舗リスト
-      document.getElementById('visitedCount').textContent = `${visited.length}軒`;
+      // 訪問店舗リスト（同じ店は訪問回数をまとめて表示）
+      const countByShop = {};
+      logs.forEach(l => { countByShop[l.shopId] = (countByShop[l.shopId] || 0) + 1; });
+
+      document.getElementById('visitedCount').textContent = `${uniqueShops.length}軒 / ${logs.length}杯`;
       const list = document.getElementById('visitedList');
-      if (visited.length === 0) {
+      if (uniqueShops.length === 0) {
         list.innerHTML = '<p style="color:#aaa;font-size:14px;text-align:center;padding:1rem;">まだ記録がありません</p>';
       } else {
-        list.innerHTML = visited.map(s => `
+        list.innerHTML = uniqueShops.map(s => `
           <a href="shop-detail.html?id=${s.id}" class="visited-item">
             <div class="visited-icon">🍜</div>
             <div>
               <div class="visited-name">${s.name}</div>
               <div class="visited-meta">${s.city} ・ ${s.type}</div>
             </div>
-            <i class="ti ti-chevron-right visited-arrow"></i>
+            <span style="margin-left:auto;font-size:13px;font-weight:700;color:var(--amber);">${countByShop[s.id]}杯</span>
+            <i class="ti ti-chevron-right visited-arrow" style="margin-left:8px;"></i>
           </a>
         `).join('');
       }
