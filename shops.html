@@ -557,7 +557,7 @@
             <a class="btn-detail" href="shop-detail.html?id=${s.id}"><i class="ti ti-info-circle" aria-hidden="true"></i> 詳細</a>
             ${done
               ? `<button class="btn-taberu done" onclick="toggleVisit(${s.id}, this)"><i class="ti ti-check" aria-hidden="true"></i> 記録済み</button>`
-              : `<a class="btn-taberu" href="record.html?name=${encodeURIComponent(s.name)}&city=${encodeURIComponent(s.city)}&type=${encodeURIComponent(s.type)}"><i class="ti ti-plus" aria-hidden="true"></i> 食べた！</a>`
+              : `<a class="btn-taberu" href="record.html?id=${s.id}&name=${encodeURIComponent(s.name)}&city=${encodeURIComponent(s.city)}&type=${encodeURIComponent(s.type)}"><i class="ti ti-plus" aria-hidden="true"></i> 食べた！</a>`
             }
           </div>
         `;

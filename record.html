@@ -476,6 +476,7 @@
 
     // URLパラメータからお店情報を取得
     const params = new URLSearchParams(location.search);
+    const shopId = parseInt(params.get('id'));
     const shopName = params.get('name') || '未選択';
     const shopCity = params.get('city') || '';
     const shopType = params.get('type') || '';
@@ -546,13 +547,35 @@
 
     // 投稿
     function submitRecord() {
-      if (shopName === '未選択') {
+      if (shopName === '未選択' || isNaN(shopId)) {
         showToast('お店を選んでください');
         return;
       }
-      // 現時点ではデモ表示（会員機能実装後に本実装）
-      showToast('記録を投稿しました！（デモ）');
-      setTimeout(() => { location.href = 'shops.html'; }, 1800);
+
+      // 記録済み店舗ID一覧（スタンプ帳・バッジが参照する）に追加
+      // ※ B（会員DB）版ではこの保存部分をサーバー保存に差し替える
+      const visited = new Set(JSON.parse(localStorage.getItem('visited') || '[]'));
+      visited.add(shopId);
+      localStorage.setItem('visited', JSON.stringify([...visited]));
+
+      // 記録の詳細（メニュー・評価・感想など）も保存しておく
+      const records = JSON.parse(localStorage.getItem('records') || '{}');
+      records[shopId] = {
+        name: shopName,
+        city: shopCity,
+        type: shopType,
+        menu: document.getElementById('menu').value.trim(),
+        rating: currentRating,
+        comment: document.getElementById('comment').value.trim(),
+        visitDate: document.getElementById('visitDate').value,
+        visibility: visibility,
+        photoCount: photos.length,
+        savedAt: new Date().toISOString(),
+      };
+      localStorage.setItem('records', JSON.stringify(records));
+
+      showToast('記録を投稿しました！');
+      setTimeout(() => { location.href = 'mypage.html'; }, 1500);
     }
 
     // トースト

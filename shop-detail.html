@@ -637,7 +637,7 @@
 
       // 記録・地図ボタン
       document.getElementById('recordBtn').href =
-        `record.html?name=${encodeURIComponent(shop.name)}&city=${encodeURIComponent(shop.city)}&type=${encodeURIComponent(shop.type)}`;
+        `record.html?id=${shop.id}&name=${encodeURIComponent(shop.name)}&city=${encodeURIComponent(shop.city)}&type=${encodeURIComponent(shop.type)}`;
       document.getElementById('mapBtn').href =
         `https://www.google.com/maps/search/${encodeURIComponent(shop.name + ' ' + shop.city)}`;
 
