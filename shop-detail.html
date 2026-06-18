@@ -494,12 +494,12 @@
       <div class="info-row">
         <i class="ti ti-clock info-icon"></i>
         <span class="info-label">営業時間</span>
-        <span class="info-value">7:00〜14:00（麺切れ次第終了）</span>
+        <span class="info-value" id="infoHours">—</span>
       </div>
       <div class="info-row">
         <i class="ti ti-calendar-off info-icon"></i>
         <span class="info-label">定休日</span>
-        <span class="info-value">水曜日</span>
+        <span class="info-value" id="infoClosed">—</span>
       </div>
     </div>
 
@@ -519,60 +519,8 @@
 
   <div class="toast" id="toast"></div>
 
+  <script src="shops-data.js"></script>
   <script>
-    // SHOPSデータ（shops.htmlと共通）
-    const SHOPS = [
-      { id:1,  name:"竹清",              city:"高松市", type:"セルフ",  dish:"半熟卵天・ちくわ天" },
-      { id:2,  name:"うどんバカ一代",    city:"高松市", type:"セルフ",  dish:"釜バター・ぶっかけ" },
-      { id:3,  name:"鶴丸うどん",        city:"高松市", type:"一般",    dish:"かけうどん・ざるうどん" },
-      { id:4,  name:"めりけんや",        city:"高松市", type:"セルフ",  dish:"ぶっかけ・かけうどん" },
-      { id:5,  name:"池上製麺所",        city:"高松市", type:"製麺所",  dish:"釜玉・かけうどん" },
-      { id:6,  name:"さか枝うどん",      city:"高松市", type:"セルフ",  dish:"かけうどん" },
-      { id:7,  name:"渡辺うどん",        city:"高松市", type:"セルフ",  dish:"しょうゆうどん" },
-      { id:8,  name:"春日うどん",        city:"高松市", type:"一般",    dish:"かけうどん・天ぷら" },
-      { id:9,  name:"上原屋本店",        city:"高松市", type:"セルフ",  dish:"かけうどん・ぶっかけ" },
-      { id:10, name:"わら家",            city:"高松市", type:"一般",    dish:"釜揚げうどん" },
-      { id:11, name:"日の出製麺所",      city:"坂出市", type:"製麺所",  dish:"ひやかけ・釜玉" },
-      { id:12, name:"宮武うどん",        city:"坂出市", type:"セルフ",  dish:"かけうどん・ぶっかけ" },
-      { id:13, name:"おか泉",            city:"坂出市", type:"一般",    dish:"ひや天おろし" },
-      { id:14, name:"つるや",            city:"坂出市", type:"セルフ",  dish:"かけうどん" },
-      { id:15, name:"なかむら",          city:"坂出市", type:"セルフ",  dish:"かけうどん・冷やしうどん" },
-      { id:16, name:"がもううどん",      city:"坂出市", type:"製麺所",  dish:"かけうどん・釜玉" },
-      { id:17, name:"田村うどん",        city:"坂出市", type:"製麺所",  dish:"釜玉・ぶっかけ" },
-      { id:18, name:"彦江製麺所",        city:"丸亀市", type:"製麺所",  dish:"かけうどん" },
-      { id:19, name:"大庄屋",            city:"丸亀市", type:"一般",    dish:"釜揚げうどん・かけうどん" },
-      { id:20, name:"中村うどん",        city:"丸亀市", type:"製麺所",  dish:"かまたま・かけうどん" },
-      { id:21, name:"まつや",            city:"丸亀市", type:"セルフ",  dish:"かけうどん・天ぷら" },
-      { id:22, name:"藤川うどん",        city:"丸亀市", type:"一般",    dish:"しょうゆうどん・かけうどん" },
-      { id:23, name:"山下うどん",        city:"善通寺市", type:"セルフ", dish:"ぶっかけうどん" },
-      { id:24, name:"長田 in 香の香",    city:"善通寺市", type:"一般",   dish:"釜揚げうどん" },
-      { id:25, name:"三嶋製麺所",        city:"善通寺市", type:"製麺所", dish:"かけうどん・釜玉" },
-      { id:26, name:"よしや",            city:"善通寺市", type:"セルフ", dish:"かけうどん" },
-      { id:27, name:"柳川うどん",        city:"観音寺市", type:"一般",   dish:"かけうどん・天ぷら" },
-      { id:28, name:"三好うどん",        city:"観音寺市", type:"セルフ", dish:"かけうどん" },
-      { id:29, name:"本家 綿谷",         city:"丸亀市", type:"セルフ",  dish:"肉うどん・ぶっかけ" },
-      { id:30, name:"山越うどん",        city:"綾川町", type:"製麺所",  dish:"釜玉・かけうどん" },
-      { id:31, name:"おくやま",          city:"綾川町", type:"製麺所",  dish:"釜玉・しょうゆ" },
-      { id:32, name:"岡田製麺所",        city:"綾川町", type:"製麺所",  dish:"かけうどん" },
-      { id:33, name:"川福本店",          city:"高松市", type:"一般",    dish:"かけうどん・鍋焼きうどん" },
-      { id:34, name:"手打十段 うどんバカ一代 2号店", city:"高松市", type:"セルフ", dish:"釜バター" },
-      { id:35, name:"谷川製麺所",        city:"さぬき市", type:"製麺所", dish:"かけうどん・釜玉" },
-      { id:36, name:"なかむら",          city:"まんのう町", type:"製麺所", dish:"かけうどん" },
-      { id:37, name:"山内うどん",        city:"まんのう町", type:"製麺所", dish:"かけうどん・釜玉" },
-      { id:38, name:"須崎食料品",        city:"まんのう町", type:"製麺所", dish:"かけうどん" },
-      { id:39, name:"よしや",            city:"高松市", type:"セルフ",  dish:"かけうどん・天ぷら" },
-      { id:40, name:"たむら",            city:"さぬき市", type:"セルフ", dish:"しょうゆうどん・かけうどん" },
-      { id:41, name:"もり家",            city:"さぬき市", type:"セルフ", dish:"釜揚げうどん" },
-      { id:42, name:"山田家",            city:"さぬき市", type:"一般",   dish:"釜揚げうどん" },
-      { id:43, name:"松下製麺所",        city:"高松市", type:"製麺所",  dish:"かけうどん・しょうゆ" },
-      { id:44, name:"はゆか",            city:"高松市", type:"製麺所",  dish:"釜玉・かけうどん" },
-      { id:45, name:"中西うどん",        city:"高松市", type:"セルフ",  dish:"かけうどん・ぶっかけ" },
-      { id:46, name:"岡じま",            city:"高松市", type:"セルフ",  dish:"かけうどん" },
-      { id:47, name:"小縣家",            city:"まんのう町", type:"製麺所", dish:"しょうゆうどん・釜玉" },
-      { id:48, name:"宮川製麺所",        city:"三豊市", type:"製麺所",  dish:"かけうどん" },
-      { id:49, name:"三徳うどん",        city:"三豊市", type:"セルフ",  dish:"かけうどん・ぶっかけ" },
-      { id:50, name:"池田製麺",          city:"東かがわ市", type:"製麺所", dish:"かけうどん・釜玉" },
-    ];
 
     // ダミー投稿データ
     const DUMMY_POSTS = [
@@ -630,6 +578,9 @@
       document.getElementById('infoType').textContent = shop.type + '式';
       document.getElementById('infoDish').textContent = shop.dish;
       document.getElementById('infoCity').textContent = shop.city;
+      // 営業時間・定休日は店ごとのデータ（未設定なら案内文を表示）
+      document.getElementById('infoHours').textContent = shop.hours || '店舗にご確認ください';
+      document.getElementById('infoClosed').textContent = shop.closed || '店舗にご確認ください';
 
       // タイプバッジ
       const badge = document.getElementById('shopTypeBadge');
