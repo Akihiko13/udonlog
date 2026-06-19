@@ -575,42 +575,20 @@
   <script src="shops-data.js"></script>
   <script>
 
-    // ダミー投稿データ
-    const DUMMY_POSTS = [
-      {
-        user: "うどん太郎",
-        color: "#BA7517",
-        initial: "太",
-        rating: 5,
-        menu: "半熟卵天うどん",
-        comment: "天ぷらがサクサクで最高！揚げたてを乗せてもらえて、卵の半熟具合も絶妙でした。朝早く並ぶ価値あり！",
-        date: "2026年6月14日",
-        likes: 12,
-        hasPhoto: true,
-      },
-      {
-        user: "さぬき花子",
-        color: "#3B6FD4",
-        initial: "花",
-        rating: 4,
-        menu: "ちくわ天うどん",
-        comment: "麺のコシが素晴らしい。出汁も上品でクセになる味です。週1で来てます。",
-        date: "2026年6月10日",
-        likes: 8,
-        hasPhoto: false,
-      },
-      {
-        user: "高松うどん人",
-        color: "#2E8B57",
-        initial: "人",
-        rating: 5,
-        menu: "かけうどん（小）＋えび天",
-        comment: "香川に来たら絶対外せない一軒。シンプルなかけうどんが一番うまい。出汁が澄んでいて飽きない。",
-        date: "2026年6月5日",
-        likes: 21,
-        hasPhoto: true,
-      },
-    ];
+    // 投稿日の表示用フォーマット（2026-06-14 → 2026年6月14日）
+    function formatPostDate(d) {
+      if (!d) return '';
+      const dt = new Date(d);
+      if (isNaN(dt)) return '';
+      return `${dt.getFullYear()}年${dt.getMonth() + 1}月${dt.getDate()}日`;
+    }
+
+    // 投稿コメントのHTMLエスケープ（表示崩れ・タグ混入を防ぐ）
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"']/g, c => (
+        { '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]
+      ));
+    }
 
     // ダミー評価分布
     const RATING_DIST = { 5: 22, 4: 10, 3: 4, 2: 1, 1: 1 };
@@ -678,29 +656,44 @@
           </div>`;
       });
 
-      // 投稿一覧
-      document.getElementById('postsCount').textContent = `${DUMMY_POSTS.length}件表示中`;
+      // 投稿一覧（この店舗の記録を localStorage から取得）
+      // ※ B（会員DB）版では、ここを「全会員の公開投稿を取得」に差し替える
+      const allLogs = JSON.parse(localStorage.getItem('logs') || '[]');
+      const posts = allLogs.filter(l => l.shopId === shopId).reverse(); // 新しい順
+
+      document.getElementById('postsCount').textContent = posts.length ? `${posts.length}件` : '';
       const postsEl = document.getElementById('postsList');
-      postsEl.innerHTML = DUMMY_POSTS.map((p, i) => `
-        <div class="post-card">
-          <div class="post-header">
-            <div class="post-avatar" style="background:${p.color}">${p.initial}</div>
-            <div>
-              <div class="post-user-name">${p.user}</div>
-              <div class="post-date">${p.date}</div>
-            </div>
-            <div class="post-stars">
-              ${[1,2,3,4,5].map(n => `<span class="post-star${n <= p.rating ? '' : ' empty'}">★</span>`).join('')}
-            </div>
-          </div>
-          <span class="post-menu">${p.menu}</span>
-          ${p.hasPhoto ? `<div class="post-photo"><img src="kakeudon.png" alt="うどん"></div>` : ''}
-          <div class="post-comment">${p.comment}</div>
-          <div class="post-likes" onclick="toggleLike(this)">
-            <i class="ti ti-heart"></i> ${p.likes}
-          </div>
-        </div>
-      `).join('');
+      const moreBtn = document.querySelector('.btn-more');
+      if (moreBtn) moreBtn.style.display = 'none';
+
+      if (posts.length === 0) {
+        postsEl.innerHTML =
+          '<div style="text-align:center;color:#aaa;font-size:14px;padding:1.5rem 0;">' +
+          'まだ投稿がありません。<br>' +
+          '<a href="record.html?id=' + shop.id +
+            '&name=' + encodeURIComponent(shop.name) +
+            '&city=' + encodeURIComponent(shop.city) +
+            '&type=' + encodeURIComponent(shop.type) +
+          '" style="color:#BA7517;text-decoration:none;font-weight:600;">最初の記録を投稿する</a></div>';
+      } else {
+        postsEl.innerHTML = posts.map(p => {
+          const menu = (p.menus && p.menus.length) ? p.menus.join('・') : (p.menu || '');
+          const dateStr = formatPostDate(p.visitDate || p.savedAt);
+          return `
+            <div class="post-card">
+              <div class="post-header">
+                <div class="post-avatar" style="background:#BA7517">あ</div>
+                <div>
+                  <div class="post-user-name">あなた</div>
+                  <div class="post-date">${dateStr}</div>
+                </div>
+              </div>
+              ${menu ? `<span class="post-menu">${escapeHtml(menu)}</span>` : ''}
+              ${p.comment ? `<div class="post-comment">${escapeHtml(p.comment)}</div>` : ''}
+              ${p.photoCount ? `<div style="font-size:12px;color:#aaa;margin-top:8px;"><i class="ti ti-camera"></i> 写真${p.photoCount}枚</div>` : ''}
+            </div>`;
+        }).join('');
+      }
     }
 
     function toggleLike(el) {
