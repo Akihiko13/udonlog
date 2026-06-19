@@ -331,6 +331,77 @@
 
     .btn-post:hover { background: #9A6010; }
 
+    /* 投稿完了＆シェアモーダル */
+    .share-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.4);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      padding: 1.25rem;
+    }
+
+    .share-overlay.show { display: flex; }
+
+    .share-modal {
+      background: #fff;
+      border-radius: 16px;
+      padding: 2rem 1.5rem 1.5rem;
+      width: 100%;
+      max-width: 360px;
+      text-align: center;
+    }
+
+    .share-check {
+      width: 56px;
+      height: 56px;
+      margin: 0 auto 1rem;
+      background: #F0FAF3;
+      border: 0.5px solid #A8D9B5;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      color: #5BAD6F;
+    }
+
+    .share-title { font-size: 18px; font-weight: 700; margin-bottom: 6px; }
+    .share-desc { font-size: 14px; color: #666; margin-bottom: 1.5rem; }
+
+    .share-x {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      background: #000;
+      color: #fff;
+      border: none;
+      padding: 13px;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      text-decoration: none;
+      margin-bottom: 10px;
+    }
+
+    .share-x:hover { background: #222; }
+    .share-x svg { width: 18px; height: 18px; fill: #fff; flex-shrink: 0; }
+
+    .share-skip {
+      display: inline-block;
+      font-size: 14px;
+      color: #888;
+      text-decoration: none;
+      padding: 6px;
+    }
+
+    .share-skip:hover { color: #555; }
+
     /* トースト */
     .toast {
       position: fixed;
@@ -455,6 +526,22 @@
       記録を投稿する
     </button>
 
+  </div>
+
+  <!-- 投稿完了＆Xシェア -->
+  <div class="share-overlay" id="shareOverlay">
+    <div class="share-modal">
+      <div class="share-check"><i class="ti ti-check"></i></div>
+      <div class="share-title">記録を投稿しました！</div>
+      <div class="share-desc">この記録をXでシェアできます。</div>
+      <button class="share-x" onclick="shareToX()">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.74l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+        </svg>
+        Xでシェア
+      </button>
+      <a class="share-skip" href="mypage.html">シェアせずにマイページへ</a>
+    </div>
   </div>
 
   <div class="toast" id="toast"></div>
@@ -604,8 +691,26 @@
       visited.add(shopId);
       localStorage.setItem('visited', JSON.stringify([...visited]));
 
-      showToast('記録を投稿しました！');
-      setTimeout(() => { location.href = 'mypage.html'; }, 1500);
+      // シェア用に今回の記録内容を保持し、完了モーダルを表示
+      lastRecord = { name: shopName, city: shopCity, menus: menus };
+      document.getElementById('shareOverlay').classList.add('show');
+    }
+
+    // 直近の記録（Xシェア用）
+    let lastRecord = null;
+
+    // Xでシェア（APIや課金は不要。投稿インテントURLを開くだけ）
+    function shareToX() {
+      if (!lastRecord) return;
+      const menuText = lastRecord.menus.length ? lastRecord.menus.join('・') + 'を' : '';
+      const text = `🍜${lastRecord.name}（${lastRecord.city}）で${menuText}食べました！\n#うどんログ #さぬきうどん`;
+      // 店舗詳細ページの絶対URL（現在のホストに合わせて生成）
+      const shopUrl = new URL('shop-detail.html?id=' + shopId, location.href).href;
+      const intent = 'https://twitter.com/intent/tweet?text='
+        + encodeURIComponent(text) + '&url=' + encodeURIComponent(shopUrl);
+      window.open(intent, '_blank', 'noopener');
+      // シェア画面を開いたらマイページへ
+      setTimeout(() => { location.href = 'mypage.html'; }, 500);
     }
 
     // トースト
