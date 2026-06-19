@@ -703,7 +703,7 @@
     function shareToX() {
       if (!lastRecord) return;
       const menuText = lastRecord.menus.length ? lastRecord.menus.join('・') + 'を' : '';
-      const text = `🍜${lastRecord.name}（${lastRecord.city}）で${menuText}食べました！\n#うどんログ #さぬきうどん`;
+      const text = `🥢${lastRecord.name}（${lastRecord.city}）で${menuText}食べました！\n#うどんログ`;
       // 店舗詳細ページの絶対URL（現在のホストに合わせて生成）
       const shopUrl = new URL('shop-detail.html?id=' + shopId, location.href).href;
       const intent = 'https://twitter.com/intent/tweet?text='
