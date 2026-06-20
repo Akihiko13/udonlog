@@ -107,6 +107,12 @@
     .stamp-icon img { width: 40px; height: 40px; object-fit: contain; vertical-align: middle; }
     .slot.filled img { width: 26px; height: 26px; object-fit: contain; }
 
+    /* うどんアイコンを Tabler アイコン(ti-bowl-chopsticks)で表示する場合のスタイル */
+    .udon-i { font-size: 1.05em; vertical-align: -0.08em; line-height: 1; }
+    .profile-avatar i { color: #fff; font-size: 34px; line-height: 1; }
+    .visited-icon i { color: var(--amber); font-size: 20px; line-height: 1; }
+    .slot.filled i { color: var(--amber); font-size: 22px; line-height: 1; }
+
     /* うどん杯数パネル */
     .bowl-panel {
       background: linear-gradient(135deg, #BA7517 0%, #D89030 100%);
@@ -568,7 +574,7 @@
 
     <!-- プロフィール -->
     <div class="profile">
-      <div class="profile-avatar"><img src="kakeudon.png" alt="うどん"></div>
+      <div class="profile-avatar"><i class="ti ti-bowl-chopsticks"></i></div>
       <div>
         <div class="profile-name">うどん好きさん</div>
         <div class="profile-sub">香川のさぬきうどんを記録中</div>
@@ -577,7 +583,7 @@
 
     <!-- うどん杯数（期間集計） -->
     <div class="bowl-panel">
-      <div class="bowl-panel-title"><img class="udon-inline" src="kakeudon.png" alt=""> 食べたうどん</div>
+      <div class="bowl-panel-title"><i class="ti ti-bowl-chopsticks udon-i"></i> 食べたうどん</div>
       <div class="bowl-grid">
         <div class="bowl-item">
           <div class="bowl-num" id="cntWeek">0</div>
@@ -601,7 +607,7 @@
     <!-- 全店舗の制覇率 -->
     <div class="conquer-panel">
       <div class="conquer-head">
-        <span class="conquer-title"><img class="udon-inline" src="kakeudon.png" alt=""> 香川のうどん屋 制覇</span>
+        <span class="conquer-title"><i class="ti ti-bowl-chopsticks udon-i"></i> 香川のうどん屋 制覇</span>
         <span class="conquer-frac"><b id="conqVisited">0</b> / <span id="conqTotal">0</span>軒</span>
       </div>
       <div class="conquer-track"><div class="conquer-fill" id="conqFill" style="width:0%"></div></div>
@@ -653,7 +659,7 @@
 
     <!-- 訪問した店舗 -->
     <div class="section-head">
-      <div class="section-title"><img class="udon-inline" src="kakeudon.png" alt=""> 記録したお店</div>
+      <div class="section-title"><i class="ti ti-bowl-chopsticks udon-i"></i> 記録したお店</div>
       <div class="section-count" id="visitedCount">0軒</div>
     </div>
     <div class="visited-list" id="visitedList"></div>
@@ -807,7 +813,7 @@
       const book = document.getElementById('stampBook');
 
       if (total === 0) {
-        book.innerHTML = '<div class="book-empty">うどんを記録すると、ここにスタンプが1杯ごとに押されます <img class="udon-inline" src="kakeudon.png" alt=""></div>';
+        book.innerHTML = '<div class="book-empty">うどんを記録すると、ここにスタンプが1杯ごとに押されます <i class="ti ti-bowl-chopsticks udon-i"></i></div>';
         return;
       }
 
@@ -827,7 +833,7 @@
             const shop = shopOf(log);
             slots += `
               <div class="slot filled" title="${shop.name}（${shop.city}）">
-                <img src="kakeudon.png" alt=""><span class="slot-num">${stampIndex + 1}</span>
+                <i class="ti ti-bowl-chopsticks"></i><span class="slot-num">${stampIndex + 1}</span>
               </div>`;
           } else {
             slots += `<div class="slot empty">${stampIndex + 1}</div>`;
@@ -978,7 +984,7 @@
       } else {
         list.innerHTML = uniqueShops.map(s => `
           <a href="shop-detail.html?id=${s.id}" class="visited-item">
-            <div class="visited-icon"><img src="kakeudon.png" alt="うどん"></div>
+            <div class="visited-icon"><i class="ti ti-bowl-chopsticks"></i></div>
             <div>
               <div class="visited-name">${s.name}</div>
               <div class="visited-meta">${s.city} ・ ${s.type}</div>
