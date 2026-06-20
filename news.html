@@ -148,7 +148,7 @@
   <script src="news.js"></script>
   <script>
     // カテゴリごとのアイコン
-    const CAT_ICON = { '新店': '🆕', '閉店': '🔚', '機能': '✨', 'メンテ': '🔧', 'トピックス': '📣' };
+    const CAT_ICON = { '新店': '', '閉店': '', '機能': '', 'メンテ': '', 'トピックス': '' };
 
     function formatNewsDate(d) {
       const dt = new Date(d);
@@ -167,11 +167,10 @@
       list.innerHTML = '<div class="news-empty">お知らせはまだありません。</div>';
     } else {
       list.innerHTML = NEWS.map(n => {
-        const icon = CAT_ICON[n.category] || '';
         return `
           <div class="news-item">
             <div class="news-meta">
-              <span class="news-tag cat-${n.category}">${icon} ${n.category}</span>
+              <span class="news-tag cat-${n.category}">${n.category}</span>
               <span class="news-date">${formatNewsDate(n.date)}</span>
             </div>
             <div class="news-title">${escapeHtml(n.title)}</div>
