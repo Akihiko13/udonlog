@@ -238,6 +238,26 @@
       margin-left: auto;
     }
 
+    /* あなたの訪問回数 */
+    .my-visit {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: linear-gradient(135deg, #BA7517 0%, #D89030 100%);
+      color: #fff;
+      border-radius: 12px;
+      padding: 12px 16px;
+      margin-bottom: 1.25rem;
+    }
+
+    .my-visit-icon { font-size: 22px; line-height: 1; }
+    .my-visit-icon img { width: 24px; height: 24px; object-fit: contain; vertical-align: middle; }
+
+    .my-visit-num { font-size: 22px; font-weight: 800; }
+    .my-visit-num small { font-size: 13px; font-weight: 600; margin-left: 1px; }
+    .my-visit-label { font-size: 13px; opacity: 0.95; }
+    .my-visit-sub { font-size: 12px; opacity: 0.85; margin-left: auto; text-align: right; }
+
     .action-buttons {
       display: flex;
       gap: 10px;
@@ -520,6 +540,14 @@
         <div class="my-rating-text" id="myRatingText">タップして評価</div>
       </div>
 
+      <!-- あなたの訪問回数（この店をこれまで何回記録したか） -->
+      <div class="my-visit" id="myVisit" style="display:none;">
+        <span class="my-visit-icon"><img src="kakeudon.png" alt=""></span>
+        <span class="my-visit-label">あなたの訪問</span>
+        <span class="my-visit-num" id="myVisitNum">0<small>杯</small></span>
+        <span class="my-visit-sub" id="myVisitSub"></span>
+      </div>
+
       <!-- アクションボタン -->
       <div class="action-buttons">
         <a id="recordBtn" href="#" class="btn-primary">
@@ -677,6 +705,15 @@
       const posts = allLogs.filter(l => l.shopId === shopId).reverse(); // 新しい順
 
       document.getElementById('postsCount').textContent = posts.length ? `${posts.length}件` : '';
+
+      // あなたの訪問回数（この店を記録した杯数。1回以上で表示）
+      if (posts.length > 0) {
+        document.getElementById('myVisit').style.display = 'flex';
+        document.getElementById('myVisitNum').innerHTML = `${posts.length}<small>杯</small>`;
+        const last = formatPostDate(posts[0].visitDate || posts[0].savedAt);
+        document.getElementById('myVisitSub').textContent = last ? `最後の訪問：${last}` : '';
+      }
+
       const postsEl = document.getElementById('postsList');
       const moreBtn = document.querySelector('.btn-more');
       if (moreBtn) moreBtn.style.display = 'none';
