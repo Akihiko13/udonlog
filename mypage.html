@@ -793,17 +793,20 @@
     const AREA_TIERS = [20, 40, 60, 80, 100];
 
     function renderAreaBadges(uniqueShops) {
-      // SHOPSから「エリアごとの総店舗数」を集計（登場順を保持）
+      // 閉店した店は分母・分子の両方から除外する（達成率の母数は「営業中の店」）
+      const isOpen = s => s.status !== '閉店';
+
+      // SHOPSから「エリアごとの営業中の総店舗数」を集計（登場順を保持）
       const totalByCity = {};
       const order = [];
-      SHOPS.forEach(s => {
+      SHOPS.filter(isOpen).forEach(s => {
         if (!(s.city in totalByCity)) { totalByCity[s.city] = 0; order.push(s.city); }
         totalByCity[s.city]++;
       });
 
-      // 記録済みのユニーク店舗をエリアごとに集計
+      // 記録済みのユニーク店舗（営業中のみ）をエリアごとに集計
       const visitedByCity = {};
-      uniqueShops.forEach(s => {
+      uniqueShops.filter(isOpen).forEach(s => {
         visitedByCity[s.city] = (visitedByCity[s.city] || 0) + 1;
       });
 

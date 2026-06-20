@@ -17,6 +17,9 @@
 #   kana   … よみ（あいうえお順の並べ替え用。ひらがな。例：手打ちうどん いわせ → いわせ）
 #   hours  … 営業時間（任意。空欄なら詳細ページで「店舗にご確認ください」）
 #   closed … 定休日（任意。同上）
+#   status … 営業状態（空欄＝営業中 / 「閉店」＝閉店）。
+#            「閉店」にすると一覧から非表示になり、エリア達成率の分母からも除外される。
+#            idは消さず残すので、過去の記録・スタンプはそのまま保持される。
 # ===========================================================================
 
 import csv
@@ -69,6 +72,7 @@ def main():
             dish = (row.get('dish') or '').strip()
             hours = (row.get('hours') or '').strip()
             closed = (row.get('closed') or '').strip()
+            status = (row.get('status') or '').strip()
 
             # 検証
             if not id_raw.isdigit():
@@ -86,7 +90,7 @@ def main():
 
             rows.append({
                 'id': id_, 'name': name, 'kana': kana, 'city': city, 'type': type_,
-                'dish': dish, 'hours': hours, 'closed': closed,
+                'dish': dish, 'hours': hours, 'closed': closed, 'status': status,
             })
 
     if errors:
@@ -113,6 +117,8 @@ def main():
             parts.append(f'hours:"{esc(r["hours"])}"')
         if r['closed']:
             parts.append(f'closed:"{esc(r["closed"])}"')
+        if r['status']:
+            parts.append(f'status:"{esc(r["status"])}"')
         lines.append('  { ' + ', '.join(parts) + ' },')
 
     with open(OUT_FILE, 'w', encoding='utf-8') as f:

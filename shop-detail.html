@@ -492,6 +492,11 @@
         </div>
       </div>
 
+      <!-- 閉店バナー（status="閉店"の店のみ表示） -->
+      <div id="closedBanner" style="display:none; margin-top:12px; background:#f3f1ee; border:0.5px solid #ddd9d2; border-radius:10px; padding:10px 14px; font-size:13px; color:#888;">
+        <i class="ti ti-circle-x"></i> このお店は閉店しました。記録はできませんが、これまでの記録は残ります。
+      </div>
+
       <!-- 評価サマリー -->
       <div class="rating-summary">
         <div>
@@ -620,9 +625,19 @@
       else if (shop.type === '一般') badge.className = 'type-badge type-ippan';
       else badge.className = 'type-badge type-men';
 
-      // 記録・地図ボタン
-      document.getElementById('recordBtn').href =
-        `record.html?id=${shop.id}&name=${encodeURIComponent(shop.name)}&city=${encodeURIComponent(shop.city)}&type=${encodeURIComponent(shop.type)}`;
+      // 閉店している店は、バナーを出して記録ボタンを無効化する
+      const recordBtn = document.getElementById('recordBtn');
+      if (shop.status === '閉店') {
+        document.getElementById('closedBanner').style.display = 'block';
+        recordBtn.removeAttribute('href');
+        recordBtn.classList.add('btn-disabled');
+        recordBtn.style.pointerEvents = 'none';
+        recordBtn.style.opacity = '0.5';
+        recordBtn.innerHTML = '<i class="ti ti-circle-x"></i> 閉店しました';
+      } else {
+        recordBtn.href =
+          `record.html?id=${shop.id}&name=${encodeURIComponent(shop.name)}&city=${encodeURIComponent(shop.city)}&type=${encodeURIComponent(shop.type)}`;
+      }
       document.getElementById('mapBtn').href =
         `https://www.google.com/maps/search/${encodeURIComponent(shop.name + ' ' + shop.city)}`;
 
