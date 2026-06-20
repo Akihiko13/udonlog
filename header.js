@@ -36,7 +36,6 @@
       text-decoration: none;
       flex-shrink: 0;
     }
-    .ulog-logo img { width: 22px; height: 22px; object-fit: contain; }
     .ulog-nav {
       display: flex;
       align-items: center;
@@ -77,7 +76,7 @@
   header.className = 'ulog-header';
   header.innerHTML =
     '<a href="index.html" class="ulog-logo">' +
-      '<img src="kakeudon.png" alt="うどんログ"> うどんログ' +
+      'うどんログ' +
     '</a>' +
     '<nav class="ulog-nav">' +
       '<a href="shops.html" class="ulog-hide-sm">お店を探す</a>' +
