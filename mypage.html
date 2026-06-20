@@ -173,6 +173,54 @@
 
     .stat-label { font-size: 12px; color: var(--text-sub); }
 
+    /* 全店舗の制覇率パネル */
+    .conquer-panel {
+      background: var(--white);
+      border: 0.5px solid var(--amber-border);
+      border-radius: 16px;
+      padding: 1.1rem 1.25rem 1.25rem;
+      margin-bottom: 1rem;
+    }
+
+    .conquer-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .conquer-title { font-size: 14px; font-weight: 700; }
+
+    .conquer-frac { font-size: 14px; color: var(--text-sub); }
+
+    .conquer-frac b {
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--amber);
+    }
+
+    .conquer-track {
+      height: 12px;
+      background: #ece8e0;
+      border-radius: 99px;
+      overflow: hidden;
+    }
+
+    .conquer-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #BA7517 0%, #D89030 100%);
+      border-radius: 99px;
+      transition: width 0.5s;
+    }
+
+    .conquer-pct {
+      text-align: right;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--amber);
+      margin-top: 6px;
+    }
+
     /* セクションタイトル */
     .section-head {
       display: flex;
@@ -550,6 +598,16 @@
       </div>
     </div>
 
+    <!-- 全店舗の制覇率 -->
+    <div class="conquer-panel">
+      <div class="conquer-head">
+        <span class="conquer-title"><img class="udon-inline" src="kakeudon.png" alt=""> 香川のうどん屋 制覇</span>
+        <span class="conquer-frac"><b id="conqVisited">0</b> / <span id="conqTotal">0</span>軒</span>
+      </div>
+      <div class="conquer-track"><div class="conquer-fill" id="conqFill" style="width:0%"></div></div>
+      <div class="conquer-pct" id="conqPct">0%</div>
+    </div>
+
     <!-- 統計 -->
     <div class="stats">
       <div class="stat-card">
@@ -860,6 +918,16 @@
       document.getElementById('cntMonth').textContent = period.month;
       document.getElementById('cntYear').textContent  = period.year;
       document.getElementById('cntTotal').textContent = period.total;
+
+      // 全店舗の制覇率（営業中の店が母数。閉店した店は除外）
+      const openShops = SHOPS.filter(s => s.status !== '閉店');
+      const totalShops = openShops.length;
+      const visitedOpen = uniqueShops.filter(s => s.status !== '閉店').length;
+      const conqPct = totalShops ? Math.round((visitedOpen / totalShops) * 100) : 0;
+      document.getElementById('conqVisited').textContent = visitedOpen;
+      document.getElementById('conqTotal').textContent = totalShops;
+      document.getElementById('conqFill').style.width = conqPct + '%';
+      document.getElementById('conqPct').textContent = conqPct + '%';
 
       // 統計（上段カード）
       document.getElementById('statVisited').textContent = uniqueShops.length;
