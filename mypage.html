@@ -671,74 +671,75 @@
     // 各スタンプは「条件を満たした店舗数 / 目標数」で進捗を判定する。
     // check(visitedShops) は { current, goal } を返す。
     // この定義部分はB（会員DB版）でもそのまま再利用できる。
+    // 営業中の店舗から「総数」を算出（バッジ目標を店舗数に合わせて自動調整する）
+    const isOpenShop = s => s.status !== '閉店';
+    const TOTAL_SHOPS  = SHOPS.filter(isOpenShop).length;
+    const TOTAL_CITIES = new Set(SHOPS.filter(isOpenShop).map(s => s.city)).size;
+
+    // 軒数マイルストーン用ヘルパー（v=記録したユニーク店舗）
+    const countBadge = (v, goal) => ({ current: Math.min(v.length, goal), goal });
+    const typeBadge2 = (v, type, goal) => {
+      const c = v.filter(s => s.type === type).length;
+      return { current: Math.min(c, goal), goal };
+    };
+
+    // 難易度は将来の500店規模を想定して設定。100軒以上は店舗が増えるほど現実的になる。
     const STAMPS = [
       {
-        id: 'beginner',
-        icon: '🥢',
-        name: 'うどんビギナー',
+        id: 'beginner', icon: '🥢', name: 'うどんビギナー',
         desc: '初めてのうどんを記録',
-        check: (v) => ({ current: Math.min(v.length, 1), goal: 1 }),
+        check: (v) => countBadge(v, 1),
       },
       {
-        id: 'five',
-        icon: '<img src="kakeudon.png" alt="">',
-        name: 'うどん5軒',
-        desc: '5軒のお店を記録',
-        check: (v) => ({ current: Math.min(v.length, 5), goal: 5 }),
-      },
-      {
-        id: 'ten',
-        icon: '🏆',
-        name: 'うどん10軒',
+        id: 'm10', icon: '🍜', name: 'うどん10軒',
         desc: '10軒のお店を記録',
-        check: (v) => ({ current: Math.min(v.length, 10), goal: 10 }),
+        check: (v) => countBadge(v, 10),
       },
       {
-        id: 'takamatsu',
-        icon: '🏙️',
-        name: '高松マスター',
-        desc: '高松市を5軒記録',
+        id: 'm30', icon: '🥉', name: 'うどん30軒',
+        desc: '30軒のお店を記録',
+        check: (v) => countBadge(v, 30),
+      },
+      {
+        id: 'm50', icon: '🥈', name: 'うどん50軒',
+        desc: '50軒のお店を記録',
+        check: (v) => countBadge(v, 50),
+      },
+      {
+        id: 'm100', icon: '🥇', name: 'うどん100軒',
+        desc: '100軒のお店を記録',
+        check: (v) => countBadge(v, 100),
+      },
+      {
+        id: 'm200', icon: '🔥', name: 'うどん200軒',
+        desc: '200軒のお店を記録',
+        check: (v) => countBadge(v, 200),
+      },
+      {
+        id: 'seimenjo', icon: '🏭', name: '製麺所ハンター',
+        desc: '製麺所スタイルを15軒記録',
+        check: (v) => typeBadge2(v, '製麺所', 15),
+      },
+      {
+        id: 'self', icon: '🥡', name: 'セルフの達人',
+        desc: 'セルフ式を15軒記録',
+        check: (v) => typeBadge2(v, 'セルフ', 15),
+      },
+      {
+        id: 'allarea', icon: '🗺️', name: '全エリア制覇',
+        desc: `${TOTAL_CITIES}の市町すべてで記録`,
         check: (v) => {
-          const c = v.filter(s => s.city === '高松市').length;
-          return { current: Math.min(c, 5), goal: 5 };
+          const cities = new Set(v.filter(isOpenShop).map(s => s.city));
+          return { current: Math.min(cities.size, TOTAL_CITIES), goal: TOTAL_CITIES };
         },
       },
       {
-        id: 'seimenjo',
-        icon: '🏭',
-        name: '製麺所ハンター',
-        desc: '製麺所スタイルを3軒記録',
+        id: 'king', icon: '👑', name: 'さぬきうどん王',
+        desc: `全${TOTAL_SHOPS}軒を制覇`,
         check: (v) => {
-          const c = v.filter(s => s.type === '製麺所').length;
-          return { current: Math.min(c, 3), goal: 3 };
+          const c = v.filter(isOpenShop).length;
+          return { current: Math.min(c, TOTAL_SHOPS), goal: TOTAL_SHOPS };
         },
-      },
-      {
-        id: 'self',
-        icon: '🥡',
-        name: 'セルフの達人',
-        desc: 'セルフ式を5軒記録',
-        check: (v) => {
-          const c = v.filter(s => s.type === 'セルフ').length;
-          return { current: Math.min(c, 5), goal: 5 };
-        },
-      },
-      {
-        id: 'allarea',
-        icon: '🗺️',
-        name: '全エリア制覇',
-        desc: '5つの市町で記録',
-        check: (v) => {
-          const cities = new Set(v.map(s => s.city));
-          return { current: Math.min(cities.size, 5), goal: 5 };
-        },
-      },
-      {
-        id: 'king',
-        icon: '👑',
-        name: 'さぬきうどん王',
-        desc: '全50軒を制覇',
-        check: (v) => ({ current: v.length, goal: 50 }),
       },
     ];
 
