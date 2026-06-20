@@ -267,6 +267,69 @@
     .my-visit-label { font-size: 13px; opacity: 0.95; }
     .my-visit-sub { font-size: 12px; opacity: 0.85; margin-left: auto; text-align: right; }
 
+    /* この店の常連カード（10杯でコンプリート＝常連認定） */
+    .loyalty-card {
+      background: linear-gradient(160deg, #FFFDF8 0%, #FBF3E6 100%);
+      border: 0.5px solid #F0D9C0;
+      border-radius: 14px;
+      padding: 14px 16px 16px;
+      margin-bottom: 1.25rem;
+    }
+
+    .loyalty-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--amber);
+      margin-bottom: 12px;
+    }
+
+    .loyalty-tag {
+      background: var(--amber);
+      color: #fff;
+      font-size: 11px;
+      padding: 2px 10px;
+      border-radius: 99px;
+    }
+
+    .loyalty-slots {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+    }
+
+    .loy-slot {
+      aspect-ratio: 1;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .loy-slot.empty {
+      border: 2px dashed #e0d3bb;
+      color: #d8cdb8;
+    }
+
+    .loy-slot.filled {
+      background: #fff;
+      border: 2px solid var(--amber);
+      box-shadow: 0 1px 3px rgba(186,117,23,0.15);
+    }
+
+    .loy-slot.filled img { width: 20px; height: 20px; object-fit: contain; }
+
+    .loyalty-note {
+      font-size: 12px;
+      color: #8a6a3a;
+      margin-top: 10px;
+      text-align: center;
+    }
+
     .action-buttons {
       display: flex;
       gap: 10px;
@@ -557,6 +620,16 @@
         <span class="my-visit-sub" id="myVisitSub"></span>
       </div>
 
+      <!-- この店の常連カード（10杯でコンプリート＝常連認定） -->
+      <div class="loyalty-card" id="loyaltyCard" style="display:none;">
+        <div class="loyalty-head">
+          <span id="loyaltyTitle">常連カード</span>
+          <span class="loyalty-tag" id="loyaltyTag" style="display:none;">🏅 常連認定</span>
+        </div>
+        <div class="loyalty-slots" id="loyaltySlots"></div>
+        <div class="loyalty-note" id="loyaltyNote"></div>
+      </div>
+
       <!-- アクションボタン -->
       <div class="action-buttons">
         <a id="recordBtn" href="#" class="btn-primary">
@@ -618,6 +691,45 @@
   <script>
 
     // 投稿日の表示用フォーマット（2026-06-14 → 2026年6月14日）
+    // この店の常連カードを描画（visits=この店の記録杯数）
+    // 10杯で1枚コンプリート＝常連認定。10杯を超えたら次のカードへ進む。
+    const LOYALTY_SIZE = 10;
+    function renderLoyaltyCard(visits, shopName) {
+      const card = document.getElementById('loyaltyCard');
+      card.style.display = 'block';
+
+      const cardNo = Math.ceil(visits / LOYALTY_SIZE);          // 何枚目のカードか
+      const fill = visits - (cardNo - 1) * LOYALTY_SIZE;        // 今のカードの押印数(1〜10)
+      const isRegular = visits >= LOYALTY_SIZE;                 // 10杯以上で常連
+
+      // スタンプのマスを生成
+      let slots = '';
+      for (let i = 0; i < LOYALTY_SIZE; i++) {
+        const cupNo = (cardNo - 1) * LOYALTY_SIZE + i + 1;      // 通算の杯数
+        if (i < fill) {
+          slots += `<div class="loy-slot filled" title="${cupNo}杯目"><img src="kakeudon.png" alt=""></div>`;
+        } else {
+          slots += `<div class="loy-slot empty">${i + 1}</div>`;
+        }
+      }
+      document.getElementById('loyaltySlots').innerHTML = slots;
+
+      // タイトル・常連タグ
+      document.getElementById('loyaltyTitle').textContent =
+        isRegular ? `🏅 ${shopName}の常連！` : `${shopName}の常連カード`;
+      document.getElementById('loyaltyTag').style.display = isRegular ? '' : 'none';
+
+      // 案内文
+      const note = document.getElementById('loyaltyNote');
+      if (!isRegular) {
+        note.textContent = `常連まで あと${LOYALTY_SIZE - visits}杯`;
+      } else if (fill === LOYALTY_SIZE) {
+        note.textContent = `常連カード${cardNo}枚コンプリート！（通算${visits}杯）`;
+      } else {
+        note.textContent = `常連カード${cardNo}枚目を集め中（通算${visits}杯）`;
+      }
+    }
+
     function formatPostDate(d) {
       if (!d) return '';
       const dt = new Date(d);
@@ -724,6 +836,7 @@
         const last = formatPostDate(posts[0].visitDate || posts[0].savedAt);
         document.getElementById('myVisitSub').textContent = last ? `最後の訪問：${last}` : '';
         document.getElementById('myVisitNum').style.display = '';
+        renderLoyaltyCard(posts.length, shop.name);
       } else {
         // 未記録：落ち着いた色の案内バーに切り替える
         myVisit.classList.add('my-visit-empty');
