@@ -253,6 +253,15 @@
     .my-visit-icon { font-size: 22px; line-height: 1; }
     .my-visit-icon img { width: 24px; height: 24px; object-fit: contain; vertical-align: middle; }
 
+    /* 未記録の状態：アンバーをやめて控えめなグレー案内に */
+    .my-visit.my-visit-empty {
+      background: #f3f1ee;
+      color: #888;
+      border: 0.5px solid #ddd9d2;
+    }
+    .my-visit.my-visit-empty .my-visit-icon { opacity: 0.5; }
+    .my-visit.my-visit-empty .my-visit-label { font-size: 14px; }
+
     .my-visit-num { font-size: 22px; font-weight: 800; }
     .my-visit-num small { font-size: 13px; font-weight: 600; margin-left: 1px; }
     .my-visit-label { font-size: 13px; opacity: 0.95; }
@@ -706,12 +715,23 @@
 
       document.getElementById('postsCount').textContent = posts.length ? `${posts.length}件` : '';
 
-      // あなたの訪問回数（この店を記録した杯数。1回以上で表示）
+      // あなたの訪問回数（記録があれば杯数を、なければ未記録の案内を表示）
+      const myVisit = document.getElementById('myVisit');
       if (posts.length > 0) {
-        document.getElementById('myVisit').style.display = 'flex';
+        myVisit.classList.remove('my-visit-empty');
+        myVisit.style.display = 'flex';
         document.getElementById('myVisitNum').innerHTML = `${posts.length}<small>杯</small>`;
         const last = formatPostDate(posts[0].visitDate || posts[0].savedAt);
         document.getElementById('myVisitSub').textContent = last ? `最後の訪問：${last}` : '';
+        document.getElementById('myVisitNum').style.display = '';
+      } else {
+        // 未記録：落ち着いた色の案内バーに切り替える
+        myVisit.classList.add('my-visit-empty');
+        myVisit.style.display = 'flex';
+        document.getElementById('myVisitNum').style.display = 'none';
+        document.querySelector('#myVisit .my-visit-label').textContent =
+          'あなたはまだこの店を記録していません';
+        document.getElementById('myVisitSub').textContent = '';
       }
 
       const postsEl = document.getElementById('postsList');
