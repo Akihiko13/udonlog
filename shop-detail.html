@@ -378,6 +378,28 @@
 
     .btn-secondary:hover { background: #f5f5f0; }
 
+    /* ブログ記事リンク（記事がある店だけ表示） */
+    .btn-blog {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      width: 100%;
+      margin-top: 10px;
+      background: #FFF8EE;
+      color: var(--amber);
+      border: 0.5px solid #F0D9C0;
+      padding: 12px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+
+    .btn-blog:hover { background: #FBEFDD; }
+    .btn-blog .ti-external-link { font-size: 15px; opacity: 0.7; }
+
     /* セクション */
     .section {
       background: var(--white);
@@ -642,6 +664,12 @@
           <i class="ti ti-map"></i> 地図を見る
         </a>
       </div>
+
+      <!-- ブログ記事リンク（shop.blog がある店だけ表示） -->
+      <a id="blogBtn" href="#" target="_blank" rel="noopener" class="btn-blog" style="display:none;">
+        <i class="ti ti-notebook"></i> ブログで詳しく読む
+        <i class="ti ti-external-link"></i>
+      </a>
     </div>
 
     <!-- 基本情報 -->
@@ -792,6 +820,13 @@
       }
       document.getElementById('mapBtn').href =
         `https://www.google.com/maps/search/${encodeURIComponent(shop.name + ' ' + shop.city)}`;
+
+      // ブログ記事リンク（shop.blog が登録されている店だけボタンを表示）
+      if (shop.blog) {
+        const blogBtn = document.getElementById('blogBtn');
+        blogBtn.href = shop.blog;
+        blogBtn.style.display = 'flex';
+      }
 
       // 評価サマリー
       const total = Object.values(RATING_DIST).reduce((a, b) => a + b, 0);
