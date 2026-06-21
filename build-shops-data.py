@@ -22,6 +22,7 @@
 #            idは消さず残すので、過去の記録・スタンプはそのまま保持される。
 #   blog   … ブログ記事のURL（任意）。入れると店舗詳細に「ブログで詳しく読む」ボタンが出る。
 #            空欄ならボタンは表示されない。
+#   parking … 駐車場（"あり" / "なし" / 空欄=不明）。店舗詳細の基本情報に表示。
 # ===========================================================================
 
 import csv
@@ -76,6 +77,7 @@ def main():
             closed = (row.get('closed') or '').strip()
             status = (row.get('status') or '').strip()
             blog = (row.get('blog') or '').strip()
+            parking = (row.get('parking') or '').strip()
 
             # 検証
             if not id_raw.isdigit():
@@ -94,7 +96,7 @@ def main():
             rows.append({
                 'id': id_, 'name': name, 'kana': kana, 'city': city, 'type': type_,
                 'dish': dish, 'hours': hours, 'closed': closed, 'status': status,
-                'blog': blog,
+                'blog': blog, 'parking': parking,
             })
 
     if errors:
@@ -125,6 +127,8 @@ def main():
             parts.append(f'status:"{esc(r["status"])}"')
         if r['blog']:
             parts.append(f'blog:"{esc(r["blog"])}"')
+        if r['parking']:
+            parts.append(f'parking:"{esc(r["parking"])}"')
         lines.append('  { ' + ', '.join(parts) + ' },')
 
     with open(OUT_FILE, 'w', encoding='utf-8') as f:

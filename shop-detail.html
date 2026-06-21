@@ -700,6 +700,11 @@
         <span class="info-label">定休日</span>
         <span class="info-value" id="infoClosed">—</span>
       </div>
+      <div class="info-row">
+        <i class="ti ti-parking info-icon"></i>
+        <span class="info-label">駐車場</span>
+        <span class="info-value" id="infoParking">—</span>
+      </div>
     </div>
 
     <!-- 投稿一覧 -->
@@ -797,6 +802,7 @@
       // 営業時間・定休日は店ごとのデータ（未設定なら案内文を表示）
       document.getElementById('infoHours').textContent = shop.hours || '店舗にご確認ください';
       document.getElementById('infoClosed').textContent = shop.closed || '店舗にご確認ください';
+      document.getElementById('infoParking').textContent = shop.parking || '不明';
 
       // タイプバッジ
       const badge = document.getElementById('shopTypeBadge');
