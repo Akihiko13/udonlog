@@ -8,7 +8,7 @@
 
 const SHOPS = [
   { id:1, name:"竹清", kana:"ちくせい", city:"高松市", type:"セルフ", dish:"半熟卵天・ちくわ天" },
-  { id:2, name:"うどんバカ一代", kana:"うどんばかいちだい", city:"高松市", type:"セルフ", dish:"釜バター・ぶっかけ" },
+  { id:2, name:"うどんバカ一代", kana:"うどんばかいちだい", city:"高松市", type:"セルフ", dish:"釜バター・ぶっかけ", hours:"6:00〜18:00", closed:"元旦", blog:"https://kagawan.com/udonbakaichidai/", parking:"あり（45台）" },
   { id:3, name:"鶴丸うどん", kana:"つるまる", city:"高松市", type:"一般", dish:"かけうどん・ざるうどん" },
   { id:4, name:"めりけんや", kana:"めりけんや", city:"高松市", type:"セルフ", dish:"ぶっかけ・かけうどん" },
   { id:5, name:"池上製麺所", kana:"いけがみ", city:"高松市", type:"製麺所", dish:"釜玉・かけうどん" },
