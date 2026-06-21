@@ -440,8 +440,8 @@
     <div class="result-bar">
       <div class="result-label" id="result-label"></div>
       <div class="sort-toggle" id="sort-toggle">
-        <button class="sort-btn active" data-sort="area">エリア順</button>
-        <button class="sort-btn" data-sort="kana">五十音順</button>
+        <button class="sort-btn" data-sort="area">エリア順</button>
+        <button class="sort-btn active" data-sort="kana">五十音順</button>
       </div>
     </div>
     <div class="shops-grid" id="shops-grid"></div>
@@ -459,7 +459,7 @@
     let currentArea = '全て';
     let currentType = '全て';
     let searchQuery = '';
-    let currentSort = 'area';   // 'area'（既定の並び＝id順）/ 'kana'（あいうえお順）
+    let currentSort = 'kana';   // 既定は五十音順。'area'（id順）/ 'kana'（五十音順）
     // 訪問ログから「店ごとの杯数」と「記録済み店舗」を集計
     const logs = JSON.parse(localStorage.getItem('logs') || '[]');
     const visitCount = {};
