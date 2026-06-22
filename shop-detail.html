@@ -239,6 +239,14 @@
       margin-left: auto;
     }
 
+    /* 未記録の人は評価できない（星を無効化） */
+    .my-rating.locked .my-star {
+      pointer-events: none;
+      color: #e6e0d6;
+      cursor: default;
+    }
+    .my-rating.locked .my-rating-text { color: #b0a690; }
+
     /* あなたの訪問回数 */
     .my-visit {
       display: flex;
@@ -624,8 +632,8 @@
         <div class="rating-bars" id="ratingBars"></div>
       </div>
 
-      <!-- あなたのおすすめ度（お店ごとに1回・いつでも変更可） -->
-      <div class="my-rating">
+      <!-- あなたのおすすめ度（記録した人だけ設定可・いつでも変更可） -->
+      <div class="my-rating" id="myRating">
         <div class="my-rating-label">あなたのおすすめ度</div>
         <div class="my-stars" id="myStars">
           <button class="my-star" type="button" data-val="1" onclick="setMyRating(1)">★</button>
@@ -954,7 +962,18 @@
         val > 0 ? MY_RATING_LABELS[val] : 'タップして評価';
     }
 
+    // この店を1回でも記録しているか
+    function hasRecordForShop() {
+      const logs = JSON.parse(localStorage.getItem('logs') || '[]');
+      return logs.some(l => l.shopId === shopId);
+    }
+
     function setMyRating(val) {
+      // 記録がない人は評価できない
+      if (!hasRecordForShop()) {
+        showToast('記録するとおすすめ度を付けられます');
+        return;
+      }
       const ratings = JSON.parse(localStorage.getItem('shopRatings') || '{}');
       ratings[shopId] = val;
       localStorage.setItem('shopRatings', JSON.stringify(ratings));
@@ -965,6 +984,13 @@
     function restoreMyRating() {
       const ratings = JSON.parse(localStorage.getItem('shopRatings') || '{}');
       paintMyStars(ratings[shopId] || 0);
+
+      // 未記録の人は星を無効化し、案内文に切り替える
+      const can = hasRecordForShop();
+      document.getElementById('myRating').classList.toggle('locked', !can);
+      if (!can) {
+        document.getElementById('myRatingText').textContent = '記録すると評価できます';
+      }
     }
   </script>
 
