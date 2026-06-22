@@ -16,7 +16,7 @@ session_set_cookie_params([
   'secure'   => $https,     // HTTPSのみ送信
   'samesite' => 'Lax',      // 別サイトからのPOSTを抑止（CSRF対策の一助）
 ]);
-session_name('udonlog_sid');
+session_name('udolog_sid');
 session_start();
 
 // --- DB接続（PDO・プリペアドステートメント）---
