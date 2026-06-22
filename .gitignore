@@ -1,1 +1,7 @@
 .DS_Store
+
+# DB接続情報（パスワードを含む）は絶対に公開しない
+api/config.php
+
+# Numbers等で開いた時の一時ファイル
+*.numbers
