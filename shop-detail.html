@@ -774,6 +774,12 @@
       }
     }
 
+    // 定休日の表示整形（「月曜」→「月曜日」。空欄は案内文）
+    function formatClosed(c) {
+      if (!c || !c.trim()) return '店舗にご確認ください';
+      return c.replace(/曜(?!日)/g, '曜日');   // 「曜」の後に「日」が無ければ補う
+    }
+
     function formatPostDate(d) {
       if (!d) return '';
       const dt = new Date(d);
@@ -809,7 +815,7 @@
       document.getElementById('infoCity').textContent = shop.city;
       // 営業時間・定休日は店ごとのデータ（未設定なら案内文を表示）
       document.getElementById('infoHours').textContent = shop.hours || '店舗にご確認ください';
-      document.getElementById('infoClosed').textContent = shop.closed || '店舗にご確認ください';
+      document.getElementById('infoClosed').textContent = formatClosed(shop.closed);
       document.getElementById('infoParking').textContent = shop.parking || '不明';
 
       // タイプバッジ
