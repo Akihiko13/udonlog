@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>店舗詳細 — うどんログ</title>
+  <title>店舗詳細 — うどログ</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -806,7 +806,7 @@
       document.body.innerHTML = '<div style="padding:2rem;text-align:center;"><p>店舗が見つかりませんでした。</p><a href="shops.html">店舗一覧へ戻る</a></div>';
     } else {
       // 基本情報を表示
-      document.title = `${shop.name} — うどんログ`;
+      document.title = `${shop.name} — うどログ`;
       document.getElementById('headerTitle').textContent = shop.name;
       document.getElementById('shopName').textContent = shop.name;
       document.getElementById('shopCity').textContent = shop.city;

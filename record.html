@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>うどん記録を投稿 — うどんログ</title>
+  <title>うどん記録を投稿 — うどログ</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -704,7 +704,7 @@
     function shareToX() {
       if (!lastRecord) return;
       const menuText = lastRecord.menus.length ? lastRecord.menus.join('・') + 'を' : '';
-      const text = `🥢${lastRecord.name}（${lastRecord.city}）で${menuText}食べました！\n#うどんログ`;
+      const text = `🥢${lastRecord.name}（${lastRecord.city}）で${menuText}食べました！\n#うどログ`;
       // 店舗詳細ページの絶対URL（現在のホストに合わせて生成）
       const shopUrl = new URL('shop-detail.html?id=' + shopId, location.href).href;
       const intent = 'https://twitter.com/intent/tweet?text='

@@ -1,4 +1,4 @@
-# うどんログ 会員機能API（PHP + MySQL / Xサーバー）
+# うどログ 会員機能API（PHP + MySQL / Xサーバー）
 
 静的サイト（HTML/JS）から `fetch` で呼ぶJSON APIです。GitHub Pagesでは動きません（PHPが必要）。Xサーバーに置いて動かします。
 
