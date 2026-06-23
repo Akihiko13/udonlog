@@ -231,6 +231,29 @@
     .btn-email:hover { background: #9A6010; }
     .btn-email:disabled { background: #d0b080; cursor: not-allowed; }
 
+    /* パスワード強度メーター */
+    .pw-meter { margin-top: 8px; }
+    .pw-meter-bar { display: flex; gap: 4px; }
+    .pw-meter-bar span {
+      flex: 1;
+      height: 5px;
+      border-radius: 99px;
+      background: #e8e5e0;
+      transition: background 0.2s;
+    }
+    .pw-meter-label { font-size: 12px; margin-top: 5px; font-weight: 600; }
+    /* 強度レベル（lv1〜lv4 を bar に付与）*/
+    .pw-meter[data-lv="1"] .pw-meter-bar span:nth-child(-n+1),
+    .pw-meter[data-lv="2"] .pw-meter-bar span:nth-child(-n+2),
+    .pw-meter[data-lv="3"] .pw-meter-bar span:nth-child(-n+3),
+    .pw-meter[data-lv="4"] .pw-meter-bar span:nth-child(-n+4) { background: currentColor; }
+    .pw-meter[data-lv="1"] { color: #e2554e; }   /* 弱い */
+    .pw-meter[data-lv="2"] { color: #e0922f; }   /* ふつう */
+    .pw-meter[data-lv="3"] { color: #5BAD6F; }   /* 強い */
+    .pw-meter[data-lv="4"] { color: #2E8B57; }   /* とても強い */
+    .pw-meter.danger { color: #e2554e; }
+    .pw-meter.danger .pw-meter-bar span { background: #f3c6c3 !important; }
+
     /* 認証済みバッジ（ステップ2） */
     .auth-badge {
       display: flex;
@@ -437,6 +460,13 @@
             <i class="ti ti-eye" id="pw-icon"></i>
           </button>
         </div>
+        <!-- パスワード強度メーター -->
+        <div class="pw-meter" id="pw-meter" style="display:none;">
+          <div class="pw-meter-bar">
+            <span></span><span></span><span></span><span></span>
+          </div>
+          <div class="pw-meter-label" id="pw-meter-label"></div>
+        </div>
       </div>
 
       <button class="btn-email" id="email-btn" onclick="connectEmail()" disabled>
@@ -555,13 +585,54 @@
       return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
     }
 
+    // ありがちで危険なパスワード（サーバー側 register.php でも同じくブロック）
+    const COMMON_PASSWORDS = new Set([
+      'password','password1','password123','passw0rd','12345678','123456789','1234567890',
+      'qwerty','qwertyui','qwerty123','11111111','00000000','88888888','12341234',
+      'abcd1234','abc12345','1q2w3e4r','1qaz2wsx','asdfghjk','zxcvbnm','qazwsxedc',
+      'iloveyou','letmein','letmein1','welcome','welcome1','admin123','administrator',
+      'sunshine','princess','football','baseball','monkey12','dragon12','starwars',
+      'trustno1','superman','batman12','master12','shadow12','google12','whatever',
+      'udonudon','udon1234','sanuki','sanukiudon','udolog','udolog123','kagawa1234',
+    ]);
+    function isCommonPassword(pw) { return COMMON_PASSWORDS.has(pw.toLowerCase()); }
+
+    // 強度評価：{ lv:1-4, danger, label }
+    function passwordStrength(pw) {
+      if (isCommonPassword(pw)) {
+        return { lv: 0, danger: true, label: 'このパスワードは使われすぎていて危険です' };
+      }
+      let score = 0;
+      if (pw.length >= 8)  score++;
+      if (pw.length >= 12) score++;
+      if (/[a-z]/.test(pw) && /[A-Z]/.test(pw)) score++;   // 大小英字
+      if (/\d/.test(pw))   score++;                        // 数字
+      if (/[^A-Za-z0-9]/.test(pw)) score++;                // 記号
+      const lv = Math.min(4, Math.max(1, score - 1));
+      const labels = { 1: '弱い', 2: 'ふつう', 3: '強い', 4: 'とても強い' };
+      return { lv, danger: false, label: '強度：' + labels[lv] };
+    }
+
+    function updateMeter() {
+      const pw = passwordInput.value;
+      const meter = document.getElementById('pw-meter');
+      const labelEl = document.getElementById('pw-meter-label');
+      if (!pw) { meter.style.display = 'none'; return; }
+      meter.style.display = 'block';
+      const s = passwordStrength(pw);
+      meter.classList.toggle('danger', s.danger);
+      meter.setAttribute('data-lv', s.danger ? '0' : String(s.lv));
+      labelEl.textContent = (pw.length < 8 && !s.danger) ? 'パスワードは8文字以上にしてください' : s.label;
+    }
+
     function updateEmailBtn() {
-      const ok = validateEmail(emailInput.value) && passwordInput.value.length >= 8;
+      const pw = passwordInput.value;
+      const ok = validateEmail(emailInput.value) && pw.length >= 8 && !isCommonPassword(pw);
       emailBtn.disabled = !ok;
     }
 
     emailInput.addEventListener('input', updateEmailBtn);
-    passwordInput.addEventListener('input', updateEmailBtn);
+    passwordInput.addEventListener('input', function () { updateMeter(); updateEmailBtn(); });
 
     function togglePassword() {
       const isText = passwordInput.type === 'text';
