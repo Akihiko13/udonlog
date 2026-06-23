@@ -23,12 +23,18 @@ const API = (function () {
   }
 
   // ログイン状態とCSRFトークンを取得（各ページ読み込み時に最初に呼ぶ）
-  async function refresh() {
-    const res = await fetch(base + 'me.php', { credentials: 'same-origin' });
-    const d = await _json(res);
-    _user = d.user || null;
-    _csrf = d.csrf || '';
-    return d;
+  // 複数箇所から呼ばれても、最初の1回の結果を共有する（force=trueで再取得）
+  let _ready = null;
+  function refresh(force) {
+    if (!force && _ready) return _ready;
+    _ready = (async () => {
+      const res = await fetch(base + 'me.php', { credentials: 'same-origin' });
+      const d = await _json(res);
+      _user = d.user || null;
+      _csrf = d.csrf || '';
+      return d;
+    })();
+    return _ready;
   }
 
   async function get(path) {

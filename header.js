@@ -71,22 +71,44 @@
   style.textContent = css;
   document.head.appendChild(style);
 
-  // --- ヘッダー本体 ---
+  // --- ヘッダー本体（ナビは後でログイン状態に応じて差し替え）---
   var header = document.createElement('header');
   header.className = 'ulog-header';
   header.innerHTML =
-    '<a href="index.html" class="ulog-logo">' +
-      'うどログ' +
-    '</a>' +
-    '<nav class="ulog-nav">' +
-      '<a href="shops.html" class="ulog-hide-sm">お店を探す</a>' +
-      '<a href="mypage.html">マイページ</a>' +
-      '<a href="login.html">ログイン</a>' +
-      '<a href="register.html" class="ulog-cta">無料登録</a>' +
-    '</nav>';
+    '<a href="index.html" class="ulog-logo">うどログ</a>' +
+    '<nav class="ulog-nav" id="ulog-nav"></nav>';
 
   document.body.insertBefore(header, document.body.firstChild);
+  document.body.style.paddingTop = '54px';   // 固定ヘッダー(54px)分の余白
 
-  // 固定ヘッダー(54px)の分だけ本文に上余白を付ける
-  document.body.style.paddingTop = '54px';
+  // --- ナビの描画（ログイン状態で出し分け）---
+  function renderNav(user) {
+    var nav = document.getElementById('ulog-nav');
+    if (!nav) return;
+    if (user) {
+      nav.innerHTML =
+        '<a href="shops.html" class="ulog-hide-sm">お店を探す</a>' +
+        '<a href="mypage.html">マイページ</a>' +
+        '<a href="#" id="ulog-logout">ログアウト</a>';
+      var lo = document.getElementById('ulog-logout');
+      lo.addEventListener('click', function (e) {
+        e.preventDefault();
+        (async function () {
+          try { await API.refresh(); await API.post('logout.php', {}); } catch (_) {}
+          location.href = 'index.html';
+        })();
+      });
+    } else {
+      nav.innerHTML =
+        '<a href="shops.html" class="ulog-hide-sm">お店を探す</a>' +
+        '<a href="login.html">ログイン</a>' +
+        '<a href="register.html" class="ulog-cta">無料登録</a>';
+    }
+  }
+
+  // まず未ログイン表示 → APIでログイン状態が分かれば差し替え
+  renderNav(null);
+  if (typeof API !== 'undefined') {
+    API.refresh().then(function (d) { renderNav(d.user); }).catch(function () {});
+  }
 })();

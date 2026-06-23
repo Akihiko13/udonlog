@@ -389,6 +389,7 @@
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
   <link rel="manifest" href="site.webmanifest">
   <meta name="theme-color" content="#BA7517">
+  <script src="api.js"></script>
 </head>
 <body>
 
@@ -600,16 +601,35 @@
       }, duration);
     }
 
-    function connectX() { showStep2('x'); }
+    // Xログインは後日実装（auth_identitiesで対応予定）。今は案内のみ。
+    function connectX() { alert('Xでの登録は準備中です。メールアドレスで登録してください。'); }
     function connectEmail() { showStep2('email'); }
 
-    function completeRegister() {
-      document.getElementById('step2').classList.remove('active');
-      document.getElementById('dot2').classList.remove('active');
-      document.getElementById('dot2').classList.add('done');
-      document.getElementById('dot3').classList.add('active');
-      document.getElementById('step3').classList.add('active');
-      document.getElementById('footer-link').style.display = 'none';
+    async function completeRegister() {
+      const btn = document.getElementById('submit-btn');
+      const original = btn.textContent;
+      btn.disabled = true;
+      btn.textContent = '登録中…';
+      try {
+        await API.refresh();
+        await API.post('register.php', {
+          email: emailInput.value.trim(),
+          password: passwordInput.value,
+          nickname: nicknameInput.value.trim(),
+          city: document.getElementById('city').value || '',
+        });
+        // 登録成功（この時点でログイン済み）→ 完了画面へ
+        document.getElementById('step2').classList.remove('active');
+        document.getElementById('dot2').classList.remove('active');
+        document.getElementById('dot2').classList.add('done');
+        document.getElementById('dot3').classList.add('active');
+        document.getElementById('step3').classList.add('active');
+        document.getElementById('footer-link').style.display = 'none';
+      } catch (err) {
+        alert(err.message || '登録に失敗しました');
+        btn.disabled = false;
+        btn.textContent = original;
+      }
     }
   </script>
 

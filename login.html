@@ -245,6 +245,7 @@
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
   <link rel="manifest" href="site.webmanifest">
   <meta name="theme-color" content="#BA7517">
+  <script src="api.js"></script>
 </head>
 <body>
 
@@ -320,10 +321,26 @@
       }
     }
 
-    function handleLogin(e) {
+    async function handleLogin(e) {
       e.preventDefault();
-      // 現時点では会員機能未実装のためデモ表示
-      alert('ログイン機能は現在準備中です。');
+      const btn = e.target.querySelector('.btn-login');
+      btn.disabled = true;
+      const original = btn.textContent;
+      btn.textContent = 'ログイン中…';
+      try {
+        await API.refresh();                 // CSRFトークンを取得
+        await API.post('login.php', {
+          email: document.getElementById('email').value.trim(),
+          password: document.getElementById('password').value,
+        });
+        // ログイン後の戻り先（?next=... があればそこへ、無ければマイページ）
+        const next = new URLSearchParams(location.search).get('next');
+        location.href = next || 'mypage.html';
+      } catch (err) {
+        alert(err.message || 'ログインに失敗しました');
+        btn.disabled = false;
+        btn.textContent = original;
+      }
     }
   </script>
 
