@@ -231,8 +231,12 @@
     .btn-email:hover { background: #9A6010; }
     .btn-email:disabled { background: #d0b080; cursor: not-allowed; }
 
-    /* パスワード強度メーター */
+    /* パスワード欄の補足テキスト */
+    .pw-hint { font-size: 12px; color: #888; margin-top: 6px; line-height: 1.5; }
+
+    /* パスワード強度メーター（常に場所を確保しボタンがずれないようにする）*/
     .pw-meter { margin-top: 8px; }
+    .pw-meter-label { min-height: 16px; }
     .pw-meter-bar { display: flex; gap: 4px; }
     .pw-meter-bar span {
       flex: 1;
@@ -447,21 +451,23 @@
 
       <div class="divider">または</div>
 
+      <form id="email-form" autocomplete="on" onsubmit="onEmailSubmit(event)">
       <div class="form-group">
         <label for="email">メールアドレス</label>
-        <input type="email" id="email" placeholder="example@email.com">
+        <input type="email" id="email" name="email" placeholder="example@email.com" autocomplete="username">
       </div>
 
       <div class="form-group">
         <label for="password">パスワード</label>
         <div class="password-wrap">
-          <input type="password" id="password" placeholder="8文字以上">
+          <input type="password" id="password" name="new-password" placeholder="8文字以上" autocomplete="new-password">
           <button class="toggle-pw" type="button" onclick="togglePassword()" id="toggle-pw-btn" aria-label="パスワードを表示">
             <i class="ti ti-eye" id="pw-icon"></i>
           </button>
         </div>
-        <!-- パスワード強度メーター -->
-        <div class="pw-meter" id="pw-meter" style="display:none;">
+        <p class="pw-hint">数字や記号は必須ではありませんが、他のサイトで使い回していないものにしてください。</p>
+        <!-- パスワード強度メーター（あらかじめ場所を確保してボタンがずれないように）-->
+        <div class="pw-meter" id="pw-meter">
           <div class="pw-meter-bar">
             <span></span><span></span><span></span><span></span>
           </div>
@@ -469,9 +475,10 @@
         </div>
       </div>
 
-      <button class="btn-email" id="email-btn" onclick="connectEmail()" disabled>
+      <button class="btn-email" id="email-btn" type="submit" disabled>
         メールアドレスで続ける
       </button>
+      </form>
     </div>
 
     <!-- ローディング -->
@@ -617,8 +624,12 @@
       const pw = passwordInput.value;
       const meter = document.getElementById('pw-meter');
       const labelEl = document.getElementById('pw-meter-label');
-      if (!pw) { meter.style.display = 'none'; return; }
-      meter.style.display = 'block';
+      if (!pw) {                       // 未入力：場所は確保したままグレー表示に戻す
+        meter.classList.remove('danger');
+        meter.removeAttribute('data-lv');
+        labelEl.textContent = '';
+        return;
+      }
       const s = passwordStrength(pw);
       meter.classList.toggle('danger', s.danger);
       meter.setAttribute('data-lv', s.danger ? '0' : String(s.lv));
@@ -675,6 +686,12 @@
     // Xログインは後日実装（auth_identitiesで対応予定）。今は案内のみ。
     function connectX() { alert('Xでの登録は準備中です。メールアドレスで登録してください。'); }
     function connectEmail() { showStep2('email'); }
+
+    // メールフォームの送信（Enter/ボタン）→ ページ遷移せずステップ2へ
+    function onEmailSubmit(e) {
+      e.preventDefault();
+      if (!document.getElementById('email-btn').disabled) connectEmail();
+    }
 
     async function completeRegister() {
       const btn = document.getElementById('submit-btn');
