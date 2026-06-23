@@ -303,6 +303,14 @@
 
     .city-note { font-size: 12px; color: #aaa; margin-top: 4px; }
 
+    /* Xユーザー名入力（先頭に@を表示）*/
+    .x-input-wrap { position: relative; }
+    .x-input-wrap .x-at {
+      position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+      color: #888; font-size: 14px; pointer-events: none;
+    }
+    .x-input-wrap input { padding-left: 26px; }
+
     /* 利用規約 */
     .terms {
       display: flex;
@@ -520,7 +528,7 @@
       </div>
 
       <div class="form-group">
-        <label>お住まいの市町村 <span class="optional">任意</span></label>
+        <label>活動エリア（よく行くエリア） <span class="optional">任意</span></label>
         <select id="city">
           <option value="">選択してください</option>
           <optgroup label="東讃">
@@ -546,8 +554,20 @@
             <option>小豆島町</option>
             <option>土庄町</option>
           </optgroup>
+          <optgroup label="その他">
+            <option>香川県外・その他</option>
+          </optgroup>
         </select>
-        <div class="city-note">うどん屋の近くのユーザーと繋がりやすくなります</div>
+        <div class="city-note">よく食べに行くエリアの人と繋がりやすくなります</div>
+      </div>
+
+      <div class="form-group">
+        <label>X（旧Twitter）のユーザー名 <span class="optional">任意</span></label>
+        <div class="x-input-wrap">
+          <span class="x-at">@</span>
+          <input type="text" id="x_handle" placeholder="udon_taro" maxlength="15" autocomplete="off">
+        </div>
+        <div class="city-note">入力すると、あなたの投稿からXへリンクされ、ファン同士で交流できます</div>
       </div>
 
       <div class="form-group">
@@ -705,6 +725,7 @@
           password: passwordInput.value,
           nickname: nicknameInput.value.trim(),
           city: document.getElementById('city').value || '',
+          x_handle: document.getElementById('x_handle').value.trim().replace(/^@+/, ''),
         });
         // 登録成功（この時点でログイン済み）→ 完了画面へ
         document.getElementById('step2').classList.remove('active');

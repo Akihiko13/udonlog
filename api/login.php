@@ -8,7 +8,7 @@ $in    = body();
 $email = trim((string)($in['email'] ?? ''));
 $pass  = (string)($in['password'] ?? '');
 
-$st = db()->prepare('SELECT id, password_hash, nickname, city FROM users WHERE email = ?');
+$st = db()->prepare('SELECT id, password_hash, nickname, city, x_handle FROM users WHERE email = ?');
 $st->execute([$email]);
 $u = $st->fetch();
 
@@ -20,6 +20,6 @@ if (!$u || empty($u['password_hash']) || !password_verify($pass, $u['password_ha
 login_user((int)$u['id']);
 json_out([
   'ok'   => true,
-  'user' => ['id' => (int)$u['id'], 'email' => $email, 'nickname' => $u['nickname'], 'city' => $u['city']],
+  'user' => ['id' => (int)$u['id'], 'email' => $email, 'nickname' => $u['nickname'], 'city' => $u['city'], 'x_handle' => $u['x_handle']],
   'csrf' => csrf_token(),
 ]);

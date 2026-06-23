@@ -12,7 +12,8 @@ CREATE TABLE IF NOT EXISTS users (
   email         VARCHAR(255) UNIQUE,                 -- メール（OAuth専用化に備えNULL許容）
   password_hash VARCHAR(255) NULL,                   -- パスワード（OAuthのみの人はNULL）
   nickname      VARCHAR(50)  NOT NULL,
-  city          VARCHAR(20)  NULL,                   -- お住まいの市町
+  city          VARCHAR(20)  NULL,                   -- 活動エリア（よく行くエリア）
+  x_handle      VARCHAR(15)  NULL,                   -- Xのユーザー名（@なし）
   created_at    DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at    DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

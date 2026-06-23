@@ -75,7 +75,7 @@ function require_csrf(): void {
 // --- 認証ヘルパー ---
 function current_user(): ?array {
   if (empty($_SESSION['uid'])) return null;
-  $st = db()->prepare('SELECT id, email, nickname, city FROM users WHERE id = ?');
+  $st = db()->prepare('SELECT id, email, nickname, city, x_handle FROM users WHERE id = ?');
   $st->execute([$_SESSION['uid']]);
   $u = $st->fetch();
   if ($u) { $u['id'] = (int)$u['id']; }

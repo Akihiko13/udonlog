@@ -8,7 +8,7 @@ if ($shop_id <= 0) json_error('店舗が指定されていません');
 
 // 公開投稿（新しい順・最大100件）
 $st = db()->prepare(
-  'SELECT u.nickname, l.menus, l.comment, l.visit_date, l.photo_count, l.created_at
+  'SELECT u.nickname, u.x_handle, l.menus, l.comment, l.visit_date, l.photo_count, l.created_at
    FROM logs l JOIN users u ON u.id = l.user_id
    WHERE l.shop_id = ? AND l.is_public = 1
    ORDER BY l.id DESC LIMIT 100'
@@ -18,6 +18,7 @@ $posts = [];
 foreach ($st as $r) {
   $posts[] = [
     'nickname'  => $r['nickname'],
+    'xHandle'   => $r['x_handle'],   // Xユーザー名（@なし。nullなら未設定）
     'menus'     => ($r['menus'] !== null && $r['menus'] !== '') ? explode('・', $r['menus']) : [],
     'comment'   => $r['comment'] ?? '',
     'visitDate' => $r['visit_date'],
