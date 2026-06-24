@@ -12,7 +12,8 @@
       position: fixed;
       top: 0;
       left: 0;
-      right: 0;
+      width: 100vw;          /* 画面幅に固定（ページのスクロール状態でズレないように）*/
+      box-sizing: border-box;
       z-index: 500;
       display: flex;
       align-items: center;
