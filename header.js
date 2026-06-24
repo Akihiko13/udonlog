@@ -40,6 +40,16 @@
       display: flex;
       align-items: center;
       gap: 1.25rem;
+      /* ページ独自の nav{} 指定（padding/背景/高さ等）が漏れてこないようリセット */
+      margin: 0;
+      padding: 0;
+      height: auto;
+      background: none;
+      border: none;
+      box-shadow: none;
+      position: static;
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
     }
     .ulog-nav a {
       font-size: 13px;
