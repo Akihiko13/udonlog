@@ -468,18 +468,10 @@
     let currentType = '全て';
     let searchQuery = '';
     let currentSort = 'kana';   // 既定は五十音順。'area'（id順）/ 'kana'（五十音順）
-    // 訪問ログから「店ごとの杯数」と「記録済み店舗」を集計
-    const logs = JSON.parse(localStorage.getItem('logs') || '[]');
-    const visitCount = {};
-    logs.forEach(l => { visitCount[l.shopId] = (visitCount[l.shopId] || 0) + 1; });
-    // logsがあればそれを優先、無ければ旧visitedを使う
-    const visited = new Set(
-      logs.length > 0 ? logs.map(l => l.shopId) : JSON.parse(localStorage.getItem('visited') || '[]')
-    );
-
-    function saveVisited() {
-      localStorage.setItem('visited', JSON.stringify([...visited]));
-    }
+    // 訪問記録（ログイン時にサーバーから取得して「店ごとの杯数」「記録済み店舗」を集計）
+    let logs = [];
+    let visitCount = {};
+    let visited = new Set();
 
     function typeBadge(type) {
       if (type === 'セルフ') return '<span class="type-badge self">セルフ</span>';
@@ -542,20 +534,6 @@
       }).join('');
     }
 
-    function toggleVisit(id, btn) {
-      const shop = SHOPS.find(s => s.id === id);
-      // 記録済み → 削除してリンクに戻す
-      visited.delete(id);
-      const a = document.createElement('a');
-      a.className = 'btn-taberu';
-      a.href = `record.html?name=${encodeURIComponent(shop.name)}&city=${encodeURIComponent(shop.city)}&type=${encodeURIComponent(shop.type)}`;
-      a.innerHTML = '<i class="ti ti-plus" aria-hidden="true"></i> 食べた！';
-      btn.replaceWith(a);
-      showToast(`「${shop.name}」の記録を削除しました`);
-      saveVisited();
-      document.getElementById('nav-count').textContent = `${visited.size}店舗 記録済み`;
-    }
-
     function showToast(msg) {
       const toast = document.getElementById('toast');
       toast.textContent = msg;
@@ -611,7 +589,23 @@
       render();
     });
 
-    render();
+    // === 初期化：ログイン中ならサーバーの記録を取得して反映（未ログインでも一覧は見られる）===
+    (async function init() {
+      try { await API.refresh(); } catch (e) {}
+      if (API.isLoggedIn && API.isLoggedIn()) {
+        try {
+          const data = await API.get('my_logs.php');
+          logs = data.logs || [];
+          visitCount = {};
+          visited = new Set();
+          logs.forEach(l => {
+            visitCount[l.shopId] = (visitCount[l.shopId] || 0) + 1;
+            visited.add(l.shopId);
+          });
+        } catch (e) {}
+      }
+      render();
+    })();
   </script>
 
   <script src="header.js"></script>

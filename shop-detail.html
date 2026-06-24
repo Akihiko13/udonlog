@@ -862,9 +862,6 @@
       document.getElementById('avgScore').textContent = avg;
       document.getElementById('reviewCount').textContent = `${total}人のおすすめ度`;
 
-      // あなたのおすすめ度を復元
-      restoreMyRating();
-
       // 星
       const starsEl = document.getElementById('avgStars');
       for (let i = 1; i <= 5; i++) {
@@ -886,33 +883,29 @@
           </div>`;
       });
 
-      // 投稿一覧（この店舗の記録を localStorage から取得）
-      // ※ B（会員DB）版では、ここを「全会員の公開投稿を取得」に差し替える
-      const allLogs = JSON.parse(localStorage.getItem('logs') || '[]');
-      const posts = allLogs.filter(l => l.shopId === shopId).reverse(); // 新しい順
+      // みんなの投稿・あなたの訪問回数・おすすめ度をサーバーから取得して表示
+      loadShopActivity();
+    }
 
-      document.getElementById('postsCount').textContent = posts.length ? `${posts.length}件` : '';
-
-      // あなたの訪問回数（記録があれば杯数を、なければ未記録の案内を表示）
-      const myVisit = document.getElementById('myVisit');
-      if (posts.length > 0) {
-        myVisit.classList.remove('my-visit-empty');
-        myVisit.style.display = 'flex';
-        document.getElementById('myVisitNum').innerHTML = `${posts.length}<small>杯</small>`;
-        const last = formatPostDate(posts[0].visitDate || posts[0].savedAt);
-        document.getElementById('myVisitSub').textContent = last ? `最後の訪問：${last}` : '';
-        document.getElementById('myVisitNum').style.display = '';
-        renderLoyaltyCard(posts.length, shop.name);
-      } else {
-        // 未記録：落ち着いた色の案内バーに切り替える
-        myVisit.classList.add('my-visit-empty');
-        myVisit.style.display = 'flex';
-        document.getElementById('myVisitNum').style.display = 'none';
-        document.querySelector('#myVisit .my-visit-label').textContent =
-          'あなたはまだこの店を記録していません';
-        document.getElementById('myVisitSub').textContent = '';
+    // この店のアクティビティ（全会員の公開投稿＋自分の訪問数・評価）をサーバーから取得
+    let myActivity = null;   // ログイン中かつ自分の集計（{count,lastVisit,rating}）/ 未ログインはnull
+    async function loadShopActivity() {
+      let data;
+      try { await API.refresh(); } catch (e) {}
+      try {
+        data = await API.get('shop_logs.php?shop_id=' + shopId);
+      } catch (e) {
+        data = { posts: [], my: null };
       }
+      myActivity = data.my || null;
+      renderPosts(data.posts || []);
+      renderMyVisit(myActivity);
+      renderRatingUI(myActivity);
+    }
 
+    // みんなの投稿（ニックネーム＋Xリンクで交流）
+    function renderPosts(posts) {
+      document.getElementById('postsCount').textContent = posts.length ? `${posts.length}件` : '';
       const postsEl = document.getElementById('postsList');
       const moreBtn = document.querySelector('.btn-more');
       if (moreBtn) moreBtn.style.display = 'none';
@@ -926,24 +919,53 @@
             '&city=' + encodeURIComponent(shop.city) +
             '&type=' + encodeURIComponent(shop.type) +
           '" style="color:#BA7517;text-decoration:none;font-weight:600;">最初の記録を投稿する</a></div>';
-      } else {
-        postsEl.innerHTML = posts.map(p => {
-          const menu = (p.menus && p.menus.length) ? p.menus.join('・') : (p.menu || '');
-          const dateStr = formatPostDate(p.visitDate || p.savedAt);
-          return `
-            <div class="post-card">
-              <div class="post-header">
-                <div class="post-avatar" style="background:#BA7517">あ</div>
-                <div>
-                  <div class="post-user-name">あなた</div>
-                  <div class="post-date">${dateStr}</div>
-                </div>
+        return;
+      }
+      postsEl.innerHTML = posts.map(p => {
+        const menu = (p.menus && p.menus.length) ? p.menus.join('・') : '';
+        const dateStr = formatPostDate(p.visitDate || p.savedAt);
+        const nick = p.nickname || 'うどん好きさん';
+        const initial = escapeHtml((nick.charAt(0) || 'う'));
+        const nameHtml = p.xHandle
+          ? `<a class="post-user-name" href="https://x.com/${encodeURIComponent(p.xHandle)}" target="_blank" rel="noopener" style="color:inherit;text-decoration:none;">${escapeHtml(nick)} <i class="ti ti-brand-x" style="font-size:11px;color:#999;"></i></a>`
+          : `<div class="post-user-name">${escapeHtml(nick)}</div>`;
+        return `
+          <div class="post-card">
+            <div class="post-header">
+              <div class="post-avatar" style="background:#BA7517">${initial}</div>
+              <div>
+                ${nameHtml}
+                <div class="post-date">${dateStr}</div>
               </div>
-              ${menu ? `<span class="post-menu">${escapeHtml(menu)}</span>` : ''}
-              ${p.comment ? `<div class="post-comment">${escapeHtml(p.comment)}</div>` : ''}
-              ${p.photoCount ? `<div style="font-size:12px;color:#aaa;margin-top:8px;"><i class="ti ti-camera"></i> 写真${p.photoCount}枚</div>` : ''}
-            </div>`;
-        }).join('');
+            </div>
+            ${menu ? `<span class="post-menu">${escapeHtml(menu)}</span>` : ''}
+            ${p.comment ? `<div class="post-comment">${escapeHtml(p.comment)}</div>` : ''}
+            ${p.photoCount ? `<div style="font-size:12px;color:#aaa;margin-top:8px;"><i class="ti ti-camera"></i> 写真${p.photoCount}枚</div>` : ''}
+          </div>`;
+      }).join('');
+    }
+
+    // あなたの訪問回数＋常連カード
+    function renderMyVisit(my) {
+      const myVisit = document.getElementById('myVisit');
+      const count = my ? my.count : 0;
+      if (count > 0) {
+        myVisit.classList.remove('my-visit-empty');
+        myVisit.style.display = 'flex';
+        document.getElementById('myVisitNum').style.display = '';
+        document.getElementById('myVisitNum').innerHTML = `${count}<small>杯</small>`;
+        document.querySelector('#myVisit .my-visit-label').textContent = 'あなたの訪問';
+        const last = formatPostDate(my.lastVisit);
+        document.getElementById('myVisitSub').textContent = last ? `最後の訪問：${last}` : '';
+        renderLoyaltyCard(count, shop.name);
+      } else {
+        myVisit.classList.add('my-visit-empty');
+        myVisit.style.display = 'flex';
+        document.getElementById('myVisitNum').style.display = 'none';
+        document.querySelector('#myVisit .my-visit-label').textContent =
+          'あなたはまだこの店を記録していません';
+        document.getElementById('myVisitSub').textContent = '';
+        document.getElementById('loyaltyCard').style.display = 'none';
       }
     }
 
@@ -976,34 +998,31 @@
         val > 0 ? MY_RATING_LABELS[val] : 'タップして評価';
     }
 
-    // この店を1回でも記録しているか
-    function hasRecordForShop() {
-      const logs = JSON.parse(localStorage.getItem('logs') || '[]');
-      return logs.some(l => l.shopId === shopId);
+    // 評価UIの初期化（サーバーから取得した自分の集計に基づく）
+    function renderRatingUI(my) {
+      paintMyStars(my && my.rating ? my.rating : 0);
+      const can = !!(my && my.count > 0);   // 1回以上記録した人だけ評価可
+      document.getElementById('myRating').classList.toggle('locked', !can);
+      if (!can) {
+        document.getElementById('myRatingText').textContent =
+          (my ? '記録すると評価できます' : 'ログインして記録すると評価できます');
+      }
     }
 
-    function setMyRating(val) {
-      // 記録がない人は評価できない
-      if (!hasRecordForShop()) {
+    // おすすめ度を保存（サーバー）。記録がない人は不可。
+    async function setMyRating(val) {
+      if (!myActivity || myActivity.count <= 0) {
         showToast('記録するとおすすめ度を付けられます');
         return;
       }
-      const ratings = JSON.parse(localStorage.getItem('shopRatings') || '{}');
-      ratings[shopId] = val;
-      localStorage.setItem('shopRatings', JSON.stringify(ratings));
-      paintMyStars(val);
-      showToast('おすすめ度を保存しました');
-    }
-
-    function restoreMyRating() {
-      const ratings = JSON.parse(localStorage.getItem('shopRatings') || '{}');
-      paintMyStars(ratings[shopId] || 0);
-
-      // 未記録の人は星を無効化し、案内文に切り替える
-      const can = hasRecordForShop();
-      document.getElementById('myRating').classList.toggle('locked', !can);
-      if (!can) {
-        document.getElementById('myRatingText').textContent = '記録すると評価できます';
+      try {
+        await API.refresh();
+        await API.post('rating_set.php', { shop_id: shopId, score: val });
+        myActivity.rating = val;
+        paintMyStars(val);
+        showToast('おすすめ度を保存しました');
+      } catch (e) {
+        showToast(e.message || '保存に失敗しました');
       }
     }
   </script>
