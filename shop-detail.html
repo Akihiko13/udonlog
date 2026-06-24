@@ -277,6 +277,18 @@
     .my-visit-label { font-size: 13px; opacity: 0.95; }
     .my-visit-sub { font-size: 12px; opacity: 0.85; margin-left: auto; text-align: right; }
 
+    /* スマホでは2行に折り返す（1行目: あなたの訪問 ○杯／2行目: 最後の訪問…）*/
+    @media (max-width: 480px) {
+      .my-visit { flex-wrap: wrap; }
+      .my-visit-label { white-space: nowrap; }
+      .my-visit-sub {
+        flex-basis: 100%;
+        margin-left: 0;
+        text-align: left;
+        margin-top: 2px;
+      }
+    }
+
     /* この店の常連カード（10杯でコンプリート＝常連認定） */
     .loyalty-card {
       background: linear-gradient(160deg, #FFFDF8 0%, #FBF3E6 100%);
