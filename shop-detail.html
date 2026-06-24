@@ -279,12 +279,12 @@
 
     /* スマホでは2行に折り返す（1行目: あなたの訪問 ○杯／2行目: 最後の訪問…）*/
     @media (max-width: 480px) {
-      .my-visit { flex-wrap: wrap; }
+      .my-visit { flex-wrap: wrap; justify-content: center; }
       .my-visit-label { white-space: nowrap; }
       .my-visit-sub {
         flex-basis: 100%;
         margin-left: 0;
-        text-align: left;
+        text-align: center;
         margin-top: 2px;
       }
     }
