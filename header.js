@@ -8,8 +8,6 @@
 (function () {
   // --- ヘッダー用スタイル（他ページのCSSと衝突しないよう ulog- 接頭辞で統一）---
   var css = `
-    /* どのページでも常にスクロールバー領域を確保し、固定ヘッダーの右端がズレないようにする */
-    html { overflow-y: scroll; }
     .ulog-header {
       position: fixed;
       top: 0;
