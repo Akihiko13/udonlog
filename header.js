@@ -111,4 +111,16 @@
   if (typeof API !== 'undefined') {
     API.refresh().then(function (d) { renderNav(d.user); }).catch(function () {});
   }
+
+  // ===== 一時的なデバッグ表示（原因特定後に削除します）=====
+  setTimeout(function () {
+    var nav = document.getElementById('ulog-nav');
+    var r = nav ? Math.round(nav.getBoundingClientRect().right) : 0;
+    var iw = window.innerWidth;
+    var cw = document.documentElement.clientWidth;
+    var dbg = document.createElement('div');
+    dbg.style.cssText = 'position:fixed;left:0;bottom:0;z-index:9999;background:#000;color:#0f0;font:12px monospace;padding:4px 8px;';
+    dbg.textContent = 'iw:' + iw + ' cw:' + cw + ' navR:' + r + ' gap:' + (iw - r);
+    document.body.appendChild(dbg);
+  }, 400);
 })();
