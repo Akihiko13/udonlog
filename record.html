@@ -606,6 +606,16 @@
     const today = new Date().toISOString().split('T')[0];
     document.getElementById('visitDate').value = today;
 
+    // ログイン必須：未ログインならログインページへ誘導（戻り先を保持）
+    (async function requireLogin() {
+      try {
+        await API.refresh();
+        if (!API.isLoggedIn()) {
+          location.href = 'login.html?next=' + encodeURIComponent(location.pathname + location.search);
+        }
+      } catch (e) { /* API不達時は何もしない */ }
+    })();
+
     // 戻るボタンのリンクをshops.htmlに設定
     document.getElementById('backBtn').href = 'shops.html';
 
@@ -664,45 +674,42 @@
       document.getElementById('opt-private').classList.toggle('selected', val === 'private');
     }
 
-    // 投稿
-    function submitRecord() {
+    // 投稿（サーバーに保存）
+    async function submitRecord() {
       if (shopName === '未選択' || isNaN(shopId)) {
         showToast('お店を選んでください');
         return;
       }
 
-      // 訪問ログに1件「追加」する（同じ店でも何度でも記録できる＝杯数になる）
-      // ※ B（会員DB）版ではこの保存部分をサーバー保存に差し替える
       // 選択したメニュー＋その他（自由入力）をまとめる
       const otherMenu = document.getElementById('menuOther').value.trim();
       const menus = [...selectedMenus];
       if (otherMenu) menus.push(otherMenu);
 
-      const logs = JSON.parse(localStorage.getItem('logs') || '[]');
-      logs.push({
-        logId: Date.now(),                 // 1回の訪問を一意に識別
-        shopId: shopId,
-        name: shopName,
-        city: shopCity,
-        type: shopType,
-        menus: menus,                      // 集計用（選択チップの配列）
-        menu: menus.join('・'),            // 表示用（従来互換の文字列）
-        comment: document.getElementById('comment').value.trim(),
-        visitDate: document.getElementById('visitDate').value,
-        visibility: visibility,
-        photoCount: photos.length,
-        savedAt: new Date().toISOString(),
-      });
-      localStorage.setItem('logs', JSON.stringify(logs));
-
-      // 記録した店のID一覧（shops.htmlの「記録済み」表示用）も更新
-      const visited = new Set(JSON.parse(localStorage.getItem('visited') || '[]'));
-      visited.add(shopId);
-      localStorage.setItem('visited', JSON.stringify([...visited]));
-
-      // シェア用に今回の記録内容を保持し、完了モーダルを表示
-      lastRecord = { name: shopName, city: shopCity, menus: menus };
-      document.getElementById('shareOverlay').classList.add('show');
+      const btn = document.querySelector('.btn-post');
+      if (btn) btn.disabled = true;
+      try {
+        await API.refresh();
+        if (!API.isLoggedIn()) {
+          location.href = 'login.html?next=' + encodeURIComponent(location.pathname + location.search);
+          return;
+        }
+        // 同じ店でも何度でも記録できる（＝杯数になる）
+        await API.post('log_add.php', {
+          shop_id: shopId,
+          menus: menus,
+          comment: document.getElementById('comment').value.trim(),
+          visit_date: document.getElementById('visitDate').value,
+          photo_count: photos.length,
+          is_public: visibility === 'public' ? 1 : 0,
+        });
+        // シェア用に今回の記録内容を保持し、完了モーダルを表示
+        lastRecord = { name: shopName, city: shopCity, menus: menus };
+        document.getElementById('shareOverlay').classList.add('show');
+      } catch (err) {
+        showToast(err.message || '記録に失敗しました');
+        if (btn) btn.disabled = false;
+      }
     }
 
     // 直近の記録（Xシェア用）

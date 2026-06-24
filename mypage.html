@@ -920,9 +920,7 @@
       }).join('');
     }
 
-    function render() {
-      const logs = loadLogs();
-
+    function render(logs) {
       // ユニークな訪問店舗（バッジ・店舗一覧で使用）
       const uniqueShops = [...new Map(logs.map(l => [l.shopId, shopOf(l)])).values()];
       const cities = new Set(uniqueShops.map(s => s.city));
@@ -1004,7 +1002,33 @@
       }
     }
 
-    render();
+    // === 初期化：ログイン必須。サーバーから記録を取得して描画 ===
+    (async function init() {
+      try {
+        await API.refresh();
+      } catch (e) {
+        alert('サーバーに接続できませんでした。時間をおいて再度お試しください。');
+        return;
+      }
+      if (!API.isLoggedIn()) {
+        location.href = 'login.html?next=' + encodeURIComponent(location.pathname);
+        return;
+      }
+      // プロフィール表示（ニックネーム・活動エリア）
+      const u = API.user;
+      document.querySelector('.profile-name').textContent = u.nickname || 'うどん好きさん';
+      document.querySelector('.profile-sub').textContent =
+        u.city ? (u.city + 'で活動中') : '香川のさぬきうどんを記録中';
+
+      // サーバーから記録を取得して描画
+      try {
+        const data = await API.get('my_logs.php');
+        render(data.logs || []);
+      } catch (e) {
+        alert(e.message || '記録の取得に失敗しました');
+        render([]);
+      }
+    })();
   </script>
 
   <script src="header.js"></script>
