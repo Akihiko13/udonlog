@@ -25,7 +25,7 @@ id,name,kana,city,type,dish,hours,closed,status,blog,parking,slug
 24,ざいごうどん本家 わら家,わらや,高松市,一般,,9:30〜17:30,年中無休,,https://kagawan.com/waraya/,あり（150台）,waraya
 25,うどん本陣 山田家,やまだや,高松市,一般,,10:00〜20:00,年中無休,,https://kagawan.com/yamadaya/,あり（160台）,yamadaya
 26,手打ちうどん ひさ枝,ひさえ,高松市,一般,,7:00〜14:00,年中無休,,https://kagawan.com/hisaeda/,あり（約10台）,hisae
-27,ヨコクラうどん,よこくら,まんのう町,一般,,8:00〜14:00,木曜（不定休あり）,,https://kagawan.com/yokokuraudon/,あり（約15台）,yokokura
+27,ヨコクラうどん,よこくら,高松市,一般,,8:00〜14:00,木曜（不定休あり）,,https://kagawan.com/yokokuraudon/,あり（約15台）,yokokura
 28,さぬきうどん 上原屋 本店,うえはらや,高松市,セルフ,ぶっかけ・かけうどん,9:30〜14:30（売り切れ次第終了）,日曜,,https://kagawan.com/ueharayahonten/,あり（18台）,ueharaya
 29,麺匠 くすがみ,くすがみ,高松市,一般,,10:00〜14:30,火曜,,https://kagawan.com/kusugami/,あり（12台）,kusugami
 30,あづまうどん,あづま,高松市,セルフ,,11:00〜14:00（麺切れ次第終了）,水曜,,https://kagawan.com/azumaudon/,あり（約30台）,azuma

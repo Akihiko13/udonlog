@@ -33,7 +33,7 @@ const SHOPS = [
   { id:24, name:"ざいごうどん本家 わら家", kana:"わらや", city:"高松市", type:"一般", dish:"", hours:"9:30〜17:30", closed:"年中無休", blog:"https://kagawan.com/waraya/", parking:"あり（150台）", slug:"waraya" },
   { id:25, name:"うどん本陣 山田家", kana:"やまだや", city:"高松市", type:"一般", dish:"", hours:"10:00〜20:00", closed:"年中無休", blog:"https://kagawan.com/yamadaya/", parking:"あり（160台）", slug:"yamadaya" },
   { id:26, name:"手打ちうどん ひさ枝", kana:"ひさえ", city:"高松市", type:"一般", dish:"", hours:"7:00〜14:00", closed:"年中無休", blog:"https://kagawan.com/hisaeda/", parking:"あり（約10台）", slug:"hisae" },
-  { id:27, name:"ヨコクラうどん", kana:"よこくら", city:"まんのう町", type:"一般", dish:"", hours:"8:00〜14:00", closed:"木曜（不定休あり）", blog:"https://kagawan.com/yokokuraudon/", parking:"あり（約15台）", slug:"yokokura" },
+  { id:27, name:"ヨコクラうどん", kana:"よこくら", city:"高松市", type:"一般", dish:"", hours:"8:00〜14:00", closed:"木曜（不定休あり）", blog:"https://kagawan.com/yokokuraudon/", parking:"あり（約15台）", slug:"yokokura" },
   { id:28, name:"さぬきうどん 上原屋 本店", kana:"うえはらや", city:"高松市", type:"セルフ", dish:"ぶっかけ・かけうどん", hours:"9:30〜14:30（売り切れ次第終了）", closed:"日曜", blog:"https://kagawan.com/ueharayahonten/", parking:"あり（18台）", slug:"ueharaya" },
   { id:29, name:"麺匠 くすがみ", kana:"くすがみ", city:"高松市", type:"一般", dish:"", hours:"10:00〜14:30", closed:"火曜", blog:"https://kagawan.com/kusugami/", parking:"あり（12台）", slug:"kusugami" },
   { id:30, name:"あづまうどん", kana:"あづま", city:"高松市", type:"セルフ", dish:"", hours:"11:00〜14:00（麺切れ次第終了）", closed:"水曜", blog:"https://kagawan.com/azumaudon/", parking:"あり（約30台）", slug:"azuma" },
