@@ -78,6 +78,7 @@ def main():
             status = (row.get('status') or '').strip()
             blog = (row.get('blog') or '').strip()
             parking = (row.get('parking') or '').strip()
+            slug = (row.get('slug') or '').strip()
 
             # 検証
             if not id_raw.isdigit():
@@ -96,7 +97,7 @@ def main():
             rows.append({
                 'id': id_, 'name': name, 'kana': kana, 'city': city, 'type': type_,
                 'dish': dish, 'hours': hours, 'closed': closed, 'status': status,
-                'blog': blog, 'parking': parking,
+                'blog': blog, 'parking': parking, 'slug': slug,
             })
 
     if errors:
@@ -129,6 +130,8 @@ def main():
             parts.append(f'blog:"{esc(r["blog"])}"')
         if r['parking']:
             parts.append(f'parking:"{esc(r["parking"])}"')
+        if r['slug']:
+            parts.append(f'slug:"{esc(r["slug"])}"')
         lines.append('  { ' + ', '.join(parts) + ' },')
 
     with open(OUT_FILE, 'w', encoding='utf-8') as f:

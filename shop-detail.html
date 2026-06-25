@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- /shops/＜slug＞ でアクセスされても、相対パス(js/画像/API)が常にルート基準で解決されるように -->
+  <base href="/">
   <title>店舗詳細 — うどログ</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
   <style>
@@ -846,10 +848,27 @@
     // ダミー評価分布
     const RATING_DIST = { 5: 22, 4: 10, 3: 4, 2: 1, 1: 1 };
 
-    // URLパラメータからお店を取得
+    // URLからお店を取得（/shops/＜slug＞ の slug 優先、無ければ ?id= でも可）
+    // ※ きれいURLは内部リライトのため location.search は空 → パス名から slug を取る
     const params = new URLSearchParams(location.search);
-    const shopId = parseInt(params.get('id'));
-    const shop = SHOPS.find(s => s.id === shopId);
+    let slugParam = params.get('slug');
+    if (!slugParam) {
+      const m = location.pathname.match(/\/shops\/([^\/]+)\/?$/);
+      if (m) slugParam = decodeURIComponent(m[1]);
+    }
+    const idParam = parseInt(params.get('id'));
+    const shop = slugParam
+      ? SHOPS.find(s => s.slug === slugParam)
+      : SHOPS.find(s => s.id === idParam);
+    const shopId = shop ? shop.id : idParam;   // 以降のAPI等は数値IDを使う
+
+    // 正規URL（canonical）をきれいなURLに設定
+    if (shop && shop.slug) {
+      const canon = document.createElement('link');
+      canon.rel = 'canonical';
+      canon.href = 'https://udolog.com/shops/' + shop.slug;
+      document.head.appendChild(canon);
+    }
 
     if (!shop) {
       document.body.innerHTML = '<div style="padding:2rem;text-align:center;"><p>店舗が見つかりませんでした。</p><a href="shops.html">店舗一覧へ戻る</a></div>';
@@ -885,7 +904,7 @@
         recordBtn.innerHTML = '<i class="ti ti-circle-x"></i> 閉店しました';
       } else {
         recordBtn.href =
-          `record.html?id=${shop.id}&name=${encodeURIComponent(shop.name)}&city=${encodeURIComponent(shop.city)}&type=${encodeURIComponent(shop.type)}`;
+          `record.html?id=${shop.id}&slug=${encodeURIComponent(shop.slug || '')}&name=${encodeURIComponent(shop.name)}&city=${encodeURIComponent(shop.city)}&type=${encodeURIComponent(shop.type)}`;
       }
       document.getElementById('mapBtn').href =
         `https://www.google.com/maps/search/${encodeURIComponent(shop.name + ' ' + shop.city)}`;
@@ -956,6 +975,7 @@
           '<div style="text-align:center;color:#aaa;font-size:14px;padding:1.5rem 0;">' +
           'まだ投稿がありません。<br>' +
           '<a href="record.html?id=' + shop.id +
+            '&slug=' + encodeURIComponent(shop.slug || '') +
             '&name=' + encodeURIComponent(shop.name) +
             '&city=' + encodeURIComponent(shop.city) +
             '&type=' + encodeURIComponent(shop.type) +

@@ -535,8 +535,8 @@
               <i class="ti ti-map-pin" aria-hidden="true"></i>
               ${s.city}
             </div>
-            <a class="btn-detail" href="shop-detail.html?id=${s.id}"><i class="ti ti-info-circle" aria-hidden="true"></i> 詳細</a>
-            <a class="btn-taberu ${done ? 'done' : ''}" href="record.html?id=${s.id}&name=${encodeURIComponent(s.name)}&city=${encodeURIComponent(s.city)}&type=${encodeURIComponent(s.type)}">
+            <a class="btn-detail" href="shops/${s.slug || ('shop' + s.id)}"><i class="ti ti-info-circle" aria-hidden="true"></i> 詳細</a>
+            <a class="btn-taberu ${done ? 'done' : ''}" href="record.html?id=${s.id}&slug=${encodeURIComponent(s.slug || '')}&name=${encodeURIComponent(s.name)}&city=${encodeURIComponent(s.city)}&type=${encodeURIComponent(s.type)}">
               ${done
                 ? `<i class="ti ti-plus" aria-hidden="true"></i> もう一杯！（${visitCount[s.id] || 0}杯）`
                 : '<i class="ti ti-plus" aria-hidden="true"></i> 食べた！'}

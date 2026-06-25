@@ -11,3 +11,10 @@
     Header set Cache-Control "no-cache, must-revalidate"
   </FilesMatch>
 </IfModule>
+
+# 店舗詳細のきれいなURL： /shops/＜slug＞ → shop-detail.html?slug=＜slug＞
+# （ブラウザのURLは /shops/yamagoeudon のまま。内部で詳細ページを表示）
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteRule ^shops/([A-Za-z0-9_-]+)/?$ shop-detail.html?slug=$1 [L,QSA]
+</IfModule>

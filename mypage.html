@@ -1037,7 +1037,7 @@
         list.innerHTML = '<p style="color:#aaa;font-size:14px;text-align:center;padding:1rem;">まだ記録がありません</p>';
       } else {
         list.innerHTML = uniqueShops.map(s => `
-          <a href="shop-detail.html?id=${s.id}" class="visited-item">
+          <a href="shops/${s.slug || ('shop' + s.id)}" class="visited-item">
             <div class="visited-icon"><i class="ti ti-bowl-chopsticks"></i></div>
             <div>
               <div class="visited-name">${s.name}</div>

@@ -606,6 +606,7 @@
     // URLパラメータからお店情報を取得
     const params = new URLSearchParams(location.search);
     const shopId = parseInt(params.get('id'));
+    const shopSlug = params.get('slug') || '';
     const shopName = params.get('name') || '未選択';
     const shopCity = params.get('city') || '';
     const shopType = params.get('type') || '';
@@ -733,7 +734,8 @@
       const menuText = lastRecord.menus.length ? lastRecord.menus.join('・') + 'を' : '';
       const text = `🥢${lastRecord.name}（${lastRecord.city}）で${menuText}食べました！\n#うどログ`;
       // 店舗詳細ページの絶対URL（現在のホストに合わせて生成）
-      const shopUrl = new URL('shop-detail.html?id=' + shopId, location.href).href;
+      const shopPath = shopSlug ? ('shops/' + shopSlug) : ('shop-detail.html?id=' + shopId);
+      const shopUrl = new URL(shopPath, location.href).href;
       const intent = 'https://twitter.com/intent/tweet?text='
         + encodeURIComponent(text) + '&url=' + encodeURIComponent(shopUrl);
       window.open(intent, '_blank', 'noopener');
