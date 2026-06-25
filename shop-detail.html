@@ -509,6 +509,23 @@
     }
 
     .post-user-name { font-size: 14px; font-weight: 600; }
+
+    /* 投稿者のXリンク（黒背景のXマークだけがリンク） */
+    .post-x-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 18px;
+      height: 18px;
+      background: #000;
+      color: #fff;
+      border-radius: 5px;
+      margin-left: 6px;
+      font-size: 10px;
+      vertical-align: middle;
+      text-decoration: none;
+    }
+    .post-x-badge:hover { opacity: 0.85; }
     .post-date { font-size: 12px; color: #aaa; margin-top: 1px; }
 
     .post-stars {
@@ -950,9 +967,10 @@
         const dateStr = formatPostDate(p.visitDate || p.savedAt);
         const nick = p.nickname || 'うどん好きさん';
         const initial = escapeHtml((nick.charAt(0) || 'う'));
-        const nameHtml = p.xHandle
-          ? `<a class="post-user-name" href="https://x.com/${encodeURIComponent(p.xHandle)}" target="_blank" rel="noopener" style="color:inherit;text-decoration:none;">${escapeHtml(nick)} <i class="ti ti-brand-x" style="font-size:11px;color:#999;"></i></a>`
-          : `<div class="post-user-name">${escapeHtml(nick)}</div>`;
+        const xBadge = p.xHandle
+          ? `<a class="post-x-badge" href="https://x.com/${encodeURIComponent(p.xHandle)}" target="_blank" rel="noopener" title="Xを見る"><i class="ti ti-brand-x"></i></a>`
+          : '';
+        const nameHtml = `<div class="post-user-name">${escapeHtml(nick)}${xBadge}</div>`;
         return `
           <div class="post-card">
             <div class="post-header">
