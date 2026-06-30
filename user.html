@@ -586,7 +586,7 @@
       document.getElementById('bookCount').textContent = `${total}個`;
       const book = document.getElementById('stampBook');
       if (total === 0) {
-        book.innerHTML = '<div class="book-empty">まだ公開された記録がありません <i class="ti ti-bowl-chopsticks udon-i"></i></div>';
+        book.innerHTML = '<div class="book-empty"><img src="udomaru-hungry.svg" alt="うどまる" width="110" height="110" style="display:block;margin:0 auto 6px;">まだ公開された記録がありません</div>';
         return;
       }
       const cardCount = Math.floor(total / SLOTS_PER_CARD) + (total % SLOTS_PER_CARD === 0 ? 0 : 1);
