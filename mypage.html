@@ -930,72 +930,104 @@
     const TOTAL_SHOPS  = SHOPS.filter(isOpenShop).length;
     const TOTAL_CITIES = new Set(SHOPS.filter(isOpenShop).map(s => s.city)).size;
 
-    // 軒数マイルストーン用ヘルパー（v=記録したユニーク店舗）
-    const countBadge = (v, goal) => ({ current: Math.min(v.length, goal), goal });
-    const typeBadge2 = (v, type, goal) => {
-      const c = v.filter(s => s.type === type).length;
-      return { current: Math.min(c, goal), goal };
-    };
+    // 香川県内の実際のうどん店はおよそ500軒（うどログ収録は順次拡大）。
+    const KAGAWA_TOTAL = 500;
 
-    // 難易度は将来の500店規模を想定して設定。100軒以上は店舗が増えるほど現実的になる。
+    // === 達成バッジ定義 ===
+    // 各バッジの check(c) は集計コンテキスト c を受け取り { current, goal } を返す。
+    //   c.shops      : 記録したユニーク店舗（閉店含む）
+    //   c.cups       : 総杯数（記録件数）
+    //   c.photos     : 写真付き記録の件数
+    //   c.likes      : もらったいいねの合計
+    //   c.comments   : コメント付き記録の件数
+    //   c.streakWeeks: 連続で記録した最大週数
+    //   c.eve/newyear: 大晦日(12/31)/元旦(1/1) に記録があるか
+    const mk = (current, goal) => ({ current: Math.min(current, goal), goal });
+    const uniqOpen = shops => shops.filter(isOpenShop);
+
     const STAMPS = [
-      {
-        id: 'beginner', icon: '🥢', name: 'うどんビギナー',
-        desc: '初めてのうどんを記録',
-        check: (v) => countBadge(v, 1),
-      },
-      {
-        id: 'm10', icon: '🍜', name: 'うどん10軒',
-        desc: '10軒のお店を記録',
-        check: (v) => countBadge(v, 10),
-      },
-      {
-        id: 'm30', icon: '🥉', name: 'うどん30軒',
-        desc: '30軒のお店を記録',
-        check: (v) => countBadge(v, 30),
-      },
-      {
-        id: 'm50', icon: '🥈', name: 'うどん50軒',
-        desc: '50軒のお店を記録',
-        check: (v) => countBadge(v, 50),
-      },
-      {
-        id: 'm100', icon: '🥇', name: 'うどん100軒',
-        desc: '100軒のお店を記録',
-        check: (v) => countBadge(v, 100),
-      },
-      {
-        id: 'm200', icon: '🔥', name: 'うどん200軒',
-        desc: '200軒のお店を記録',
-        check: (v) => countBadge(v, 200),
-      },
-      {
-        id: 'seimenjo', icon: '🏭', name: '製麺所ハンター',
-        desc: '製麺所スタイルを15軒記録',
-        check: (v) => typeBadge2(v, '製麺所', 15),
-      },
-      {
-        id: 'self', icon: '🥡', name: 'セルフの達人',
-        desc: 'セルフ式を15軒記録',
-        check: (v) => typeBadge2(v, 'セルフ', 15),
-      },
-      {
-        id: 'allarea', icon: '🗺️', name: '全エリア制覇',
-        desc: `${TOTAL_CITIES}の市町すべてで記録`,
-        check: (v) => {
-          const cities = new Set(v.filter(isOpenShop).map(s => s.city));
-          return { current: Math.min(cities.size, TOTAL_CITIES), goal: TOTAL_CITIES };
-        },
-      },
-      {
-        id: 'king', icon: '👑', name: 'さぬきうどん王',
-        desc: `全${TOTAL_SHOPS}軒を制覇`,
-        check: (v) => {
-          const c = v.filter(isOpenShop).length;
-          return { current: Math.min(c, TOTAL_SHOPS), goal: TOTAL_SHOPS };
-        },
-      },
+      // --- 広さ：訪れたお店の数（ユニーク店舗）---
+      { id:'beginner', icon:'🥢', name:'うどんビギナー', desc:'初めてのうどんを記録', check:c => mk(c.shops.length, 1) },
+      { id:'m10',  icon:'🍜', name:'うどん10軒',  desc:'10軒のお店を記録',  check:c => mk(c.shops.length, 10) },
+      { id:'m30',  icon:'🥉', name:'うどん30軒',  desc:'30軒のお店を記録',  check:c => mk(c.shops.length, 30) },
+      { id:'m50',  icon:'🥈', name:'うどん50軒',  desc:'50軒のお店を記録',  check:c => mk(c.shops.length, 50) },
+      { id:'m100', icon:'🥇', name:'うどん100軒', desc:'100軒のお店を記録', check:c => mk(c.shops.length, 100) },
+      { id:'m200', icon:'🔥', name:'うどん200軒', desc:'200軒のお店を記録', check:c => mk(c.shops.length, 200) },
+      { id:'m300', icon:'⭐', name:'うどん300軒', desc:'300軒のお店を記録', check:c => mk(c.shops.length, 300) },
+
+      // --- 深さ：通い込んだ杯数（総記録数）---
+      { id:'c10',   icon:'🍲', name:'うどん10杯',  desc:'通算10杯を記録',   check:c => mk(c.cups, 10) },
+      { id:'c50',   icon:'🍢', name:'うどん50杯',  desc:'通算50杯を記録',   check:c => mk(c.cups, 50) },
+      { id:'c100',  icon:'💯', name:'うどん100杯', desc:'通算100杯を記録',  check:c => mk(c.cups, 100) },
+      { id:'c300',  icon:'🌊', name:'うどん300杯', desc:'通算300杯を記録',  check:c => mk(c.cups, 300) },
+      { id:'c500',  icon:'🏯', name:'うどん500杯', desc:'通算500杯を記録',  check:c => mk(c.cups, 500) },
+      { id:'c1000', icon:'🧙', name:'うどん仙人',  desc:'通算1000杯を記録', check:c => mk(c.cups, 1000) },
+
+      // --- スタイル ---
+      { id:'seimenjo', icon:'🏭', name:'製麺所ハンター', desc:'製麺所スタイルを15軒記録', check:c => mk(c.shops.filter(s=>s.type==='製麺所').length, 15) },
+      { id:'self',     icon:'🥡', name:'セルフの達人',   desc:'セルフ式を15軒記録',       check:c => mk(c.shops.filter(s=>s.type==='セルフ').length, 15) },
+
+      // --- 行動・ソーシャル ---
+      { id:'photo10', icon:'📸', name:'フォトグラファー', desc:'写真付きの記録を10件',     check:c => mk(c.photos, 10) },
+      { id:'photo30', icon:'📷', name:'フォトマスター',   desc:'写真付きの記録を30件',     check:c => mk(c.photos, 30) },
+      { id:'review',  icon:'✍️', name:'レビュアー',       desc:'コメント付きの記録を20件', check:c => mk(c.comments, 20) },
+      { id:'like50',  icon:'❤️', name:'人気者',           desc:'もらったいいね50',         check:c => mk(c.likes, 50) },
+      { id:'like100', icon:'💖', name:'大人気',           desc:'もらったいいね100',        check:c => mk(c.likes, 100) },
+      { id:'streak',  icon:'🗓️', name:'皆勤賞',           desc:'4週連続で記録',           check:c => mk(c.streakWeeks, 4) },
+      { id:'eve',     icon:'🎍', name:'年越しうどん',     desc:'大晦日(12/31)に記録',      check:c => mk(c.eve ? 1 : 0, 1) },
+      { id:'newyear', icon:'🌅', name:'初うどん',         desc:'元旦(1/1)に記録',          check:c => mk(c.newyear ? 1 : 0, 1) },
+
+      // --- エリア ---
+      { id:'allarea', icon:'🗺️', name:'全エリア制覇', desc:`${TOTAL_CITIES}の市町すべてで記録`,
+        check:c => mk(new Set(uniqOpen(c.shops).map(s=>s.city)).size, TOTAL_CITIES) },
+
+      // --- 頂点：収録全店制覇（香川は約500軒）---
+      { id:'king', icon:'👑', name:'さぬきうどん王',
+        desc:`うどログ収録の全${TOTAL_SHOPS}軒を制覇（香川には約${KAGAWA_TOTAL}軒）`,
+        check:c => mk(uniqOpen(c.shops).length, TOTAL_SHOPS) },
     ];
+
+    // ログ一覧＋ユニーク店舗 → バッジ集計コンテキストを作る
+    function buildBadgeContext(logs, uniqueShops) {
+      const hasPhoto   = l => (l.photoCount > 0) || !!l.photoUrl;
+      const hasComment = l => (l.comment || '').trim() !== '';
+      const isDay = (l, m, d) => {
+        if (!l.visitDate) return false;
+        const dt = new Date(l.visitDate); if (isNaN(dt)) return false;
+        return dt.getMonth() === m && dt.getDate() === d;
+      };
+      // 連続週数：visitDate を週（月曜始まり）に丸め、連続している最大本数を数える
+      const weekKeys = [...new Set(logs.map(l => weekKey(l.visitDate)).filter(Boolean))].sort();
+      let streak = 0, best = 0, prev = null;
+      weekKeys.forEach(k => {
+        streak = (prev !== null && k === nextWeek(prev)) ? streak + 1 : 1;
+        best = Math.max(best, streak); prev = k;
+      });
+      return {
+        shops: uniqueShops,
+        cups: logs.length,
+        photos: logs.filter(hasPhoto).length,
+        likes: logs.reduce((s, l) => s + (l.likeCount || 0), 0),
+        comments: logs.filter(hasComment).length,
+        streakWeeks: best,
+        eve: logs.some(l => isDay(l, 11, 31)),
+        newyear: logs.some(l => isDay(l, 0, 1)),
+      };
+    }
+
+    // 週キー（その週の月曜を "YYYY-MM-DD" で）と翌週キー
+    function weekKey(dateStr) {
+      if (!dateStr) return null;
+      const d = new Date(dateStr); if (isNaN(d)) return null;
+      const day = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+      const dow = (day.getDay() + 6) % 7;   // 月=0
+      day.setDate(day.getDate() - dow);
+      return `${day.getFullYear()}-${String(day.getMonth()+1).padStart(2,'0')}-${String(day.getDate()).padStart(2,'0')}`;
+    }
+    function nextWeek(key) {
+      const d = new Date(key); d.setDate(d.getDate() + 7);
+      return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    }
 
     // === localStorageから訪問ログを読み込む（B版ではここをDB取得に差し替える）===
     // logs = 訪問1回ごとのエントリ配列。同じ店の複数回記録もそれぞれ1件。
@@ -1287,11 +1319,12 @@
       // 常連店（10杯以上記録した店）
       renderRegulars(logs);
 
-      // 達成バッジ判定（ユニーク店舗ベース）
+      // 達成バッジ判定（広さ=軒数・深さ=杯数・行動・エリアを集計したコンテキストで判定）
+      const badgeCtx = buildBadgeContext(logs, uniqueShops);
       let earnedCount = 0;
       const grid = document.getElementById('stampGrid');
       grid.innerHTML = STAMPS.map(stamp => {
-        const { current, goal } = stamp.check(uniqueShops);
+        const { current, goal } = stamp.check(badgeCtx);
         const earned = current >= goal;
         if (earned) earnedCount++;
         const pct = Math.round((current / goal) * 100);
