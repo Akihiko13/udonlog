@@ -148,6 +148,15 @@
       color: #aaa;
       font-weight: 400;
     }
+    .required {
+      font-size: 11px;
+      color: #fff;
+      font-weight: 600;
+      background: #d9534f;
+      border-radius: 99px;
+      padding: 1px 8px;
+      margin-left: 4px;
+    }
 
     input[type="text"],
     input[type="date"],
@@ -434,6 +443,7 @@
   <link rel="manifest" href="site.webmanifest">
   <meta name="theme-color" content="#BA7517">
   <script src="api.js"></script>
+  <script src="shops-data.js"></script>
   <meta name="description" content="食べたうどんを記録してスタンプを集めよう。">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="うどログ">
@@ -446,6 +456,8 @@
   <meta name="twitter:title" content="うどんを記録｜うどログ">
   <meta name="twitter:description" content="食べたうどんを記録してスタンプを集めよう。">
   <meta name="twitter:image" content="https://udolog.com/og-image.png">
+  <script src="header.js"></script>
+  <script src="analytics.js"></script>
 </head>
 <body>
 
@@ -456,7 +468,7 @@
       <a href="shops.html" class="back-btn" id="backBtn">
         <i class="ti ti-arrow-left"></i>
       </a>
-      <h1 class="page-title">うどん記録を投稿</h1>
+      <h1 class="page-title" id="pageTitle">うどん記録を投稿</h1>
     </div>
 
     <!-- お店情報 -->
@@ -484,6 +496,7 @@
         <label>
           <i class="ti ti-bowl" style="color:#BA7517"></i>
           食べたメニュー
+          <span class="required">必須</span>
           <span class="optional">複数選択可</span>
         </label>
         <div class="menu-chips" id="menuChips"></div>
@@ -497,7 +510,8 @@
           ひとこと感想
           <span class="optional">任意</span>
         </label>
-        <textarea id="comment" placeholder="おいしかった！天ぷらがサクサクで最高でした。" maxlength="200"></textarea>
+        <textarea id="comment" placeholder="おいしかった！天ぷらがサクサクで最高でした。" maxlength="140" oninput="document.getElementById('commentCount').textContent=this.value.length"></textarea>
+        <div style="font-size:12px;color:#aaa;text-align:right;margin-top:4px;"><span id="commentCount">0</span> / 140</div>
       </div>
 
       <!-- 訪問日 -->
@@ -510,8 +524,8 @@
       </div>
     </div>
 
-    <!-- 写真（画像アップロードは未実装のため一旦非表示。実装時に display:none を外す）-->
-    <div class="card" style="display:none;">
+    <!-- 写真 -->
+    <div class="card">
       <div class="card-title">写真 <span style="font-size:11px;color:#aaa;font-weight:400;" id="photoNote">任意・1枚</span></div>
       <label class="photo-upload" for="photoInput" id="photoUploadArea">
         <input type="file" id="photoInput" accept="image/*" onchange="handlePhotos(event)">
@@ -544,7 +558,7 @@
     <!-- 投稿ボタン -->
     <button class="btn-post" onclick="submitRecord()">
       <i class="ti ti-send"></i>
-      記録を投稿する
+      <span id="submitBtnText">記録を投稿する</span>
     </button>
 
   </div>
@@ -603,34 +617,95 @@
       }
     }
 
-    // URLパラメータからお店情報を取得
+    // URLパラメータからお店情報を取得（編集モードでは後で記録から上書き）
     const params = new URLSearchParams(location.search);
-    const shopId = parseInt(params.get('id'));
-    const shopSlug = params.get('slug') || '';
-    const shopName = params.get('name') || '未選択';
-    const shopCity = params.get('city') || '';
-    const shopType = params.get('type') || '';
+    const editId = parseInt(params.get('edit'), 10);
+    const isEdit = !isNaN(editId) && editId > 0;
 
-    document.getElementById('shopName').textContent = shopName;
-    document.getElementById('shopCity').textContent = shopCity;
-    document.getElementById('shopType').textContent = shopType;
+    let shopId = parseInt(params.get('id'));
+    let shopSlug = params.get('slug') || '';
+    let shopName = params.get('name') || '未選択';
+    let shopCity = params.get('city') || '';
+    let shopType = params.get('type') || '';
+
+    // 編集モード用：既存写真の状態
+    let existingPhotoUrl = null;
+    let removeExistingPhoto = false;
+
+    function applyShopBadge() {
+      document.getElementById('shopName').textContent = shopName;
+      document.getElementById('shopCity').textContent = shopCity;
+      document.getElementById('shopType').textContent = shopType;
+    }
+    applyShopBadge();
 
     // 今日の日付をデフォルト設定
-    const today = new Date().toISOString().split('T')[0];
-    document.getElementById('visitDate').value = today;
+    document.getElementById('visitDate').value = new Date().toISOString().split('T')[0];
 
-    // ログイン必須：未ログインならログインページへ誘導（戻り先を保持）
-    (async function requireLogin() {
+    // 戻るボタン（編集はマイページへ、新規はお店一覧へ）
+    document.getElementById('backBtn').href = isEdit ? 'mypage.html' : 'shops.html';
+
+    // 編集モードの見た目（見出し・ボタン・「変更」リンク非表示）
+    if (isEdit) {
+      document.title = 'うどん記録を編集 — うどログ';
+      document.getElementById('pageTitle').textContent = 'うどん記録を編集';
+      document.getElementById('submitBtnText').textContent = '更新する';
+      const changeLink = document.querySelector('.change-shop');
+      if (changeLink) changeLink.style.display = 'none';   // 編集ではお店は変えない
+    }
+
+    // ログイン必須＋（編集なら）既存の記録を読み込んでフォームに反映
+    (async function init() {
       try {
         await API.refresh();
         if (!API.isLoggedIn()) {
           location.href = 'login.html?next=' + encodeURIComponent(location.pathname + location.search);
+          return;
         }
-      } catch (e) { /* API不達時は何もしない */ }
-    })();
+      } catch (e) { return; /* API不達時は何もしない */ }
 
-    // 戻るボタンのリンクをshops.htmlに設定
-    document.getElementById('backBtn').href = 'shops.html';
+      if (!isEdit) return;
+
+      let data;
+      try {
+        data = await API.get('log_get.php?id=' + editId);
+      } catch (e) {
+        showToast('記録の読み込みに失敗しました');
+        return;
+      }
+      const log = data.log;
+      shopId = log.shopId;
+      const s = (typeof SHOPS !== 'undefined' ? SHOPS : []).find(x => x.id === log.shopId);
+      if (s) { shopName = s.name; shopCity = s.city; shopType = s.type; shopSlug = s.slug || ''; }
+      applyShopBadge();
+
+      // メニュー：定番チップは選択状態に、それ以外は自由入力欄へ
+      const others = [];
+      (log.menus || []).forEach(m => {
+        if (MENU_OPTIONS.indexOf(m) >= 0) {
+          selectedMenus.add(m);
+          const chip = document.querySelector('.menu-chip[data-menu="' + (window.CSS && CSS.escape ? CSS.escape(m) : m) + '"]');
+          if (chip) chip.classList.add('selected');
+        } else {
+          others.push(m);
+        }
+      });
+      if (others.length) document.getElementById('menuOther').value = others.join('・');
+
+      // 感想・文字数カウント
+      const c = document.getElementById('comment');
+      c.value = log.comment || '';
+      document.getElementById('commentCount').textContent = c.value.length;
+
+      // 訪問日
+      if (log.visitDate) document.getElementById('visitDate').value = log.visitDate;
+
+      // 公開設定
+      setVisibility(log.isPublic ? 'public' : 'private');
+
+      // 既存の写真
+      if (log.photoUrl) { existingPhotoUrl = log.photoUrl; renderPhotos(); }
+    })();
 
     // 写真の枚数表示・複数選択可否を会員種別に合わせる
     document.getElementById('photoNote').textContent =
@@ -644,11 +719,12 @@
     // 写真
     function handlePhotos(e) {
       const files = Array.from(e.target.files);
-      const remaining = MAX_PHOTOS - photos.length;
+      const usedExisting = (existingPhotoUrl && !removeExistingPhoto) ? 1 : 0;
+      const remaining = MAX_PHOTOS - photos.length - usedExisting;
       files.slice(0, remaining).forEach(file => {
         const reader = new FileReader();
         reader.onload = ev => {
-          photos.push(ev.target.result);
+          photos.push({ file: file, url: ev.target.result });   // 実ファイルとプレビュー用URLを保持
           renderPhotos();
         };
         reader.readAsDataURL(file);
@@ -664,19 +740,35 @@
 
     function renderPhotos() {
       const preview = document.getElementById('photoPreview');
-      preview.innerHTML = photos.map((src, i) => `
+      let html = '';
+      // 編集モードの既存写真（消されていなければ表示）
+      if (existingPhotoUrl && !removeExistingPhoto) {
+        html += `
+          <div class="photo-preview-item">
+            <img src="${existingPhotoUrl}" alt="現在の写真">
+            <button type="button" class="remove-photo" onclick="removeExistingPhotoFn()">×</button>
+          </div>`;
+      }
+      html += photos.map((p, i) => `
         <div class="photo-preview-item">
-          <img src="${src}" alt="写真${i+1}">
-          <button class="remove-photo" onclick="removePhoto(${i})">×</button>
+          <img src="${p.url}" alt="写真${i+1}">
+          <button type="button" class="remove-photo" onclick="removePhoto(${i})">×</button>
         </div>
       `).join('');
+      preview.innerHTML = html;
 
-      const uploadArea = document.getElementById('photoUploadArea');
-      uploadArea.style.display = photos.length >= MAX_PHOTOS ? 'none' : 'block';
+      const used = photos.length + ((existingPhotoUrl && !removeExistingPhoto) ? 1 : 0);
+      document.getElementById('photoUploadArea').style.display = used >= MAX_PHOTOS ? 'none' : 'block';
     }
 
     function removePhoto(idx) {
       photos.splice(idx, 1);
+      renderPhotos();
+    }
+
+    // 編集モード：既存写真を削除対象にする
+    function removeExistingPhotoFn() {
+      removeExistingPhoto = true;
       renderPhotos();
     }
 
@@ -699,6 +791,13 @@
       const menus = [...selectedMenus];
       if (otherMenu) menus.push(otherMenu);
 
+      // 食べたうどんは最低1つ必須（チップ選択 or 自由入力）
+      if (menus.length === 0) {
+        showToast('食べたうどんを選んでください');
+        document.getElementById('menuChips').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+      }
+
       const btn = document.querySelector('.btn-post');
       if (btn) btn.disabled = true;
       try {
@@ -707,8 +806,35 @@
           location.href = 'login.html?next=' + encodeURIComponent(location.pathname + location.search);
           return;
         }
-        // 同じ店でも何度でも記録できる（＝杯数になる）
-        await API.post('log_add.php', {
+
+        if (isEdit) {
+          // === 編集：既存の記録を更新 ===
+          await API.post('log_update.php', {
+            id: editId,
+            menus: menus,
+            comment: document.getElementById('comment').value.trim(),
+            visit_date: document.getElementById('visitDate').value,
+            is_public: visibility === 'public' ? 1 : 0,
+          });
+          // 写真：新しく選んだら差し替え、無くて既存を消したなら削除
+          if (photos.length) {
+            try {
+              const fd = new FormData();
+              fd.append('log_id', editId);
+              fd.append('photo', photos[0].file);
+              await API.upload('log_photo.php', fd);
+            } catch (e) {
+              showToast('記録は更新しましたが、写真の保存に失敗しました');
+            }
+          } else if (removeExistingPhoto && existingPhotoUrl) {
+            try { await API.post('log_photo_delete.php', { log_id: editId }); } catch (_) {}
+          }
+          location.href = 'mypage.html';
+          return;
+        }
+
+        // === 新規：記録を追加（同じ店でも何度でも＝杯数になる）===
+        const res = await API.post('log_add.php', {
           shop_id: shopId,
           menus: menus,
           comment: document.getElementById('comment').value.trim(),
@@ -716,11 +842,22 @@
           photo_count: photos.length,
           is_public: visibility === 'public' ? 1 : 0,
         });
+        // 写真があればアップロード（記録IDに紐付け）。失敗しても記録自体は成功扱い。
+        if (photos.length && res.log && res.log.id) {
+          try {
+            const fd = new FormData();
+            fd.append('log_id', res.log.id);
+            fd.append('photo', photos[0].file);
+            await API.upload('log_photo.php', fd);
+          } catch (e) {
+            showToast('記録は保存しましたが、写真の保存に失敗しました');
+          }
+        }
         // シェア用に今回の記録内容を保持し、完了モーダルを表示
         lastRecord = { name: shopName, city: shopCity, menus: menus };
         document.getElementById('shareOverlay').classList.add('show');
       } catch (err) {
-        showToast(err.message || '記録に失敗しました');
+        showToast(err.message || (isEdit ? '更新に失敗しました' : '記録に失敗しました'));
         if (btn) btn.disabled = false;
       }
     }
@@ -752,6 +889,5 @@
     }
   </script>
 
-  <script src="header.js"></script>
 </body>
 </html>

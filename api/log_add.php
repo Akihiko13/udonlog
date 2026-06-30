@@ -9,13 +9,17 @@ $in      = body();
 $shop_id = (int)($in['shop_id'] ?? 0);
 if ($shop_id <= 0) json_error('店舗が指定されていません');
 
-// メニュー（配列なら「・」で連結して保存）
+// メニュー（配列なら「・」で連結して保存）。食べたうどんは最低1つ必須
 $menus = $in['menus'] ?? '';
-if (is_array($menus)) $menus = implode('・', array_map('strval', $menus));
+if (is_array($menus)) {
+  $menus = implode('・', array_filter(array_map(function ($m) { return trim((string)$m); }, $menus), 'strlen'));
+}
 $menus = trim((string)$menus);
+if ($menus === '') json_error('食べたうどんを選んでください');
 if (mb_strlen($menus) > 255) $menus = mb_substr($menus, 0, 255);
 
 $comment = trim((string)($in['comment'] ?? ''));
+if (mb_strlen($comment) > 140) $comment = mb_substr($comment, 0, 140);   // 感想は140文字まで
 
 // 訪問日（YYYY-MM-DD のみ受理。それ以外はNULL）
 $visit = trim((string)($in['visit_date'] ?? ''));

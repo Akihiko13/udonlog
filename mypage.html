@@ -96,8 +96,39 @@
     .profile-name { font-size: 20px; font-weight: 700; }
     .profile-sub { font-size: 13px; color: var(--text-sub); }
 
+    /* プロフィール写真（表示のみ。編集はプロフィール編集ページで） */
+    .profile-avatar { overflow: hidden; }
+    .profile-avatar img.avatar-img {
+      width: 100%; height: 100%; object-fit: cover; border-radius: 50%; display: block;
+    }
+    /* 自己紹介文 */
+    .profile-bio {
+      font-size: 13px; color: var(--text); margin-top: 6px; line-height: 1.6;
+      white-space: pre-wrap; word-break: break-word;
+    }
+    /* プロフィール下のリンク */
+    .profile-links { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 8px; }
+    .profile-links a { font-size: 12px; font-weight: 600; text-decoration: none; color: var(--amber); }
+    .profile-links a:hover { text-decoration: underline; }
+
+    /* 推しのうどん屋 */
+    .fav-list { display: grid; gap: 10px; }
+    .fav-card {
+      display: flex; align-items: center; gap: 12px;
+      background: linear-gradient(160deg, #FFFDF8 0%, #FFF4E4 100%);
+      border: 0.5px solid var(--amber-border); border-radius: 14px;
+      padding: 12px 14px; text-decoration: none; color: inherit;
+    }
+    .fav-card:hover { background: #FFF0DC; }
+    .fav-rank {
+      width: 28px; height: 28px; flex-shrink: 0; border-radius: 50%;
+      background: var(--amber); color: #fff; font-size: 14px; font-weight: 800;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .fav-name { font-size: 15px; font-weight: 700; }
+    .fav-meta { font-size: 12px; color: var(--text-sub); }
+
     /* うどんアイコン画像 */
-    .profile-avatar img,
     .visited-icon img { width: 80%; height: 80%; object-fit: contain; }
     .udon-inline {
       width: 1.2em; height: 1.2em;
@@ -210,6 +241,31 @@
       background: #ece8e0;
       border-radius: 99px;
       overflow: hidden;
+      position: relative;
+    }
+
+    /* 10%ごとの目盛り線（バーの上に薄く重ねる） */
+    .conquer-track::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background-image: repeating-linear-gradient(
+        to right,
+        transparent 0,
+        transparent calc(10% - 1px),
+        rgba(255,255,255,0.65) calc(10% - 1px),
+        rgba(255,255,255,0.65) 10%
+      );
+    }
+
+    /* 目盛りの数字（0〜100%） */
+    .conquer-scale {
+      display: flex;
+      justify-content: space-between;
+      font-size: 10px;
+      color: #b0a690;
+      margin-top: 4px;
     }
 
     .conquer-fill {
@@ -247,15 +303,16 @@
 
     /* スタンプ帳（1軒=1スタンプ） */
     .stamp-book {
-      background: linear-gradient(160deg, #FFFDF8 0%, #FBF3E6 100%);
-      border: 0.5px solid var(--amber-border);
-      border-radius: 16px;
-      padding: 1.5rem 1.25rem;
+      padding: 1.5rem 0;
       margin-bottom: 2rem;
     }
 
     .book-card {
       margin-bottom: 1.5rem;
+      background: #fff;
+      border: 0.5px solid var(--amber-border);
+      border-radius: 12px;
+      padding: 14px 12px;
     }
 
     .book-card:last-child { margin-bottom: 0; }
@@ -268,6 +325,7 @@
       font-weight: 600;
       color: var(--amber);
       margin-bottom: 10px;
+      padding-left: 10px;
     }
 
     .book-card-label .complete-tag {
@@ -336,6 +394,80 @@
       font-size: 14px;
       padding: 1rem 0;
     }
+
+    /* 古いカードの折りたたみ */
+    .book-older { margin-top: 14px; display: grid; gap: 10px; }
+    .book-card-collapsed { border-top: 0.5px dashed var(--amber-border); padding-top: 12px; }
+    .book-card-toggle {
+      width: 100%; background: none; border: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: space-between;
+      font-size: 13px; font-weight: 600; color: var(--amber); padding: 2px 0; font-family: inherit;
+    }
+    .book-card-toggle-right { display: flex; align-items: center; gap: 8px; }
+    .book-chevron { font-size: 16px; transition: transform 0.15s; }
+
+    /* 横スクロール（古い冊・案2ハイブリッド） */
+    .book-current-head {
+      font-size: 13px; font-weight: 600; color: var(--amber);
+      margin-bottom: 8px;
+    }
+    .book-older-head {
+      margin-top: 20px; padding-top: 14px;
+      border-top: 0.5px dashed var(--amber-border);
+      font-size: 13px; font-weight: 600; color: var(--amber);
+      margin-bottom: 8px;
+    }
+    .book-nav {
+      display: flex; align-items: center; justify-content: center;
+      gap: 12px; margin-bottom: 10px;
+    }
+    .book-counter {
+      font-size: 12px; font-weight: 600; color: var(--text-sub);
+      min-width: 130px; text-align: center;
+    }
+    .book-nav-btn {
+      width: 30px; height: 30px; flex: none; border-radius: 50%;
+      border: 0.5px solid var(--amber-border); background: #fff;
+      color: var(--amber); font-size: 18px; line-height: 1; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-family: inherit; padding: 0; transition: opacity 0.15s;
+    }
+    .book-nav-btn:disabled { opacity: 0.3; cursor: default; }
+    .book-carousel {
+      display: flex; gap: 12px; overflow-x: auto;
+      scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch;
+      padding: 0 4px 8px; scrollbar-width: none;
+    }
+    .book-carousel::-webkit-scrollbar { display: none; }
+    .book-slide {
+      flex: 0 0 86%; scroll-snap-align: center;
+      background: #fff; border: 0.5px solid var(--amber-border);
+      border-radius: 12px; padding: 14px 12px;
+    }
+
+    /* スタンプ（丸＋店名＋日付。横5個×2列） */
+    .stamp-list { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px 4px; }
+    .stamp-cell { display: flex; flex-direction: column; align-items: center; text-align: center; }
+    .stamp-cell .slot { width: 42px; height: 42px; aspect-ratio: auto; }
+    .stamp-cap { margin-top: 5px; width: 100%; min-width: 0; }
+    .stamp-cap-shop {
+      font-size: 10px; font-weight: 600; line-height: 1.25; word-break: break-word;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+    }
+    .stamp-cap-date { font-size: 9px; color: var(--text-sub); margin-top: 1px; }
+
+    /* スタンプの店名ポップアップ */
+    .slot.filled { cursor: pointer; }
+    .stamp-info {
+      position: fixed; left: 50%; top: 72px; transform: translateX(-50%) translateY(-8px);
+      background: #1a1a1a; color: #fff; padding: 10px 16px; border-radius: 10px;
+      font-size: 13px; text-align: center; z-index: 1000; max-width: 80vw;
+      opacity: 0; pointer-events: none; transition: opacity 0.15s, transform 0.15s;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+    }
+    .stamp-info.show { opacity: 1; transform: translateX(-50%) translateY(0); pointer-events: auto; }
+    .stamp-info-name { font-weight: 700; }
+    .stamp-info-meta { font-size: 11px; opacity: 0.85; margin-top: 2px; }
 
     /* スタンプカードグリッド */
     .stamp-grid {
@@ -573,9 +705,11 @@
       padding: 12px 14px;
       margin-bottom: 8px;
     }
+    .history-photo { width: 48px; height: 48px; object-fit: cover; border-radius: 8px; flex-shrink: 0; }
     .history-main { min-width: 0; flex: 1; }
     .history-shop { font-size: 15px; font-weight: 600; }
     .history-meta { font-size: 12px; color: var(--text-sub); }
+    .history-likes { font-size: 12px; color: #e05a77; font-weight: 600; margin-top: 3px; display: flex; align-items: center; gap: 3px; }
     .history-del {
       flex-shrink: 0;
       background: none;
@@ -588,7 +722,33 @@
       border-radius: 8px;
     }
     .history-del:hover { background: #fbeceb; color: #d9534f; }
+    .history-edit {
+      flex-shrink: 0;
+      background: none;
+      border: none;
+      color: #9a9a90;
+      font-size: 18px;
+      cursor: pointer;
+      padding: 6px;
+      line-height: 1;
+      border-radius: 8px;
+      text-decoration: none;
+      display: inline-flex;
+    }
+    .history-edit:hover { background: #f1efe9; color: var(--amber); }
     .history-empty { text-align: center; color: #aaa; font-size: 14px; padding: 1rem; }
+    /* エリア・月の折りたたみグループ */
+    .group-block { margin-bottom: 8px; }
+    .group-head {
+      width: 100%; background: none; border: 0.5px solid var(--amber-border);
+      border-radius: 10px; padding: 12px 14px; display: flex; align-items: center;
+      justify-content: space-between; font-size: 14px; font-weight: 600;
+      color: var(--amber); cursor: pointer; font-family: inherit;
+    }
+    .group-head:hover { background: #fbf3e6; }
+    .group-chevron { font-size: 18px; transition: transform 0.15s; }
+    .group-chevron.open { transform: rotate(180deg); }
+    .group-body { margin-top: 8px; }
   </style>
   <!-- ファビコン -->
   <link rel="icon" href="favicon.ico" sizes="any">
@@ -610,12 +770,14 @@
   <meta name="twitter:title" content="マイページ｜うどログ">
   <meta name="twitter:description" content="あなたのうどん記録・スタンプ・バッジ・制覇率。">
   <meta name="twitter:image" content="https://udolog.com/og-image.png">
+  <script src="header.js"></script>
+  <script src="analytics.js"></script>
 </head>
 <body>
 
   <!-- ヘッダー -->
   <div class="page-header">
-    <a href="index.html" class="back-btn"><i class="ti ti-arrow-left"></i></a>
+    <a href="/" class="back-btn"><i class="ti ti-arrow-left"></i></a>
     <div class="header-title">マイページ</div>
   </div>
 
@@ -623,11 +785,36 @@
 
     <!-- プロフィール -->
     <div class="profile">
-      <div class="profile-avatar"><i class="ti ti-bowl-chopsticks"></i></div>
-      <div>
-        <div class="profile-name">うどん好きさん</div>
-        <div class="profile-sub">香川のさぬきうどんを記録中</div>
+      <div class="profile-avatar" id="avatarDisplay">
+        <span class="avatar-fallback" id="avatarFallback"><i class="ti ti-bowl-chopsticks"></i></span>
       </div>
+      <div style="min-width:0;">
+        <div class="profile-name"></div>
+        <div class="profile-sub">香川のさぬきうどんを記録中</div>
+        <div class="profile-bio" id="profileBio" style="display:none;"></div>
+        <div class="profile-links">
+          <a href="profile-edit.html" class="edit-link"><i class="ti ti-pencil" style="font-size:12px;"></i> プロフィールを編集</a>
+          <a href="account.html" class="edit-link"><i class="ti ti-settings" style="font-size:12px;"></i> アカウント設定</a>
+          <a id="publicProfileLink" href="#" style="display:none;">公開プロフィールを見る <i class="ti ti-external-link" style="font-size:11px;"></i></a>
+        </div>
+      </div>
+    </div>
+
+    <!-- 推しのうどん屋 -->
+    <div id="favSection" style="display:none;margin-bottom:1.5rem;">
+      <div class="section-head" style="margin-bottom:0.75rem;">
+        <div class="section-title"><i class="ti ti-star udon-i"></i> 推しのうどん屋</div>
+        <a href="profile-edit.html" class="section-count" style="color:var(--amber);text-decoration:none;font-weight:600;">編集</a>
+      </div>
+      <div class="fav-list" id="favList"></div>
+    </div>
+
+    <!-- 常連店（10杯以上記録した店＝常連認定） -->
+    <div id="regularSection" style="display:none;margin-bottom:1.5rem;">
+      <div class="section-head" style="margin-bottom:0.75rem;">
+        <div class="section-title"><i class="ti ti-crown udon-i"></i> 常連店</div>
+      </div>
+      <div class="fav-list" id="regularList"></div>
     </div>
 
     <!-- うどん杯数（期間集計） -->
@@ -656,10 +843,13 @@
     <!-- 全店舗の制覇率 -->
     <div class="conquer-panel">
       <div class="conquer-head">
-        <span class="conquer-title"><i class="ti ti-bowl-chopsticks udon-i"></i> 香川のうどん屋 制覇</span>
+        <span class="conquer-title"><i class="ti ti-bowl-chopsticks udon-i"></i> 香川県内のうどん屋制覇率</span>
         <span class="conquer-frac"><b id="conqVisited">0</b> / <span id="conqTotal">0</span>軒</span>
       </div>
       <div class="conquer-track"><div class="conquer-fill" id="conqFill" style="width:0%"></div></div>
+      <div class="conquer-scale">
+        <span>0</span><span>20</span><span>40</span><span>60</span><span>80</span><span>100%</span>
+      </div>
       <div class="conquer-pct" id="conqPct">0%</div>
     </div>
 
@@ -681,14 +871,14 @@
 
     <!-- スタンプ帳（1軒=1スタンプ） -->
     <div class="section-head">
-      <div class="section-title">📖 スタンプ帳</div>
+      <div class="section-title"><i class="ti ti-book udon-i"></i> スタンプ帳</div>
       <div class="section-count" id="bookCount">0個</div>
     </div>
     <div class="stamp-book" id="stampBook"></div>
 
     <!-- 達成バッジ -->
     <div class="section-head">
-      <div class="section-title">🏅 達成バッジ</div>
+      <div class="section-title"><i class="ti ti-award udon-i"></i> 達成バッジ</div>
       <div class="section-count" id="stampCount">0 / 0 獲得</div>
     </div>
 
@@ -701,21 +891,21 @@
 
     <!-- エリア制覇バッジ -->
     <div class="section-head">
-      <div class="section-title">🗺️ エリア制覇バッジ</div>
+      <div class="section-title"><i class="ti ti-map-2 udon-i"></i> エリア制覇バッジ</div>
       <div class="section-count" id="areaBadgeCount">0個 獲得</div>
     </div>
     <div class="area-grid" id="areaGrid"></div>
 
     <!-- 訪問した店舗 -->
     <div class="section-head">
-      <div class="section-title"><i class="ti ti-bowl-chopsticks udon-i"></i> 記録したお店</div>
+      <div class="section-title"><i class="ti ti-rubber-stamp udon-i"></i> 記録したお店</div>
       <div class="section-count" id="visitedCount">0軒</div>
     </div>
     <div class="visited-list" id="visitedList"></div>
 
     <!-- 記録の履歴（1杯ごと・削除できる） -->
     <div class="section-head">
-      <div class="section-title">📝 記録の履歴</div>
+      <div class="section-title"><i class="ti ti-notes udon-i"></i> 記録の履歴</div>
       <div class="section-count" id="historyCount">0杯</div>
     </div>
     <div class="history-list" id="historyList"></div>
@@ -874,39 +1064,134 @@
       }
 
       const cardCount = Math.floor(total / SLOTS_PER_CARD) + (total % SLOTS_PER_CARD === 0 ? 0 : 1);
-      let html = '';
 
-      for (let c = 0; c < cardCount; c++) {
+      function slotsHtml(c) {
         const startNum = c * SLOTS_PER_CARD;
-        const filledInCard = Math.min(total - startNum, SLOTS_PER_CARD);
-        const isComplete = filledInCard === SLOTS_PER_CARD;
-
-        let slots = '';
+        const filled = Math.min(total - startNum, SLOTS_PER_CARD);
+        let cells = '';
         for (let i = 0; i < SLOTS_PER_CARD; i++) {
           const stampIndex = startNum + i;
-          if (stampIndex < total) {
+          if (i < filled) {
             const log = logs[stampIndex];
             const shop = shopOf(log);
-            slots += `
-              <div class="slot filled" title="${shop.name}（${shop.city}）">
-                <i class="ti ti-bowl-chopsticks"></i><span class="slot-num">${stampIndex + 1}</span>
+            const d = fmtDateMy(log.visitDate || (log.savedAt ? log.savedAt.slice(0, 10) : ''));
+            cells += `
+              <div class="stamp-cell">
+                <div class="slot filled"><i class="ti ti-bowl-chopsticks"></i><span class="slot-num">${stampIndex + 1}</span></div>
+                <div class="stamp-cap">
+                  <div class="stamp-cap-shop">${escMy(shop.name)}</div>
+                  <div class="stamp-cap-date">${d || ''}</div>
+                </div>
               </div>`;
           } else {
-            slots += `<div class="slot empty">${stampIndex + 1}</div>`;
+            cells += `
+              <div class="stamp-cell">
+                <div class="slot empty">${stampIndex + 1}</div>
+              </div>`;
           }
         }
+        return cells;
+      }
+      function meta(c) {
+        const filled = Math.min(total - c * SLOTS_PER_CARD, SLOTS_PER_CARD);
+        return { filled: filled, complete: filled === SLOTS_PER_CARD };
+      }
 
+      // ハイブリッド表示（案2）：最新カードは展開、古い冊は横スクロール
+      const latest = cardCount - 1;
+      const lm = meta(latest);
+      let html = `
+        <div class="book-current-head">現在のカード</div>
+        <div class="book-card">
+          <div class="book-card-label">
+            <span>カード ${latest + 1}（${lm.filled} / ${SLOTS_PER_CARD}）</span>
+            ${lm.complete ? '<span class="complete-tag">✓ コンプリート</span>' : ''}
+          </div>
+          <div class="stamp-list">${slotsHtml(latest)}</div>
+        </div>`;
+
+      // 古い冊：新しい順に横スクロール（スナップ＋冊カウント）
+      if (cardCount > 1) {
+        let slides = '';
+        for (let c = latest - 1; c >= 0; c--) {
+          const m = meta(c);
+          slides += `
+            <div class="book-slide" data-card="${c + 1}">
+              <div class="book-card-label">
+                <span>カード ${c + 1}（${m.filled} / ${SLOTS_PER_CARD}）</span>
+                ${m.complete ? '<span class="complete-tag">✓ コンプリート</span>' : ''}
+              </div>
+              <div class="stamp-list">${slotsHtml(c)}</div>
+            </div>`;
+        }
         html += `
-          <div class="book-card">
-            <div class="book-card-label">
-              <span>カード ${c + 1}（${filledInCard} / ${SLOTS_PER_CARD}）</span>
-              ${isComplete ? '<span class="complete-tag">✓ コンプリート</span>' : ''}
-            </div>
-            <div class="stamp-slots">${slots}</div>
-          </div>`;
+          <div class="book-older-head">これまでのカード</div>
+          <div class="book-nav">
+            <button type="button" class="book-nav-btn" id="bookPrev" aria-label="前のカード">‹</button>
+            <span class="book-counter" id="bookCounter"></span>
+            <button type="button" class="book-nav-btn" id="bookNext" aria-label="次のカード">›</button>
+          </div>
+          <div class="book-carousel" id="bookCarousel">${slides}</div>`;
       }
 
       book.innerHTML = html;
+
+      // 古い冊カルーセルの冊カウント＋操作（矢印ボタン・ホイール横スクロール）
+      const carousel = document.getElementById('bookCarousel');
+      if (carousel) {
+        const counter = document.getElementById('bookCounter');
+        const prevBtn = document.getElementById('bookPrev');
+        const nextBtn = document.getElementById('bookNext');
+        const older = cardCount - 1;
+        function step() {
+          const sl = carousel.children[0];
+          return sl ? sl.offsetWidth + 12 : carousel.clientWidth;
+        }
+        function updateCounter() {
+          const center = carousel.scrollLeft + carousel.clientWidth / 2;
+          let best = null, bestPos = 0, bestDist = Infinity, pos = 0;
+          for (const sl of carousel.children) {
+            pos++;
+            const c = sl.offsetLeft + sl.offsetWidth / 2;
+            const d = Math.abs(c - center);
+            if (d < bestDist) { bestDist = d; best = sl; bestPos = pos; }
+          }
+          if (best) counter.textContent = `カード ${best.dataset.card}（${bestPos} / ${older}冊目）`;
+          const maxScroll = carousel.scrollWidth - carousel.clientWidth - 1;
+          prevBtn.disabled = carousel.scrollLeft <= 1;
+          nextBtn.disabled = carousel.scrollLeft >= maxScroll;
+        }
+        prevBtn.addEventListener('click', () => carousel.scrollBy({ left: -step(), behavior: 'smooth' }));
+        nextBtn.addEventListener('click', () => carousel.scrollBy({ left: step(), behavior: 'smooth' }));
+        // 縦ホイールを横スクロールに変換（PC向け）
+        carousel.addEventListener('wheel', (e) => {
+          if (Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return;
+          e.preventDefault();
+          carousel.scrollLeft += e.deltaY;
+        }, { passive: false });
+        carousel.addEventListener('scroll', () => window.requestAnimationFrame(updateCounter));
+        updateCounter();
+      }
+    }
+
+    // 折りたたんだ古いカードの開閉
+    function toggleCard(c) {
+      const body = document.getElementById('bookBody-' + c);
+      const chev = document.getElementById('bookChevron-' + c);
+      if (!body) return;
+      const hidden = body.style.display === 'none';
+      body.style.display = hidden ? 'grid' : 'none';
+      if (chev) chev.style.transform = hidden ? 'rotate(180deg)' : '';
+    }
+
+    // スタンプをタップ → その店名・訪問日を表示
+    let stampInfoTimer = null;
+    function showStampInfo(el) {
+      const box = document.getElementById('stampInfo');
+      box.innerHTML = `<div class="stamp-info-name">${el.dataset.name}</div><div class="stamp-info-meta">${el.dataset.meta}</div>`;
+      box.classList.add('show');
+      clearTimeout(stampInfoTimer);
+      stampInfoTimer = setTimeout(() => box.classList.remove('show'), 2600);
     }
 
     // === エリア制覇バッジ ===
@@ -997,6 +1282,9 @@
       // スタンプ帳（1杯=1スタンプ）
       renderBook(logs);
 
+      // 常連店（10杯以上記録した店）
+      renderRegulars(logs);
+
       // 達成バッジ判定（ユニーク店舗ベース）
       let earnedCount = 0;
       const grid = document.getElementById('stampGrid');
@@ -1036,41 +1324,88 @@
       if (uniqueShops.length === 0) {
         list.innerHTML = '<p style="color:#aaa;font-size:14px;text-align:center;padding:1rem;">まだ記録がありません</p>';
       } else {
-        list.innerHTML = uniqueShops.map(s => `
-          <a href="shops/${s.slug || ('shop' + s.id)}" class="visited-item">
-            <div class="visited-icon"><i class="ti ti-bowl-chopsticks"></i></div>
-            <div>
-              <div class="visited-name">${s.name}</div>
-              <div class="visited-meta">${s.city} ・ ${s.type}</div>
-            </div>
-            <span style="margin-left:auto;font-size:13px;font-weight:700;color:var(--amber);">${countByShop[s.id]}杯</span>
-            <i class="ti ti-chevron-right visited-arrow" style="margin-left:8px;"></i>
-          </a>
-        `).join('');
+        // エリア（市町）ごとにグループ化。軒数の多い順、各エリアは折りたたみ
+        const byCity = {};
+        uniqueShops.forEach(s => { (byCity[s.city] = byCity[s.city] || []).push(s); });
+        const cities = Object.keys(byCity).sort((a, b) => byCity[b].length - byCity[a].length);
+        list.innerHTML = cities.map((city, ci) => {
+          const items = byCity[city].map(s => `
+            <a href="shops/${s.slug || ('shop' + s.id)}" class="visited-item">
+              <div class="visited-icon"><i class="ti ti-bowl-chopsticks"></i></div>
+              <div>
+                <div class="visited-name">${s.name}</div>
+                <div class="visited-meta">${s.city} ・ ${s.type}</div>
+              </div>
+              <span style="margin-left:auto;font-size:13px;font-weight:700;color:var(--amber);">${countByShop[s.id]}杯</span>
+              <i class="ti ti-chevron-right visited-arrow" style="margin-left:8px;"></i>
+            </a>`).join('');
+          return `
+            <div class="group-block">
+              <button type="button" class="group-head" onclick="toggleGroup('area', ${ci})">
+                <span>${escMy(city || 'その他')}（${byCity[city].length}軒）</span>
+                <i class="ti ti-chevron-down group-chevron" id="areaChevron-${ci}"></i>
+              </button>
+              <div class="group-body" id="areaBody-${ci}" style="display:none;">${items}</div>
+            </div>`;
+        }).join('');
       }
 
-      // 記録の履歴（1杯ごと・新しい順・削除できる）
+      // 記録の履歴（1杯ごと・新しい順・削除できる）。月ごとにまとめて折りたたみ
       document.getElementById('historyCount').textContent = `${logs.length}杯`;
       const histEl = document.getElementById('historyList');
       const history = [...logs].reverse();
       if (history.length === 0) {
         histEl.innerHTML = '<div class="history-empty">まだ記録がありません</div>';
       } else {
-        histEl.innerHTML = history.map(l => {
+        const itemHtml = (l) => {
           const shop = shopOf(l);
           const menu = (l.menus && l.menus.length) ? l.menus.join('・') : '';
           const date = fmtDateMy(l.visitDate || (l.savedAt ? l.savedAt.slice(0, 10) : ''));
           const meta = [date, menu].filter(Boolean).join(' ・ ');
           return `
             <div class="history-item">
+              ${l.photoUrl ? `<img class="history-photo" src="${l.photoUrl}" alt="写真" loading="lazy" onerror="this.style.display='none'">` : ''}
               <div class="history-main">
                 <div class="history-shop">${escMy(shop.name)}</div>
                 <div class="history-meta">${escMy(meta)}</div>
+                ${l.likeCount ? `<div class="history-likes"><i class="ti ti-heart-filled"></i> ${l.likeCount}</div>` : ''}
               </div>
+              <a class="history-edit" title="編集" href="record.html?edit=${l.id}"><i class="ti ti-pencil"></i></a>
               <button class="history-del" title="削除" onclick="deleteLog(${l.id})"><i class="ti ti-trash"></i></button>
+            </div>`;
+        };
+        // 年月（YYYY-MM）でグループ化。新しい月が先、最新月だけ開く
+        const byMonth = {};
+        history.forEach(l => {
+          const ds = l.visitDate || (l.savedAt ? l.savedAt.slice(0, 10) : '');
+          const key = (ds && ds.length >= 7) ? ds.slice(0, 7) : '0000-00';
+          (byMonth[key] = byMonth[key] || []).push(l);
+        });
+        const months = Object.keys(byMonth).sort().reverse();
+        histEl.innerHTML = months.map((m, mi) => {
+          const label = m === '0000-00' ? '日付不明' : `${m.slice(0, 4)}年${parseInt(m.slice(5, 7), 10)}月`;
+          const open = mi === 0;
+          const items = byMonth[m].map(itemHtml).join('');
+          return `
+            <div class="group-block">
+              <button type="button" class="group-head" onclick="toggleGroup('month', ${mi})">
+                <span>${label}（${byMonth[m].length}杯）</span>
+                <i class="ti ti-chevron-down group-chevron${open ? ' open' : ''}" id="monthChevron-${mi}"></i>
+              </button>
+              <div class="group-body" id="monthBody-${mi}" style="display:${open ? 'block' : 'none'};">${items}</div>
             </div>`;
         }).join('');
       }
+    }
+
+    // エリア・月の折りたたみ開閉
+    function toggleGroup(prefix, i) {
+      const body = document.getElementById(prefix + 'Body-' + i);
+      const chev = document.getElementById(prefix + 'Chevron-' + i);
+      if (!body) return;
+      const hidden = body.style.display === 'none';
+      body.style.display = hidden ? 'block' : 'none';
+      if (chev) chev.classList.toggle('open', hidden);
     }
 
     // 表示用ヘルパー
@@ -1082,6 +1417,57 @@
       if (!d) return '';
       const t = new Date(d);
       return isNaN(t) ? d : `${t.getFullYear()}/${t.getMonth() + 1}/${t.getDate()}`;
+    }
+
+    // 推しのうどん屋を描画
+    function renderFavorites(ids) {
+      const section = document.getElementById('favSection');
+      const list = document.getElementById('favList');
+      const cards = (ids || []).map((id, i) => {
+        const s = SHOPS.find(x => x.id === id);
+        if (!s) return '';
+        const slug = s.slug || ('shop' + s.id);
+        return `
+          <a href="shops/${slug}" class="fav-card">
+            <div class="fav-rank">${i + 1}</div>
+            <div style="min-width:0;">
+              <div class="fav-name">${escMy(s.name)}</div>
+              <div class="fav-meta">${escMy(s.city)} ・ ${escMy(s.type)}</div>
+            </div>
+            <i class="ti ti-chevron-right" style="margin-left:auto;color:#ccc;"></i>
+          </a>`;
+      }).join('');
+      list.innerHTML = cards;
+      section.style.display = cards.trim() ? 'block' : 'none';
+    }
+
+    // 常連店を描画（同じ店を10杯以上記録＝常連認定。杯数の多い順）
+    const REGULAR_SIZE = 10;
+    function renderRegulars(logs) {
+      const section = document.getElementById('regularSection');
+      const list = document.getElementById('regularList');
+      const cnt = {};
+      (logs || []).forEach(l => { cnt[l.shopId] = (cnt[l.shopId] || 0) + 1; });
+      const regs = Object.keys(cnt)
+        .map(id => ({ id: parseInt(id, 10), visits: cnt[id] }))
+        .filter(r => r.visits >= REGULAR_SIZE)
+        .sort((a, b) => b.visits - a.visits);
+      const cards = regs.map(r => {
+        const s = SHOPS.find(x => x.id === r.id);
+        if (!s) return '';
+        const slug = s.slug || ('shop' + s.id);
+        return `
+          <a href="shops/${slug}" class="fav-card">
+            <div class="fav-rank"><i class="ti ti-bowl-chopsticks"></i></div>
+            <div style="min-width:0;">
+              <div class="fav-name">${escMy(s.name)}</div>
+              <div class="fav-meta">${escMy(s.city)} ・ 通算${r.visits}杯</div>
+            </div>
+            <i class="ti ti-chevron-right" style="margin-left:auto;color:#ccc;"></i>
+          </a>`;
+      }).join('');
+      list.innerHTML = cards;
+      section.style.display = cards.trim() ? 'block' : 'none';
     }
 
     // サーバーから記録を取得して全体を描画（削除後の再描画にも使う）
@@ -1107,6 +1493,29 @@
       }
     }
 
+    // === プロフィール写真（表示のみ。編集は profile-edit.html）===
+    function setAvatar(url) {
+      const box = document.getElementById('avatarDisplay');
+      const fallback = document.getElementById('avatarFallback');
+      let img = box.querySelector('img.avatar-img');
+      if (url) {
+        if (!img) {
+          img = document.createElement('img');
+          img.className = 'avatar-img';
+          img.alt = 'プロフィール写真';
+          box.insertBefore(img, fallback);
+        }
+        img.src = url;
+        fallback.style.display = 'none';
+      } else {
+        if (img) img.remove();
+        const nick = (API.user && API.user.nickname) || '';
+        fallback.textContent = nick ? nick.charAt(0) : '';
+        if (!nick) fallback.innerHTML = '<i class="ti ti-bowl-chopsticks"></i>';
+        fallback.style.display = '';
+      }
+    }
+
     // === 初期化：ログイン必須。サーバーから記録を取得して描画 ===
     (async function init() {
       try {
@@ -1121,15 +1530,40 @@
       }
       // プロフィール表示（ニックネーム・活動エリア）
       const u = API.user;
-      document.querySelector('.profile-name').textContent = u.nickname || 'うどん好きさん';
+      document.querySelector('.profile-name').textContent = u.nickname;
       document.querySelector('.profile-sub').textContent =
         u.city ? (u.city + 'で活動中') : '香川のさぬきうどんを記録中';
+
+      // 自分の公開プロフィールへのリンク（他の会員からの見え方）
+      if (u.id) {
+        const link = document.getElementById('publicProfileLink');
+        link.href = 'user.html?id=' + u.id;
+        link.style.display = 'inline-block';
+      }
+
+      // プロフィール写真の表示
+      setAvatar(u.avatarUrl || null);
+
+      // 自己紹介文
+      if (u.bio) {
+        const bioEl = document.getElementById('profileBio');
+        bioEl.textContent = u.bio;
+        bioEl.style.display = 'block';
+      }
+
+      // 推しのうどん屋を取得して描画
+      try {
+        const f = await API.get('favorites_get.php');
+        renderFavorites(f.shopIds || []);
+      } catch (e) { /* 取得失敗時は非表示のまま */ }
 
       // サーバーから記録を取得して描画
       await loadAndRender();
     })();
   </script>
 
-  <script src="header.js"></script>
+  <!-- スタンプの店名ポップアップ -->
+  <div class="stamp-info" id="stampInfo" onclick="this.classList.remove('show')"></div>
+
 </body>
 </html>

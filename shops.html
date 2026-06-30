@@ -65,15 +65,19 @@
 
     .nav-count {
       margin-left: auto;
-      font-size: 13px;
-      color: var(--amber);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      text-decoration: none;
     }
-
-    .nav-count::after {
-      content: ' ›';
-      font-size: 16px;
-      font-weight: 700;
+    .nav-count-text {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      line-height: 1.15;
     }
+    .nav-count-label { font-size: 10px; color: var(--text-sub); font-weight: 600; }
+    .nav-count-val { font-size: 13px; color: var(--amber); font-weight: 700; }
 
     /* SEARCH BAR */
     .search-bar {
@@ -333,6 +337,7 @@
       font-weight: 700;
       cursor: pointer;
       font-family: inherit;
+      text-decoration: none;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -410,16 +415,18 @@
   <meta name="twitter:title" content="お店を探す｜うどログ">
   <meta name="twitter:description" content="香川県のうどん店を一覧・検索。エリアや五十音順で探せます。">
   <meta name="twitter:image" content="https://udolog.com/og-image.png">
+  <script src="header.js"></script>
+  <script src="analytics.js"></script>
 </head>
 <body>
 
   <nav>
-    <a href="index.html" class="nav-back">
+    <a href="/" class="nav-back">
       <i class="ti ti-arrow-left" aria-hidden="true"></i>
       もどる
     </a>
     <span class="nav-title">お店を選ぶ</span>
-    <a href="mypage.html" class="nav-count" id="nav-count" style="text-decoration:none;display:flex;align-items:center;gap:5px;"></a>
+    <a href="mypage.html" class="nav-count" id="nav-count"></a>
   </nav>
 
   <div class="search-bar">
@@ -513,7 +520,17 @@
       const label = document.getElementById('result-label');
       const navCount = document.getElementById('nav-count');
 
-      navCount.textContent = `${visited.size}店 / ${logs.length}杯`;
+      if (API.isLoggedIn && API.isLoggedIn()) {
+        navCount.innerHTML =
+          `<span class="nav-count-text">` +
+            `<span class="nav-count-label">あなたの記録</span>` +
+            `<span class="nav-count-val">${visited.size}店 / ${logs.length}杯</span>` +
+          `</span><i class="ti ti-chevron-right" style="color:#ccc;font-size:16px;"></i>`;
+      } else {
+        navCount.innerHTML =
+          `<span class="nav-count-text"><span class="nav-count-val">マイページ</span></span>` +
+          `<i class="ti ti-chevron-right" style="color:#ccc;font-size:16px;"></i>`;
+      }
       label.textContent = `${filtered.length}件のお店`;
 
       if (filtered.length === 0) {
@@ -620,6 +637,5 @@
     })();
   </script>
 
-  <script src="header.js"></script>
 </body>
 </html>

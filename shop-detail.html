@@ -107,7 +107,26 @@
 
     .shop-hero-icon img { width: 78%; height: 78%; object-fit: contain; }
     .shop-hero-icon i { color: #fff; font-size: 30px; line-height: 1; }
-    .post-photo img { width: 100%; height: 100%; object-fit: contain; }
+    .post-photo img { width: 100%; height: 100%; object-fit: cover; display: block; cursor: pointer; }
+
+    /* 写真の拡大表示（ライトボックス） */
+    .photo-lightbox {
+      position: fixed; inset: 0; z-index: 1000;
+      background: rgba(0,0,0,0.55);
+      display: none; align-items: center; justify-content: center; padding: 24px;
+    }
+    .photo-lightbox.show { display: flex; }
+    .photo-lightbox img {
+      max-width: 90vw; max-height: 75vh; object-fit: contain;
+      border-radius: 12px; box-shadow: 0 12px 40px rgba(0,0,0,0.45);
+      animation: photoPop 0.18s ease;
+    }
+    @keyframes photoPop { from { transform: scale(0.92); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    .photo-lightbox-close {
+      position: absolute; top: 14px; right: 18px;
+      background: none; border: none; color: #fff; font-size: 34px; line-height: 1; cursor: pointer;
+      text-shadow: 0 1px 4px rgba(0,0,0,0.5);
+    }
 
     .shop-hero-name {
       font-size: 24px;
@@ -324,7 +343,14 @@
       gap: 8px;
     }
 
+    .loy-cell {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
     .loy-slot {
+      width: 100%;
       aspect-ratio: 1;
       border-radius: 50%;
       display: flex;
@@ -332,6 +358,15 @@
       justify-content: center;
       font-size: 13px;
       font-weight: 600;
+    }
+
+    .loy-date {
+      font-size: 9px;
+      color: var(--text-sub);
+      margin-top: 3px;
+      line-height: 1.2;
+      min-height: 11px;
+      text-align: center;
     }
 
     .loy-slot.empty {
@@ -508,9 +543,15 @@
       flex-shrink: 0;
       font-weight: 600;
       color: #fff;
+      overflow: hidden;
+      text-decoration: none;
     }
+    .post-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; display: block; }
 
     .post-user-name { font-size: 14px; font-weight: 600; }
+    /* ニックネーム→プロフィールへのリンク */
+    .post-user-link { color: inherit; text-decoration: none; }
+    .post-user-link:hover { color: var(--amber); text-decoration: underline; }
 
     /* 投稿者のXリンク（黒背景のXマークだけがリンク） */
     .post-x-badge {
@@ -529,6 +570,13 @@
     }
     .post-x-badge:hover { opacity: 0.85; }
     .post-date { font-size: 12px; color: #aaa; margin-top: 1px; }
+    .posts-more-btn {
+      display: block; width: 100%; margin-top: 10px; padding: 10px;
+      background: none; border: 0.5px solid var(--amber-border); border-radius: 10px;
+      color: var(--amber); font-size: 13px; font-weight: 600; cursor: pointer;
+      font-family: inherit;
+    }
+    .posts-more-btn:hover { background: #fbf3e6; }
 
     .post-stars {
       display: flex;
@@ -552,16 +600,10 @@
 
     .post-photo {
       width: 100%;
-      height: 160px;
-      object-fit: cover;
+      height: 200px;
       border-radius: 8px;
       margin-bottom: 8px;
-      background: #f0ede8;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 32px;
-      color: #ccc;
+      overflow: hidden;
     }
 
     .post-comment { font-size: 14px; color: var(--text); line-height: 1.6; }
@@ -639,6 +681,8 @@
   <meta name="twitter:title" content="店舗詳細｜うどログ">
   <meta name="twitter:description" content="お店の情報とみんなの投稿。あなたの訪問記録・常連カードも。">
   <meta name="twitter:image" content="https://udolog.com/og-image.png">
+  <script src="header.js"></script>
+  <script src="analytics.js"></script>
 </head>
 <body>
 
@@ -676,9 +720,9 @@
       <!-- 評価サマリー -->
       <div class="rating-summary">
         <div>
-          <div class="rating-score" id="avgScore">4.2</div>
+          <div class="rating-score" id="avgScore">–</div>
           <div class="rating-stars" id="avgStars"></div>
-          <div class="rating-count" id="reviewCount">38人のおすすめ度</div>
+          <div class="rating-count" id="reviewCount"></div>
         </div>
         <div class="rating-bars" id="ratingBars"></div>
       </div>
@@ -708,7 +752,7 @@
       <div class="loyalty-card" id="loyaltyCard" style="display:none;">
         <div class="loyalty-head">
           <span id="loyaltyTitle">常連カード</span>
-          <span class="loyalty-tag" id="loyaltyTag" style="display:none;">🏅 常連認定</span>
+          <span class="loyalty-tag" id="loyaltyTag" style="display:none;"><i class="ti ti-crown"></i> 常連認定</span>
         </div>
         <div class="loyalty-slots" id="loyaltySlots"></div>
         <div class="loyalty-note" id="loyaltyNote"></div>
@@ -739,9 +783,9 @@
         <span class="info-label">スタイル</span>
         <span class="info-value" id="infoType">—</span>
       </div>
-      <div class="info-row">
+      <div class="info-row" id="dishRow" style="display:none;">
         <i class="ti ti-star info-icon"></i>
-        <span class="info-label">代表メニュー</span>
+        <span class="info-label">人気メニュー</span>
         <span class="info-value" id="infoDish">—</span>
       </div>
       <div class="info-row">
@@ -786,10 +830,16 @@
   <script>
 
     // 投稿日の表示用フォーマット（2026-06-14 → 2026年6月14日）
+    // 常連スタンプの日付表示用（YYYY-MM-DD → M/D）
+    function formatLoyDate(d) {
+      const m = String(d || '').match(/^(\d{4})-(\d{2})-(\d{2})/);
+      return m ? `${m[1].slice(2)}/${parseInt(m[2], 10)}/${parseInt(m[3], 10)}` : '';
+    }
+
     // この店の常連カードを描画（visits=この店の記録杯数）
     // 10杯で1枚コンプリート＝常連認定。10杯を超えたら次のカードへ進む。
     const LOYALTY_SIZE = 10;
-    function renderLoyaltyCard(visits, shopName) {
+    function renderLoyaltyCard(visits, shopName, dates) {
       const card = document.getElementById('loyaltyCard');
       card.style.display = 'block';
 
@@ -797,21 +847,21 @@
       const fill = visits - (cardNo - 1) * LOYALTY_SIZE;        // 今のカードの押印数(1〜10)
       const isRegular = visits >= LOYALTY_SIZE;                 // 10杯以上で常連
 
-      // スタンプのマスを生成
+      // スタンプのマスを生成（押印済みは記録日を表示してスタンプラリー感を出す）
       let slots = '';
       for (let i = 0; i < LOYALTY_SIZE; i++) {
         const cupNo = (cardNo - 1) * LOYALTY_SIZE + i + 1;      // 通算の杯数
         if (i < fill) {
-          slots += `<div class="loy-slot filled" title="${cupNo}杯目"><i class="ti ti-bowl-chopsticks"></i></div>`;
+          const d = (dates && dates[cupNo - 1]) ? formatLoyDate(dates[cupNo - 1]) : '';
+          slots += `<div class="loy-cell"><div class="loy-slot filled" title="${cupNo}杯目"><i class="ti ti-bowl-chopsticks"></i></div><div class="loy-date">${d}</div></div>`;
         } else {
-          slots += `<div class="loy-slot empty">${i + 1}</div>`;
+          slots += `<div class="loy-cell"><div class="loy-slot empty">${i + 1}</div><div class="loy-date"></div></div>`;
         }
       }
       document.getElementById('loyaltySlots').innerHTML = slots;
 
       // タイトル・常連タグ
-      document.getElementById('loyaltyTitle').textContent =
-        isRegular ? `🏅 ${shopName}の常連！` : `${shopName}の常連カード`;
+      document.getElementById('loyaltyTitle').textContent = `${shopName}の常連カード`;
       document.getElementById('loyaltyTag').style.display = isRegular ? '' : 'none';
 
       // 案内文
@@ -819,9 +869,9 @@
       if (!isRegular) {
         note.textContent = `常連まで あと${LOYALTY_SIZE - visits}杯`;
       } else if (fill === LOYALTY_SIZE) {
-        note.textContent = `常連カード${cardNo}枚コンプリート！（通算${visits}杯）`;
+        note.textContent = `${cardNo}枚目コンプリート！`;
       } else {
-        note.textContent = `常連カード${cardNo}枚目を集め中（通算${visits}杯）`;
+        note.textContent = `${cardNo}枚目を集め中`;
       }
     }
 
@@ -839,14 +889,22 @@
     }
 
     // 投稿コメントのHTMLエスケープ（表示崩れ・タグ混入を防ぐ）
+    // 写真の拡大表示（どこをタップしても閉じる）
+    function openPhoto(src) {
+      document.getElementById('photoLightboxImg').src = src;
+      document.getElementById('photoLightbox').classList.add('show');
+      document.body.style.overflow = 'hidden';
+    }
+    function closePhoto() {
+      document.getElementById('photoLightbox').classList.remove('show');
+      document.body.style.overflow = '';
+    }
+
     function escapeHtml(s) {
       return String(s).replace(/[&<>"']/g, c => (
         { '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]
       ));
     }
-
-    // ダミー評価分布
-    const RATING_DIST = { 5: 22, 4: 10, 3: 4, 2: 1, 1: 1 };
 
     // URLからお店を取得（/shops/＜slug＞ の slug 優先、無ければ ?id= でも可）
     // ※ きれいURLは内部リライトのため location.search は空 → パス名から slug を取る
@@ -879,7 +937,6 @@
       document.getElementById('shopName').textContent = shop.name;
       document.getElementById('shopCity').textContent = shop.city;
       document.getElementById('infoType').textContent = shop.type + '式';
-      document.getElementById('infoDish').textContent = shop.dish;
       document.getElementById('infoCity').textContent = shop.city;
       // 営業時間・定休日は店ごとのデータ（未設定なら案内文を表示）
       document.getElementById('infoHours').textContent = shop.hours || '店舗にご確認ください';
@@ -916,14 +973,64 @@
         blogBtn.style.display = 'flex';
       }
 
-      // 評価サマリー
-      const total = Object.values(RATING_DIST).reduce((a, b) => a + b, 0);
-      const avg = (Object.entries(RATING_DIST).reduce((a, [k, v]) => a + Number(k) * v, 0) / total).toFixed(1);
-      document.getElementById('avgScore').textContent = avg;
-      document.getElementById('reviewCount').textContent = `${total}人のおすすめ度`;
+      // 構造化データ（JSON-LD）を設置（評価はサーバー取得後に補完）
+      setShopJsonLd(shop, null);
 
-      // 星
+      // みんなの投稿・あなたの訪問回数・おすすめ度（集計含む）をサーバーから取得して表示
+      loadShopActivity();
+    }
+
+    // 店舗の構造化データ（schema.org Restaurant）を <head> に設置・更新する。
+    // 検索エンジンに店名・エリア・評価などを正しく伝える（SEO）。
+    function setShopJsonLd(shop, rating) {
+      if (!shop || shop.status === '閉店') return;
+      var slug = shop.slug || ('shop' + shop.id);
+      var data = {
+        '@context': 'https://schema.org',
+        '@type': 'Restaurant',
+        'name': shop.name,
+        'servesCuisine': 'うどん',
+        'address': {
+          '@type': 'PostalAddress',
+          'addressLocality': shop.city,
+          'addressRegion': '香川県',
+          'addressCountry': 'JP'
+        },
+        'url': 'https://udolog.com/shops/' + slug
+      };
+      // 評価がある店だけ aggregateRating を入れる（0件で入れるとガイドライン違反）
+      if (rating && rating.total > 0 && rating.avg > 0) {
+        data.aggregateRating = {
+          '@type': 'AggregateRating',
+          'ratingValue': rating.avg,
+          'reviewCount': rating.total,
+          'bestRating': 5,
+          'worstRating': 1
+        };
+      }
+      var el = document.getElementById('ld-shop');
+      if (!el) {
+        el = document.createElement('script');
+        el.type = 'application/ld+json';
+        el.id = 'ld-shop';
+        document.head.appendChild(el);
+      }
+      el.textContent = JSON.stringify(data);
+    }
+
+    // おすすめ度サマリー（平均・人数・分布バー）をサーバーの集計から描画
+    function renderRatingSummary(rating) {
+      const dist = (rating && rating.dist) ? rating.dist : { 1:0, 2:0, 3:0, 4:0, 5:0 };
+      const total = (rating && rating.total) ? rating.total : 0;
+      const avg = (rating && rating.avg) ? rating.avg : 0;
+
+      document.getElementById('avgScore').textContent = total > 0 ? Number(avg).toFixed(1) : '–';
+      document.getElementById('reviewCount').textContent =
+        total > 0 ? `${total}人のおすすめ度` : 'まだ評価がありません';
+
+      // 平均の星（四捨五入）
       const starsEl = document.getElementById('avgStars');
+      starsEl.innerHTML = '';
       for (let i = 1; i <= 5; i++) {
         const s = document.createElement('span');
         s.className = 'star' + (i <= Math.round(avg) ? '' : ' empty');
@@ -931,10 +1038,11 @@
         starsEl.appendChild(s);
       }
 
-      // 評価バー
+      // 分布バー
       const barsEl = document.getElementById('ratingBars');
+      barsEl.innerHTML = '';
       [5,4,3,2,1].forEach(n => {
-        const pct = Math.round((RATING_DIST[n] / total) * 100);
+        const pct = total > 0 ? Math.round((Number(dist[n] || 0) / total) * 100) : 0;
         barsEl.innerHTML += `
           <div class="bar-row">
             <span>${n}★</span>
@@ -942,9 +1050,6 @@
             <span>${pct}%</span>
           </div>`;
       });
-
-      // みんなの投稿・あなたの訪問回数・おすすめ度をサーバーから取得して表示
-      loadShopActivity();
     }
 
     // この店のアクティビティ（全会員の公開投稿＋自分の訪問数・評価）をサーバーから取得
@@ -961,16 +1066,41 @@
       renderPosts(data.posts || []);
       renderMyVisit(myActivity);
       renderRatingUI(myActivity);
+      renderRatingSummary(data.rating);
+      renderPopularMenus(data.popularMenus || []);
+      setShopJsonLd(shop, data.rating);   // 評価が分かったので構造化データを更新
     }
 
-    // みんなの投稿（ニックネーム＋Xリンクで交流）
+    // 人気メニュー（記録数が多い順・上位3つ）。1件も無ければ行ごと非表示
+    function renderPopularMenus(menus) {
+      const row = document.getElementById('dishRow');
+      if (!menus || menus.length === 0) {
+        row.style.display = 'none';
+        return;
+      }
+      const top = menus.slice(0, 3)
+        .map(m => `${m.name}（${m.count}）`)
+        .join('・');
+      document.getElementById('infoDish').textContent = top;
+      row.style.display = '';
+    }
+
+    // みんなの投稿。表示は10件ずつ（「もっと見る」で追加描画＝初期表示を軽く）
+    const POSTS_STEP = 10;
+    let allPosts = [];
+    let shownPosts = 0;
+
     function renderPosts(posts) {
-      document.getElementById('postsCount').textContent = posts.length ? `${posts.length}件` : '';
+      allPosts = posts || [];
+      shownPosts = 0;
+      document.getElementById('postsCount').textContent = allPosts.length ? `${allPosts.length}件` : '';
       const postsEl = document.getElementById('postsList');
       const moreBtn = document.querySelector('.btn-more');
       if (moreBtn) moreBtn.style.display = 'none';
+      const oldMore = document.getElementById('postsMore');
+      if (oldMore) oldMore.remove();
 
-      if (posts.length === 0) {
+      if (allPosts.length === 0) {
         postsEl.innerHTML =
           '<div style="text-align:center;color:#aaa;font-size:14px;padding:1.5rem 0;">' +
           'まだ投稿がありません。<br>' +
@@ -982,28 +1112,69 @@
           '" style="color:#BA7517;text-decoration:none;font-weight:600;">最初の記録を投稿する</a></div>';
         return;
       }
-      postsEl.innerHTML = posts.map(p => {
-        const menu = (p.menus && p.menus.length) ? p.menus.join('・') : '';
-        const dateStr = formatPostDate(p.visitDate || p.savedAt);
-        const nick = p.nickname || 'うどん好きさん';
-        const initial = escapeHtml((nick.charAt(0) || 'う'));
-        const xBadge = p.xHandle
-          ? `<a class="post-x-badge" href="https://x.com/${encodeURIComponent(p.xHandle)}" target="_blank" rel="noopener" title="Xを見る"><i class="ti ti-brand-x"></i></a>`
-          : '';
-        const nameHtml = `<div class="post-user-name">${escapeHtml(nick)}${xBadge}</div>`;
-        return `
+      postsEl.innerHTML = '';
+      appendMorePosts();
+    }
+
+    // 1件分のカードHTML
+    function postCardHtml(p) {
+      const menu = (p.menus && p.menus.length) ? p.menus.join('・') : '';
+      const dateStr = formatPostDate(p.visitDate || p.savedAt);
+      const nick = p.nickname;
+      const initial = escapeHtml((nick.charAt(0) || 'う'));
+      const avatarInner = p.avatarUrl
+        ? `<img src="${escapeHtml(p.avatarUrl)}" alt="${escapeHtml(nick)}">`
+        : initial;
+      const avatarHtml = p.userId
+        ? `<a class="post-avatar" style="background:#BA7517" href="user.html?id=${p.userId}">${avatarInner}</a>`
+        : `<div class="post-avatar" style="background:#BA7517">${avatarInner}</div>`;
+      // ニックネームをタップするとその人のプロフィール（公開記録）へ。
+      // Xリンクはプロフィールページに集約したため、ここには出さない。
+      const nameInner = p.userId
+        ? `<a class="post-user-link" href="user.html?id=${p.userId}">${escapeHtml(nick)}</a>`
+        : escapeHtml(nick);
+      const nameHtml = `<div class="post-user-name">${nameInner}</div>`;
+      return `
           <div class="post-card">
             <div class="post-header">
-              <div class="post-avatar" style="background:#BA7517">${initial}</div>
+              ${avatarHtml}
               <div>
                 ${nameHtml}
                 <div class="post-date">${dateStr}</div>
               </div>
             </div>
             ${menu ? `<span class="post-menu">${escapeHtml(menu)}</span>` : ''}
+            ${p.photoUrl ? `<div class="post-photo"><img src="${escapeHtml(p.photoUrl)}" alt="投稿写真" loading="lazy" onclick="openPhoto(this.src)" onerror="this.parentNode.style.display='none'"></div>` : ''}
             ${p.comment ? `<div class="post-comment">${escapeHtml(p.comment)}</div>` : ''}
+            <div class="post-likes${p.liked ? ' liked' : ''}" data-log="${p.logId}" onclick="toggleLike(this)" title="いいね">
+              <i class="ti ti-heart${p.liked ? '-filled' : ''}"></i>
+              <span class="post-like-count">${p.likeCount || 0}</span>
+            </div>
           </div>`;
-      }).join('');
+    }
+
+    // 次の10件を追記して「もっと見る」ボタンを更新
+    function appendMorePosts() {
+      const postsEl = document.getElementById('postsList');
+      const next = allPosts.slice(shownPosts, shownPosts + POSTS_STEP);
+      postsEl.insertAdjacentHTML('beforeend', next.map(postCardHtml).join(''));
+      shownPosts += next.length;
+
+      let btn = document.getElementById('postsMore');
+      const remaining = allPosts.length - shownPosts;
+      if (remaining <= 0) {
+        if (btn) btn.remove();
+        return;
+      }
+      if (!btn) {
+        btn = document.createElement('button');
+        btn.id = 'postsMore';
+        btn.type = 'button';
+        btn.className = 'posts-more-btn';
+        btn.addEventListener('click', appendMorePosts);
+        postsEl.after(btn);
+      }
+      btn.textContent = `もっと見る（残り${remaining}件）`;
     }
 
     // あなたの訪問回数＋常連カード
@@ -1018,7 +1189,7 @@
         document.querySelector('#myVisit .my-visit-label').textContent = 'あなたの訪問';
         const last = formatPostDate(my.lastVisit);
         document.getElementById('myVisitSub').textContent = last ? `最後の訪問：${last}` : '';
-        renderLoyaltyCard(count, shop.name);
+        renderLoyaltyCard(count, shop.name, my.dates || []);
       } else {
         myVisit.classList.add('my-visit-empty');
         myVisit.style.display = 'flex';
@@ -1030,14 +1201,27 @@
       }
     }
 
-    function toggleLike(el) {
-      el.classList.toggle('liked');
-      const icon = el.querySelector('i');
-      const isLiked = el.classList.contains('liked');
-      icon.className = isLiked ? 'ti ti-heart-filled' : 'ti ti-heart';
-      const count = parseInt(el.textContent.trim());
-      el.innerHTML = `<i class="ti ti-heart${isLiked ? '-filled' : ''}"></i> ${isLiked ? count + 1 : count - 1}`;
-      el.classList.toggle('liked', isLiked);
+    // みんなの投稿への「いいね」をトグル（ログイン必須・サーバー保存）
+    async function toggleLike(el) {
+      const logId = parseInt(el.dataset.log, 10);
+      if (!logId || el.dataset.busy) return;
+      try {
+        await API.refresh();
+        if (!API.isLoggedIn()) {
+          location.href = 'login.html?next=' + encodeURIComponent(location.pathname + location.search);
+          return;
+        }
+        el.dataset.busy = '1';
+        const res = await API.post('like_toggle.php', { log_id: logId });
+        const liked = res.liked === 1;
+        el.classList.toggle('liked', liked);
+        el.querySelector('i').className = 'ti ti-heart' + (liked ? '-filled' : '');
+        el.querySelector('.post-like-count').textContent = res.count;
+      } catch (e) {
+        showToast(e.message || 'いいねに失敗しました');
+      } finally {
+        delete el.dataset.busy;
+      }
     }
 
     function showToast(msg) {
@@ -1082,12 +1266,19 @@
         myActivity.rating = val;
         paintMyStars(val);
         showToast('おすすめ度を保存しました');
+        loadShopActivity();   // 平均・分布を最新化
+
       } catch (e) {
         showToast(e.message || '保存に失敗しました');
       }
     }
   </script>
 
-  <script src="header.js"></script>
+  <!-- 写真の拡大表示 -->
+  <div class="photo-lightbox" id="photoLightbox" onclick="closePhoto()">
+    <button class="photo-lightbox-close" aria-label="閉じる">&times;</button>
+    <img id="photoLightboxImg" src="" alt="拡大写真">
+  </div>
+
 </body>
 </html>

@@ -16,4 +16,9 @@ $st->execute([$id, $u['id']]);
 if ($st->rowCount() === 0) {
   json_error('削除できる記録が見つかりませんでした', 404);
 }
+
+// 紐づく写真ファイルも削除（あれば）
+$photo = __DIR__ . '/../uploads/records/' . $id . '.jpg';
+if (is_file($photo)) @unlink($photo);
+
 json_out(['ok' => true, 'deleted' => $id]);

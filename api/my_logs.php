@@ -4,7 +4,8 @@ require __DIR__ . '/lib.php';
 $u = require_login();
 
 $st = db()->prepare(
-  'SELECT id, shop_id, menus, comment, visit_date, photo_count, is_public, created_at
+  'SELECT id, shop_id, menus, comment, visit_date, photo_count, is_public, created_at,
+          (SELECT COUNT(*) FROM likes lk WHERE lk.log_id = logs.id) AS like_count
    FROM logs WHERE user_id = ? ORDER BY id'
 );
 $st->execute([$u['id']]);
@@ -20,6 +21,8 @@ foreach ($st as $r) {
     'photoCount'=> (int)$r['photo_count'],
     'isPublic'  => (int)$r['is_public'],
     'savedAt'   => $r['created_at'],
+    'photoUrl'  => record_photo_url((int)$r['id']),
+    'likeCount' => (int)$r['like_count'],
   ];
 }
 
