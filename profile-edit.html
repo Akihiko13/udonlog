@@ -9,6 +9,8 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
       --amber: #BA7517;
+      --amber-dark: #8A5510;
+      --amber-darker: #6F440C;
       --amber-light: #FFF8EE;
       --amber-border: #F0D9C0;
       --bg: #FAFAF8;
@@ -70,7 +72,7 @@
     }
     .avatar:hover .avatar-cam { background: #9A6010; }
     .photo-actions { margin-top: 12px; font-size: 13px; }
-    .photo-actions .change { color: var(--amber); font-weight: 600; cursor: pointer; text-decoration: none; }
+    .photo-actions .change { color: var(--amber-dark); font-weight: 600; cursor: pointer; text-decoration: none; }
     .photo-actions .delete { color: var(--text-sub); cursor: pointer; margin-left: 14px; display: none; }
     .photo-actions .delete:hover { color: #d9534f; }
 
@@ -138,11 +140,11 @@
     .x-input-wrap input { border: none !important; padding-left: 4px !important; }
 
     .save-btn {
-      width: 100%; background: var(--amber); color: #fff; border: none;
+      width: 100%; background: var(--amber-dark); color: #fff; border: none;
       padding: 15px; border-radius: 12px; font-size: 16px; font-weight: 600;
       cursor: pointer; margin-top: 0.5rem;
     }
-    .save-btn:hover { background: #9A6010; }
+    .save-btn:hover { background: #6F440C; }
     .save-btn:disabled { opacity: 0.5; cursor: default; }
 
     .state-box { text-align: center; color: var(--text-sub); font-size: 15px; padding: 3rem 1rem; }

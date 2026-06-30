@@ -13,6 +13,7 @@
     :root {
       --amber: #BA7517;
       --amber-dark: #8A5510;
+      --amber-darker: #6F440C;
       --amber-light: #FFF8EE;
       --amber-mid: #FAEEDA;
       --text: #111;
@@ -73,7 +74,7 @@
     .nav-links a:hover { color: var(--text); }
 
     .nav-cta {
-      background: var(--amber);
+      background: var(--amber-dark);
       color: var(--white) !important;
       padding: 7px 18px;
       border-radius: 99px;
@@ -81,7 +82,7 @@
       font-weight: 500;
     }
 
-    .nav-cta:hover { background: var(--amber-dark) !important; color: var(--white) !important; }
+    .nav-cta:hover { background: var(--amber-darker) !important; color: var(--white) !important; }
 
     /* ===== HERO ===== */
     .hero {
@@ -136,7 +137,7 @@
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      background: var(--amber);
+      background: var(--amber-dark);
       color: var(--white);
       padding: 13px 26px;
       border-radius: 99px;
@@ -146,7 +147,7 @@
       transition: background 0.15s;
     }
 
-    .btn-fill:hover { background: var(--amber-dark); }
+    .btn-fill:hover { background: var(--amber-darker); }
 
     .btn-outline {
       display: inline-flex;
@@ -377,7 +378,7 @@
       background: var(--bg);
       border: 0.5px solid var(--border);
       border-radius: 20px;
-      padding: 2rem;
+      padding: 1rem;
     }
 
     .demo-card-header {
@@ -648,7 +649,7 @@
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      background: var(--amber);
+      background: var(--amber-dark);
       color: var(--white);
       padding: 15px 32px;
       border-radius: 99px;
@@ -657,7 +658,7 @@
       text-decoration: none;
     }
 
-    .btn-fill-dark:hover { background: var(--amber-dark); }
+    .btn-fill-dark:hover { background: var(--amber-darker); }
 
     .btn-outline-dark {
       display: inline-flex;
@@ -809,7 +810,7 @@
       margin-bottom: 6px;
     }
     .hnews-head-title { font-size: 14px; font-weight: 700; color: #1a1a1a; }
-    .hnews-more { font-size: 13px; color: #BA7517; text-decoration: none; font-weight: 600; white-space: nowrap; }
+    .hnews-more { font-size: 13px; color: var(--amber-dark); text-decoration: none; font-weight: 600; white-space: nowrap; }
     .hnews-more:hover { text-decoration: underline; }
     .hnews-row {
       display: flex; align-items: center; gap: 10px;

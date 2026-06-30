@@ -10,6 +10,8 @@
 
     :root {
       --amber: #BA7517;
+      --amber-dark: #8A5510;
+      --amber-darker: #6F440C;
       --amber-light: #FFF8EE;
       --amber-border: #F0D9C0;
       --bg: #FAFAF8;
@@ -108,7 +110,7 @@
     }
     /* プロフィール下のリンク */
     .profile-links { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 8px; }
-    .profile-links a { font-size: 12px; font-weight: 600; text-decoration: none; color: var(--amber); }
+    .profile-links a { font-size: 12px; font-weight: 600; text-decoration: none; color: var(--amber-dark); }
     .profile-links a:hover { text-decoration: underline; }
 
     /* 推しのうどん屋 */
@@ -635,7 +637,7 @@
     }
 
     .empty-note a {
-      color: var(--amber);
+      color: var(--amber-dark);
       font-weight: 600;
       text-decoration: none;
     }
@@ -647,7 +649,7 @@
       justify-content: center;
       gap: 8px;
       width: 100%;
-      background: var(--amber);
+      background: var(--amber-dark);
       color: #fff;
       border: none;
       padding: 14px;
@@ -657,7 +659,7 @@
       text-decoration: none;
     }
 
-    .btn-go-shops:hover { background: #9A6010; }
+    .btn-go-shops:hover { background: #6F440C; }
 
     /* 訪問店舗リスト */
     .visited-list { margin-bottom: 2rem; }
@@ -735,7 +737,7 @@
       text-decoration: none;
       display: inline-flex;
     }
-    .history-edit:hover { background: #f1efe9; color: var(--amber); }
+    .history-edit:hover { background: #f1efe9; color: var(--amber-dark); }
     .history-empty { text-align: center; color: #aaa; font-size: 14px; padding: 1rem; }
     /* エリア・月の折りたたみグループ */
     .group-block { margin-bottom: 8px; }
@@ -804,7 +806,7 @@
     <div id="favSection" style="display:none;margin-bottom:1.5rem;">
       <div class="section-head" style="margin-bottom:0.75rem;">
         <div class="section-title"><i class="ti ti-star udon-i"></i> 推しのうどん屋</div>
-        <a href="profile-edit.html" class="section-count" style="color:var(--amber);text-decoration:none;font-weight:600;">編集</a>
+        <a href="profile-edit.html" class="section-count" style="color:var(--amber-dark);text-decoration:none;font-weight:600;">編集</a>
       </div>
       <div class="fav-list" id="favList"></div>
     </div>

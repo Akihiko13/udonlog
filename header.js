@@ -67,13 +67,13 @@
     }
     .ulog-nav a:hover { color: #1a1a1a; }
     .ulog-cta {
-      background: #BA7517;
+      background: #8A5510;
       color: #fff !important;
       padding: 7px 16px;
       border-radius: 99px;
       font-weight: 600;
     }
-    .ulog-cta:hover { background: #9A6010; }
+    .ulog-cta:hover { background: #6F440C; }
 
     @media (max-width: 560px) {
       .ulog-nav { gap: 0.85rem; }
