@@ -1,109 +1,106 @@
 id,name,kana,city,type,dish,hours,closed,status,blog,parking,slug
-1,手打十段うどん バカ一代,ばかいちだい,高松市,セルフ,釜バター・ぶっかけ,6:00〜18:00,元旦,,https://kagawan.com/udonbakaichidai/,あり（45台）,udonbakaichidai
+1,手打十段うどん バカ一代,ばかいちだい,高松市,セルフ,,6:00〜18:00,元旦,,https://kagawan.com/udonbakaichidai/,あり（45台）,udonbakaichidai
 2,本格手打もり家 高松本店,もりや,高松市,一般,,10:30〜18:00,木・金曜（祝日は営業）,,https://kagawan.com/moriya/,あり（40台）,moriya
-3,本格手打もり家 高松シンボルタワー店,もりや,高松市,一般,,昼 11:00〜15:00／夜 17:00〜21:00,火曜（祝日営業）・第1・第3月曜,,https://kagawan.com/moriya-takamatsu-symbol-tower/,なし（周辺の有料駐車場）,moriya-3
-4,はやし家製麺所 高松空港店,はやしや,高松市,製麺所,,,,,,,hayashiya
-5,さぬき麺業 高松空港店,さぬきめんぎょう,高松市,一般,,,,,,,sanukimengyou
-6,かわたうどん,かわた,高松市,一般,,,,,,,kawata
+3,本格手打もり家 高松シンボルタワー店,もりや,高松市,一般,,昼 11:00〜15:00／夜 17:00〜21:00,火曜（祝日営業）・第1・第3月曜,,https://kagawan.com/moriya-takamatsu-symbol-tower/,なし（周辺の有料駐車場）,moriya-sunport
+4,はやし家製麺所 高松空港店,はやしや,高松市,一般,,8:00〜20:00,年中無休,,,高松空港の有料駐車場,hayashiya-takamatsu-ariport
+5,さぬき麺業 高松空港店,さぬきめんぎょう,高松市,一般,,9:30〜19:30,年中無休,,,高松空港の有料駐車場,sanukimengyo-takamatsu-airport
+6,かわたうどん,かわた,高松市,一般,,10:00〜19:00,水曜日,,,あり,Kawataudon
 7,讃岐うどん 空海房,くうかいぼう,高松市,セルフ,,6:30〜15:00,年中無休,,https://kagawan.com/kukaibo/,あり（45台）,kuukaibou
 8,麺処 綿谷 高松店,わたや,高松市,セルフ,,8:30〜14:30（売り切れ次第終了）,日曜・祝日,,https://kagawan.com/wataya/,なし,wataya
-9,根っこ 三谷店,ねっこ,高松市,セルフ,,7:00〜17:00,年中無休（1/1・1/2休）,,https://kagawan.com/nekko-takamatsu/,あり（48台）,nekko
-10,根っこ 空港通り店,ねっこ,高松市,セルフ,,7:00〜16:00,年中無休,,https://kagawan.com/nekko-takamatsu/,あり（46台）,nekko-10
-11,根っこ 鬼無店,ねっこ,高松市,セルフ,,7:00〜16:00,年中無休（1/1・1/2休）,,https://kagawan.com/nekko-takamatsu/,あり（24台）,nekko-11
-12,セルフうどんの店 竹清,ちくせい,高松市,セルフ,半熟卵天・ちくわ天,10:45〜14:30（売り切れ次第終了）,月・日曜,,https://kagawan.com/chikusei-udon/,あり（専用7台＋コインP）,chikusei
-13,讃岐うどん 一福 国分寺本店,いっぷく,高松市,セルフ,かけ・ぶっかけ,10:00〜14:00,金曜,,https://kagawan.com/udon-ippuku/,あり（複数）,ippuku
-14,晴屋製麺所 まちなか店,はれや,高松市,製麺所,,10:00〜15:00,土曜,閉店,https://kagawan.com/hareya/,なし（近隣コインP）,hareya
-15,晴屋製麺所 今里店,はれや,高松市,製麺所,,10:00〜15:00,土曜,,https://kagawan.com/hareya/,あり（13台）,hareya-15
+9,根っこ 三谷店,ねっこ,高松市,セルフ,,7:00〜17:00,年中無休（1/1・1/2休）,,https://kagawan.com/nekko-takamatsu/,あり（48台）,nekko-mitani
+10,根っこ 空港通り店,ねっこ,高松市,セルフ,,7:00〜16:00,年中無休,,https://kagawan.com/nekko-takamatsu/,あり（46台）,nekko-airport
+11,根っこ 鬼無店,ねっこ,高松市,セルフ,,7:00〜16:00,年中無休（1/1・1/2休）,,https://kagawan.com/nekko-takamatsu/,あり（24台）,nekko-kinashi
+12,セルフうどんの店 竹清,ちくせい,高松市,セルフ,,10:45〜14:30（売り切れ次第終了）,月・日曜,,https://kagawan.com/chikusei-udon/,あり（専用7台＋コインP）,chikusei
+13,讃岐うどん 一福 国分寺本店,いっぷく,高松市,セルフ,,10:00〜14:00,金曜,,https://kagawan.com/udon-ippuku/,あり（複数）,ippuku
+14,晴屋製麺所 まちなか店,はれや,高松市,セルフ,,10:00〜15:00,土曜,閉店,https://kagawan.com/hareya/,なし（近隣コインP）,hareya-machinaka
+15,晴屋製麺所 今里店,はれや,高松市,セルフ,,10:00〜15:00,土曜,,https://kagawan.com/hareya/,あり（13台）,hareya-imazato
 16,おうどん 瀬戸晴れ,せとばれ,高松市,一般,,9:00〜15:00（麺切れ次第終了）,木曜・第2・第4水曜,,https://kagawan.com/setobare-oudon/,あり（2カ所・計30台）,setobare
 17,饂飩家 五右衛門,ごえもん,高松市,一般,,20:00〜翌1:00（LO0:30・売切れ次第終了）,日・月曜・祝日,,https://kagawan.com/udonya-goemon/,なし,goemon
-18,手打ちうどん 鶴丸,つるまる,高松市,一般,かけうどん・ざるうどん,20:00〜翌2:00（麺切れ次第終了）,日・祝（GW/年末年始は変更あり）,,https://kagawan.com/teuchiudon-tsurumaru/,なし,tsurumaru
-19,さか枝うどん 本店,さかえだ,高松市,セルフ,かけ・ぶっかけ,7:00〜15:00,土・日・祝,,https://kagawan.com/sakaeda-udon/,あり（無料4台＋近隣コインP）,sakaeda
-20,さか枝うどん 春日店,さかえだ,高松市,セルフ,,7:00〜15:00,年中無休,,https://kagawan.com/sakaeda-udon/,あり（無料）,sakaeda-20
-21,さか枝うどん 南新町店,さかえだ,高松市,セルフ,,7:00〜17:00,年中無休,,https://kagawan.com/sakaeda-udon/,近隣にコインP,sakaeda-21
-22,さか枝 仏生山店,さかえだ,高松市,セルフ,,7:00〜16:00,年中無休,,https://kagawan.com/sakaeda-udon/,あり（無料）,sakaeda-22
-23,さか枝 多肥店,さかえだ,高松市,セルフ,,7:00〜15:00,年中無休,,https://kagawan.com/sakaeda-udon/,あり（無料）,sakaeda-23
+18,手打ちうどん 鶴丸,つるまる,高松市,一般,,20:00〜翌2:00（麺切れ次第終了）,日・祝（GW/年末年始は変更あり）,,https://kagawan.com/teuchiudon-tsurumaru/,なし,tsurumaru
+19,さか枝うどん 本店,さかえだ,高松市,セルフ,,7:00〜15:00,土・日・祝,,https://kagawan.com/sakaeda-udon/,あり（無料4台＋近隣コインP）,sakaeda
+20,さか枝うどん 春日店,さかえだ,高松市,セルフ,,7:00〜15:00,年中無休,,https://kagawan.com/sakaeda-udon/,あり（無料）,sakaeda-kasuga
+21,さか枝うどん 南新町店,さかえだ,高松市,セルフ,,7:00〜17:00,年中無休,,https://kagawan.com/sakaeda-udon/,近隣にコインP,sakaeda-minamishinmachi
+22,さか枝 仏生山店,さかえだ,高松市,セルフ,,7:00〜16:00,年中無休,,https://kagawan.com/sakaeda-udon/,あり（無料）,sakaeda-bushozan
+23,さか枝 多肥店,さかえだ,高松市,セルフ,,7:00〜15:00,年中無休,,https://kagawan.com/sakaeda-udon/,あり（無料）,sakaeda-tahi
 24,ざいごうどん本家 わら家,わらや,高松市,一般,,9:30〜17:30,年中無休,,https://kagawan.com/waraya/,あり（150台）,waraya
 25,うどん本陣 山田家,やまだや,高松市,一般,,10:00〜20:00,年中無休,,https://kagawan.com/yamadaya/,あり（160台）,yamadaya
-26,手打ちうどん ひさ枝,ひさえ,高松市,一般,,7:00〜14:00,年中無休,,https://kagawan.com/hisaeda/,あり（約10台）,hisae
-27,ヨコクラうどん,よこくら,高松市,一般,,8:00〜14:00,木曜（不定休あり）,,https://kagawan.com/yokokuraudon/,あり（約15台）,yokokura
-28,さぬきうどん 上原屋 本店,うえはらや,高松市,セルフ,ぶっかけ・かけうどん,9:30〜14:30（売り切れ次第終了）,日曜,,https://kagawan.com/ueharayahonten/,あり（18台）,ueharaya
+26,手打ちうどん ひさ枝,ひさえ,高松市,セルフ,,7:00〜14:00,年中無休,,https://kagawan.com/hisaeda/,あり（約10台）,hisae
+27,ヨコクラうどん,よこくら,高松市,セルフ,,8:00〜14:00,木曜（不定休あり）,,https://kagawan.com/yokokuraudon/,あり（約15台）,yokokura
+28,さぬきうどん 上原屋 本店,うえはらや,高松市,セルフ,,9:30〜14:30（売り切れ次第終了）,日曜,,https://kagawan.com/ueharayahonten/,あり（18台）,ueharaya
 29,麺匠 くすがみ,くすがみ,高松市,一般,,10:00〜14:30,火曜,,https://kagawan.com/kusugami/,あり（12台）,kusugami
 30,あづまうどん,あづま,高松市,セルフ,,11:00〜14:00（麺切れ次第終了）,水曜,,https://kagawan.com/azumaudon/,あり（約30台）,azuma
 31,うつ海うどん,うつみ,高松市,セルフ,,6:00〜15:00（売り切れ次第終了）,火曜,,https://kagawan.com/utsumiudon/,あり（無料・約20台）,utsumi
 32,高松満福,まんぷく,高松市,セルフ,,平日 10:00〜14:00／土日祝 9:00〜14:00,火曜（祝日は営業）,,https://kagawan.com/manpukuudon/,あり（40台）,manpuku
-33,手打うどん 三徳,さんとく,高松市,セルフ,かけ・ざる,11:00〜16:00（LO15:45）,木曜・第4水曜,,https://kagawan.com/santoku/,あり（30台）,santoku
+33,手打うどん 三徳,さんとく,高松市,セルフ,,11:00〜16:00（LO15:45）,木曜・第4水曜,,https://kagawan.com/santoku/,あり（30台）,santoku
 34,中西うどん,なかにし,高松市,セルフ,,9:00〜15:00（玉切れ次第終了）,火曜,,https://kagawan.com/nakanishiudon/,あり（無料50台）,nakanishi
 35,手打ちうどん 清水屋,しみずや,高松市,セルフ,,10:00〜14:00（麺切れ次第終了）,日曜,,https://kagawan.com/shimizuya/,あり（共同・多数）,shimizuya
 36,宮武うどん,みやたけ,高松市,セルフ,,9:30〜15:00（玉切れ次第終了）,水曜,,https://kagawan.com/miyatakeudon/,あり（25台）,miyatake
 37,UDON 山もり,やまもり,高松市,セルフ,,11:00〜15:30,水曜（祝日は営業・翌日休）,,https://kagawan.com/yamamori/,あり（13台）,yamamori
-38,手打麺や 大島,おおしま,高松市,製麺所,,9:30〜15:00,第1・第3・第5日曜・1/1〜4,,https://kagawan.com/teuchimenya-oshima/,あり（20台）,ooshima
-39,がもううどん,がもう,坂出市,製麺所,かけうどん・釜玉,平日 8:30〜14:00／土・祝 8:30〜13:00（売切れ次第終了）,月・日曜（臨時休あり）,,https://kagawan.com/gamoudon/,あり（54台・3カ所）,gamou
-40,日の出製麺所,ひので,坂出市,製麺所,かけうどん,うどん 11:30〜12:30／土産 9:00〜16:00,不定休,,https://kagawan.com/hinode-udon/,あり（多数・土日祝は北側30台開放）,hinode
-41,山下うどん,やました,坂出市,一般,ぶっかけ,8:30〜15:00,月・日曜,,https://kagawan.com/yamashitaudon-sakaide/,あり（25台）,yamashita
+38,手打麺や 大島,おおしま,高松市,セルフ,,9:30〜15:00,第1・第3・第5日曜・1/1〜4,,https://kagawan.com/teuchimenya-oshima/,あり（20台）,ooshima
+39,がもううどん,がもう,坂出市,セルフ,,平日 8:30〜14:00／土・祝 8:30〜13:00（売切れ次第終了）,月・日曜（臨時休あり）,,https://kagawan.com/gamoudon/,あり（54台・3カ所）,gamou
+40,日の出製麺所,ひので,坂出市,製麺所,,うどん 11:30〜12:30／土産 9:00〜16:00,不定休,,https://kagawan.com/hinode-udon/,あり（多数・土日祝は北側30台開放）,hinode
+41,山下うどん,やました,坂出市,セルフ,,8:30〜15:00,月・日曜,,https://kagawan.com/yamashitaudon-sakaide/,あり（25台）,yamashita
 42,めんや七福 別邸,しちふく,坂出市,一般,,10:00〜15:00（麺切れ次第終了）,水曜,,https://kagawan.com/menyashichifuku/,あり（40台）,shichifuku
 43,讃岐うどん やなぎ屋 西大浜店,やなぎや,坂出市,セルフ,,6:00〜20:00,日曜,,https://kagawan.com/yanagiya/,あり（約30台）,yanagiya
-44,架け橋 夢うどん,ゆめ,坂出市,セルフ,かけうどん,平日 10:00〜16:00／土日祝 10:00〜17:00,年中無休,,https://kagawan.com/yume-udon/,あり（与島PA内）,yume
-45,山越うどん,やまごえ,綾川町,製麺所,釜玉・かけうどん,9:00〜13:30,水・日曜（GW/盆/正月は臨時休あり）,,https://kagawan.com/yamagoeudon/,あり（200台）,yamagoeudon
-46,手打うどん田村,たむら,綾川町,一般,かけうどん・ぶっかけ,9:00〜13:00（売り切れ次第終了）,日曜・祝日,,https://kagawan.com/tamuraudon/,あり（30台）,tamuraudon
+44,架け橋 夢うどん,ゆめ,坂出市,セルフ,,平日 10:00〜16:00／土日祝 10:00〜17:00,年中無休,,https://kagawan.com/yume-udon/,あり（与島PA内）,yume
+45,山越うどん,やまごえ,綾川町,セルフ,,9:00〜13:30,水・日曜（GW/盆/正月は臨時休あり）,,https://kagawan.com/yamagoeudon/,あり（200台）,yamagoeudon
+46,手打うどん田村,たむら,綾川町,セルフ,,9:00〜13:00（売り切れ次第終了）,日曜・祝日,,https://kagawan.com/tamuraudon/,あり（30台）,tamuraudon
 47,本格手打うどん はゆか,はゆか,綾川町,セルフ,,10:00〜15:30,月曜（祝日は営業）,,https://kagawan.com/hayuka/,あり（23台）,hayuka
 48,池内うどん店,いけうち,綾川町,製麺所,,7:00〜13:00（売り切れ次第終了）,月・金曜,,https://kagawan.com/ikeuchiudonten/,あり（店の東側倉庫前）,ikeuchiudonten
-49,いなもくうどん,いなもく,綾川町,一般,,10:30〜14:00（玉切れ次第終了）,木曜・第2水曜（祝日は営業・翌日休）,,https://kagawan.com/inamokuudon/,あり（10台）,inamokuudon
-50,釜あげうどん 長田 in 香の香,ながた,善通寺市,一般,釜揚げうどん,9:00〜15:00（玉切れの際は早じまい）,水・木曜（祝日は営業）,,https://kagawan.com/nagata-in-kanoka/,あり（160台・大型バス可）,nagata-in-kanoka
-51,山下うどん,やました,善通寺市,セルフ,ぶっかけ,9:30〜16:00（売り切れ次第終了）,火曜（祝日は営業・翌水曜休）,,https://kagawan.com/yamashitaudon-zentsuji/,あり（50台）,yamashitaudon-zentsuji
-52,宮川製麺所,みやがわ,善通寺市,製麺所,かけうどん・ざる,8:00〜18:00（売り切れ次第終了）,日曜,,https://kagawan.com/miyagawa-seimenjyo/,あり（30台）,miyagawa-seimenjyo
-53,白川うどん,しらかわ,善通寺市,一般,,9:30〜15:00（売り切れ次第終了）,火曜（祝日は営業・翌日休）・第3水曜,,https://kagawan.com/sirakawaudon/,あり（30台）,sirakawaudon
+49,いなもくうどん,いなもく,綾川町,セルフ,,10:30〜14:00（玉切れ次第終了）,木曜・第2水曜（祝日は営業・翌日休）,,https://kagawan.com/inamokuudon/,あり（10台）,inamokuudon
+50,釜あげうどん 長田 in 香の香,ながた,善通寺市,一般,,9:00〜15:00（玉切れの際は早じまい）,水・木曜（祝日は営業）,,https://kagawan.com/nagata-in-kanoka/,あり（160台・大型バス可）,nagata-in-kanoka
+51,山下うどん,やました,善通寺市,セルフ,,9:30〜16:00（売り切れ次第終了）,火曜（祝日は営業・翌水曜休）,,https://kagawan.com/yamashitaudon-zentsuji/,あり（50台）,yamashitaudon-zentsuji
+52,宮川製麺所,みやがわ,善通寺市,製麺所,,8:00〜18:00（売り切れ次第終了）,日曜,,https://kagawan.com/miyagawa-seimenjyo/,あり（30台）,miyagawa-seimenjyo
+53,白川うどん,しらかわ,善通寺市,セルフ,,9:30〜15:00（売り切れ次第終了）,火曜（祝日は営業・翌日休）・第3水曜,,https://kagawan.com/sirakawaudon/,あり（30台）,sirakawaudon
 54,本格手打 あかみち,あかみち,善通寺市,一般,,10:00〜15:00（玉切れ次第終了）※一部土曜は夜18:00〜20:00,水・木曜,,https://kagawan.com/akamichi/,あり（25台）,akamichi
 55,セルフうどん こだわり八輻,こだわりやわら,善通寺市,セルフ,,11:00〜14:00,火・金曜,,https://kagawan.com/hachiya/,あり（30台）,hachiya
 56,あやうた製麺,あやうた,丸亀市,セルフ,,11:00〜14:00,金曜,,https://kagawan.com/ayautaseimen/,あり（25台）,ayautaseimen
 57,麦香うどん,むぎか,丸亀市,一般,,10:00〜15:00,水曜,,https://kagawan.com/bakuka-udon/,あり（15台）,bakuka-udon
 58,讃岐うどん海侍其の壱,かいじ,丸亀市,セルフ,,9:00〜14:00,月曜（祝日は翌火曜）,,https://kagawan.com/kaiji/,あり（店舗横）,kaiji
-59,純手打うどん よしや,よしや,丸亀市,一般,かけうどん,7:00〜14:50（売り切れ次第終了）,火曜,,https://kagawan.com/jyunteuchiudon-yoshiya/,あり（15台）,jyunteuchiudon-yoshiya
+59,純手打うどん よしや,よしや,丸亀市,セルフ,,7:00〜14:50（売り切れ次第終了）,火曜,,https://kagawan.com/jyunteuchiudon-yoshiya/,あり（15台）,jyunteuchiudon-yoshiya
 60,セルフうどん おかだ,おかだ,丸亀市,セルフ,,飲食 10:30〜14:00／土産 9:00〜17:00,土・日・祝,,https://kagawan.com/selfudonokada/,あり（33台）,selfudonokada
-61,なかむらうどん,なかむら,丸亀市,セルフ,釜玉・釜あげ,9:00〜14:00,火曜,,https://kagawan.com/hiragana-nakamuraudon/,あり（40台）,hiragana-nakamuraudon
-62,麺処 綿谷 丸亀店,わたや,丸亀市,セルフ,牛肉うどん・肉ぶっかけ,8:30〜14:00（売り切れ次第終了）,日曜・祝日,,https://kagawan.com/wataya/,あり（50台）,wataya-62
-63,元祖しょうゆうどん 小縣家,おがたや,まんのう町,一般,根っこうどん,10:30〜14:30,月・火曜,,https://kagawan.com/ogataya/,あり（40台）,ogataya
-64,谷川米穀店,たにがわ,まんのう町,製麺所,,10:30〜13:30,日曜,,https://kagawan.com/tanikawabeikokuten/,あり,tanikawabeikokuten
-65,三嶋製麺所,みしま,まんのう町,製麺所,かけうどん,平日 9:00〜16:30／土日 9:00〜16:00,金曜,,https://kagawan.com/mishimaseimenjo/,あり（3台）,mishimaseimenjo
-66,山内うどん,やまうち,まんのう町,一般,かけうどん・釜あげ,9:00〜13:30（玉切れ次第終了）,木曜,,https://kagawan.com/yamauchiudon/,あり（約30台）,yamauchiudon
-67,うどん そらいけ,そらいけ,さぬき市,一般,,11:00〜14:00,日曜,,https://kagawan.com/soraike/,あり（3台）,soraike
-68,さぬきうどん羽立,はだち,さぬき市,セルフ,,10:00〜14:00,金曜,,https://kagawan.com/haryu/,あり（8台）,haryu
+61,なかむらうどん,なかむら,丸亀市,セルフ,,9:00〜14:00,火曜,,https://kagawan.com/hiragana-nakamuraudon/,あり（40台）,hiragana-nakamuraudon
+62,麺処 綿谷 丸亀店,わたや,丸亀市,セルフ,,8:30〜14:00（売り切れ次第終了）,日曜・祝日,,https://kagawan.com/wataya/,あり（50台）,wataya-62
+63,元祖しょうゆうどん 小縣家,おがたや,まんのう町,一般,,10:30〜14:30,月・火曜,,https://kagawan.com/ogataya/,あり（40台）,ogataya
+64,谷川米穀店,たにがわ,まんのう町,セルフ,,10:30〜13:30,日曜,,https://kagawan.com/tanikawabeikokuten/,あり,tanikawabeikokuten
+65,三嶋製麺所,みしま,まんのう町,製麺所,,平日 9:00〜16:30／土日 9:00〜16:00,金曜,,https://kagawan.com/mishimaseimenjo/,あり（3台）,mishimaseimenjo
+66,山内うどん,やまうち,まんのう町,セルフ,,9:00〜13:30（玉切れ次第終了）,木曜,,https://kagawan.com/yamauchiudon/,あり（約30台）,yamauchiudon
+67,うどん そらいけ,そらいけ,さぬき市,セルフ,,11:00〜14:00,日曜,,https://kagawan.com/soraike/,あり（3台）,soraike
+68,さぬきうどん羽立,はだち,さぬき市,一般,,10:00〜14:00,金曜,,https://kagawan.com/haryu/,あり（8台）,haryu
 69,さぬきうどん 溜,たまり,さぬき市,セルフ,,10:00〜15:00,年中無休,,https://kagawan.com/tamariudon/,あり（無料・約150台）,tamariudon
 70,八十八庵,やそばあん,さぬき市,一般,,8:00〜16:30（LO16:00）,12/30・31のみ休み,,https://kagawan.com/yasobaan/,あり（60台）,yasobaan
-71,さぬきうどん処 麺でぃ〜,めんでぃ,さぬき市,一般,,10:30〜15:00,月曜（祝日は営業・翌火曜休）,,https://kagawan.com/udondokoro-mendy/,あり（3カ所）,udondokoro-mendy
+71,さぬきうどん処 麺でぃ〜,めんでぃ,さぬき市,セルフ,,10:30〜15:00,月曜（祝日は営業・翌火曜休）,,https://kagawan.com/udondokoro-mendy/,あり（3カ所）,udondokoro-mendy
 72,麺処 まはろ,まはろ,さぬき市,一般,,平日 11:00〜14:00／土日祝 10:30〜15:00（玉切れ次第終了）,水曜（祝日は営業・翌木曜休）,,https://kagawan.com/maharo/,あり（無料・約20台）,maharo
 73,手打うどん まるたけ,まるたけ,さぬき市,セルフ,,9:00〜15:00,土・日曜,,https://kagawan.com/marutakeudon/,あり（13台）,marutakeudon
 74,いけこうどん,いけこ,多度津町,一般,,10:00〜15:00,月曜,,https://kagawan.com/ikekoudon/,あり（約14台）,ikekoudon
 75,根ッ子うどん,ねっこ,多度津町,セルフ,,10:30〜14:00,水曜,閉店,https://kagawan.com/nekkoudon/,あり（約20台）,nekkoudon
 76,手打ちうどん むさし,むさし,琴平町,一般,,10:00〜15:00／17:00〜20:00,月・火曜,,https://kagawan.com/musashi/,あり（無料・共同195台）,musashi
-77,須崎食料品店,すさき,三豊市,製麺所,かけうどん・ぶっかけ,9:00〜11:30,水曜（臨時休業あり）,,https://kagawan.com/suzakishokuryohinten/,あり（約38台）,suzakishokuryohinten
+77,須崎食料品店,すさき,三豊市,セルフ,,9:00〜11:30,水曜（臨時休業あり）,,https://kagawan.com/suzakishokuryohinten/,あり（約38台）,suzakishokuryohinten
 78,うどんや カマ喜ri,かまきり,観音寺市,一般,,11:00〜14:00（玉切れ次第終了）,日曜,,https://kagawan.com/kamakiri/,あり（約20台）,kamakiri
 79,うまじ家 豊浜店,うまじや,観音寺市,セルフ,,10:00〜13:30,なし,,https://kagawan.com/umajiya-toyohama/,あり（19台）,umajiya-toyohama
-80,手織うどん 滝音,たきおと,三木町,一般,,10:00〜15:00,月曜（祝日は営業・翌火曜休）,,https://kagawan.com/takine/,あり（64台）,takine
+80,手織うどん 滝音,たきおと,三木町,セルフ,,10:00〜15:00,月曜（祝日は営業・翌火曜休）,,https://kagawan.com/takine/,あり（64台）,takine
 81,多田製麺所,ただ,三木町,製麺所,,8:00〜15:00,火曜,,https://kagawan.com/tadaseimenjo/,あり（第一3台・第二あり）,tadaseimenjo
-82,めりけんや,めりけんや,高松市,セルフ,ぶっかけ・かけうどん,,,,,,merikenya
-83,池上製麺所,いけがみ,高松市,製麺所,釜玉・かけうどん,,,,,,ikegami
-84,うどん棒 本店,うどんぼう,高松市,一般,おろしぶっかけ,,,,,,udonbou
-85,春日うどん,かすが,高松市,一般,かけ・ざる,,,,,,kasuga
-86,手打ちうどん いわせ,いわせ,高松市,一般,かけうどん,,,,,,iwase
-87,手打ちうどん 研や,けんや,高松市,一般,ぶっかけ・かけ,,,,,,kenya
-88,ふるさとうどん,ふるさと,高松市,セルフ,かけ・釜玉,,,,,,furusato
-89,手打ちうどん 大介,だいすけ,高松市,一般,かけうどん,,,,,,daisuke
-90,谷川製麺所,たにがわ,高松市,製麺所,かけうどん,,,,,,tanigawa
-91,大橋屋,おおはしや,丸亀市,一般,ひやかけ,,,,,,oohashiya
-92,彦江製麺所,ひこえ,丸亀市,製麺所,かけうどん,,,,,,hikoe
-93,手打ちうどん 渡辺,わたなべ,丸亀市,一般,ぶっかけ・かけ,,,,,,watanabe
-94,手打ちうどん 岡じま,おかじま,坂出市,一般,かけ・ぶっかけ,,,,,,okajima
-95,手打ちうどん 芳野,よしの,善通寺市,一般,かけ・ひやかけ,,,,,,yoshino
-96,手打ちうどん こんぴら家,こんぴらや,琴平町,一般,かけ・ざる,,,,,,konpiraya
-97,上杉食品,うえすぎ,まんのう町,製麺所,かけうどん,,,,,,uesugi
-98,手打ちうどん たむら,たむら,三豊市,一般,かけ・ざる,,,,,,tamura
-99,本格手打うどん 長谷,はせ,三豊市,一般,かけうどん,,,,,,hase
-100,手打ちうどん 大将,たいしょう,観音寺市,一般,かけうどん,,,,,,taishou
-101,てっちゃんうどん,てっちゃん,観音寺市,セルフ,かけ・ぶっかけ,,,,,,tecchan
-102,恵比須,えびす,さぬき市,一般,かけうどん・ぶっかけ,,,,,,ebisu
-103,手打ちうどん 藤井,ふじい,さぬき市,一般,かけうどん,,,,,,fujii
-104,手打ちうどん 大庄屋,おおしょうや,三木町,一般,かけ・ざる,,,,,,ooshouya
-105,三木SA うどん店,みき,三木町,セルフ,かけうどん,,,,,,miki
-106,手打ちうどん 三昧,ざんまい,東かがわ市,一般,かけ・ぶっかけ,,,,,,zanmai
-107,手打ちうどん 寒川,さんがわ,東かがわ市,一般,かけうどん,,,,,,sangawa
-108,手打ちうどん 多度津家,たどつや,多度津町,一般,かけうどん,,,,,,tadotsuya
+82,めりけんや 高松駅前店,めりけんやたかまつえきまえてん,高松市,セルフ,,7:00〜20:00,年中無休,,,なし,merikenya-takamatsu
+83,めりけんや サンポート店,めりけんやさんぽーとてん,高松市,セルフ,,11:00〜14:00,土曜日・日曜日,,,なし,merikenya-sunport
+84,めりけんや かけはし店,めりけんやかけはしてん,宇多津町,セルフ,,9:00〜15:00,年中無休,,,あり,merikenya-kakehashi
+85,めりけんや 丸亀店,めりけんやまるがめてん,丸亀市,セルフ,,月〜金 9:00〜15:00、土日 7:00〜15:00,年中無休,,,あり,merikenya-marugame
+86,うどん亭 いわせ,いわせ,さぬき市,一般,,10:30〜19:00,日曜日・月曜日,,,あり,iwase
+87,手打ちうどん 古奈や,こなや,高松市,セルフ,,7:00〜15:00,日曜日,,,あり,konaya
+88,ふる里うどん,ふるさと,高松市,セルフ,,11:00〜15:00,水曜日,,,あり,furusato
+89,手打ちうどん 上田,うえだ,高松市,セルフ,,9:00〜14:00,月曜日,,,あり,teuchiudon-ueda
+90,吉本食品,よしもとしょくひん,東かがわ市,製麺所,,8:00〜14:00,日曜日,,,あり（15台）,yoshimotoshokuhin
+91,山賊村,さんぞくむら,東かがわ市,一般,,11:00〜14:00（日曜日のみ14:30まで営業）,月曜日・土曜日,,,あり（15台）,sanzokumura
+92,麺工房 六車,むぐるま,東かがわ市,一般,,11:00〜13:30,月曜日,,,あり（20台）,muguruma
+93,本場さぬき うどんや,うどんや,東かがわ市,セルフ,,9:15〜15:00,年中無休,,,あり（20台）,udonya
+94,マルタツ手打ちうどん 伊座本店,まるたつ,東かがわ市,一般,,8:00〜14:30,水曜日・土曜日・日曜日,,,あり（30台）,marutatsu
+95,元匠 湊店,げんしょうみなと,東かがわ市,セルフ,,6:00〜15:00,年中無休,,,あり（80台）,gensho-minato
+96,元匠 東かがわ店,げんしょうひがしかがわ,東かがわ市,セルフ,,平日11:00〜14:00・土日祝10:00〜15:00,年中無休,,,あり（40台）,gensho-higashikagawa
+97,手打ちうどん もとい,もとい,東かがわ市,一般,,11:00〜14:00,日曜日,,,あり（14台）,motoi
+98,うどん亭 よだ,よだ,東かがわ市,一般,,11:30〜14:00,月曜日〜木曜日,,,あり,yoda
+99,こんぴらうどん 表参道店,こんぴらうどん,琴平町,一般,,平日10:00〜16:00／土日祝9:00〜16:00,年中無休,,https://kagawan.com/udon-kotohira/,あり（無料）,konpiraudon-sando
+100,こんぴらうどん 工場店,こんぴらうどん,琴平町,一般,,8:00〜15:00,火〜金曜,,https://kagawan.com/udon-kotohira/,あり（3台）,konpiraudon-kojo
+101,こんぴらうどん 北店,こんぴらうどん,琴平町,一般,,8:00〜16:00,月〜金曜,,https://kagawan.com/udon-kotohira/,なし,konpiraudon-kita
+102,手打ちうどん てんてこ舞,てんてこまい,琴平町,一般,,9:30〜16:00,水曜,,https://kagawan.com/udon-kotohira/,あり（有料）,tentekomai
+103,セルフうどん いわのや,いわのや,琴平町,セルフ,,10:30〜15:00,日曜,,https://kagawan.com/udon-kotohira/,あり（無料）,iwanoya
+104,虎屋うどん,とらやうどん,琴平町,一般,,9:00〜16:00,年中無休,,https://kagawan.com/udon-kotohira/,なし,torayaudon
+105,讃岐うどん めん舟,めんふね,琴平町,一般,,火〜金10:00〜14:00／土日10:00〜15:00,月曜,,https://kagawan.com/udon-kotohira/,あり,menfune

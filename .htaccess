@@ -16,5 +16,13 @@
 # （ブラウザのURLは /shops/yamagoeudon のまま。内部で詳細ページを表示）
 <IfModule mod_rewrite.c>
   RewriteEngine On
+
+  # index.html へのアクセスは / に統一（重複URL・SEO評価の分散を防ぐ）
+  # ※ THE_REQUEST で実リクエストを見るのでリダイレクトループにはならない
+  RewriteCond %{THE_REQUEST} \s/+index\.html[\s?] [NC]
+  RewriteRule ^index\.html$ / [R=301,L]
+
+  # 店舗詳細のきれいなURL： /shops/＜slug＞ → shop-detail.html?slug=＜slug＞
+  # （ブラウザのURLは /shops/yamagoeudon のまま。内部で詳細ページを表示）
   RewriteRule ^shops/([A-Za-z0-9_-]+)/?$ shop-detail.html?slug=$1 [L,QSA]
 </IfModule>

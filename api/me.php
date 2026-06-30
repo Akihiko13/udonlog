@@ -7,4 +7,5 @@ json_out([
   'ok'   => true,
   'user' => current_user(),   // 未ログインなら null
   'csrf' => csrf_token(),
+  'googleClientId' => $CONFIG['google_client_id'] ?? '',   // Googleログイン用（公開情報）
 ]);

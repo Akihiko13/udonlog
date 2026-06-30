@@ -12,4 +12,8 @@ return [
   'db_name' => 'あなたのDB名',        // 例: xxxx_udonlog
   'db_user' => 'あなたのDBユーザー名', // 例: xxxx_udon
   'db_pass' => 'あなたのDBパスワード', // ← ここは絶対に公開・共有しない
+
+  // Googleログイン用のクライアントID（Google Cloud Consoleで発行）。
+  // ※これは公開情報（フロントにも出る）。未設定なら空のままでGoogleログインは無効。
+  'google_client_id' => '',          // 例: 1234567890-xxxx.apps.googleusercontent.com
 ];

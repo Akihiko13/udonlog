@@ -1,13 +1,21 @@
 // ===========================================================================
 // うどログ 共通サイトヘッダー（全ページ共通）
 // ---------------------------------------------------------------------------
-// 各ページの </body> 直前で <script src="header.js"></script> を読み込むと、
+// 各ページの <head> 内で <script src="header.js"></script> を読み込むと、
 // ページ最上部に共通ヘッダー（ロゴ＋ナビ）が表示されます。
+// ※ <head> で読むことで、ヘッダー分の余白(padding-top)をCSSで最初から確保し、
+//   本文がガクッと下がる（レイアウトシフト）のを防ぎます。
 // ヘッダーの内容・デザインを変えたいときは、このファイル1つを編集すればOK。
 // ===========================================================================
 (function () {
+  // 前回のログイン状態を覚えておくキー（ナビの初期表示に使う）
+  var AUTH_CACHE = 'ulog_authed';
+
   // --- ヘッダー用スタイル（他ページのCSSと衝突しないよう ulog- 接頭辞で統一）---
+  // body の padding-top をここで確保しておくことで、ヘッダー挿入時に本文が
+  // ガクッと下がるのを防ぐ（JSでの後付けをやめCSSで最初から確保）。
   var css = `
+    body { padding-top: 54px; }
     .ulog-header {
       position: fixed;
       top: 0;
@@ -81,15 +89,29 @@
   style.textContent = css;
   document.head.appendChild(style);
 
-  // --- ヘッダー本体（ナビは後でログイン状態に応じて差し替え）---
-  var header = document.createElement('header');
-  header.className = 'ulog-header';
-  header.innerHTML =
-    '<a href="index.html" class="ulog-logo">うどログ</a>' +
-    '<nav class="ulog-nav" id="ulog-nav"></nav>';
+  // --- ヘッダー本体を body 先頭に挿入。<head> から読まれて body が未構築の
+  //     場合は DOMContentLoaded を待ってから挿入する ---
+  function insertHeader() {
+    var header = document.createElement('header');
+    header.className = 'ulog-header';
+    header.innerHTML =
+      '<a href="/" class="ulog-logo">うどログ</a>' +
+      '<nav class="ulog-nav" id="ulog-nav"></nav>';
+    document.body.insertBefore(header, document.body.firstChild);
 
-  document.body.insertBefore(header, document.body.firstChild);
-  document.body.style.paddingTop = '54px';   // 固定ヘッダー(54px)分の余白
+    // 前回のログイン状態をキャッシュから復元して即描画（チラつき防止）。
+    // その後 API で実際の状態を確認し、変わっていれば差し替える。
+    var cached = null;
+    try { cached = localStorage.getItem(AUTH_CACHE); } catch (e) {}
+    renderNav(cached === '1' ? {} : null);   // {} は「ログイン中レイアウト」を出すためのダミー
+
+    if (typeof API !== 'undefined') {
+      API.refresh().then(function (d) {
+        renderNav(d.user);
+        try { localStorage.setItem(AUTH_CACHE, d.user ? '1' : '0'); } catch (e) {}
+      }).catch(function () {});
+    }
+  }
 
   // --- ナビの描画（ログイン状態で出し分け）---
   function renderNav(user) {
@@ -105,7 +127,8 @@
         e.preventDefault();
         (async function () {
           try { await API.refresh(); await API.post('logout.php', {}); } catch (_) {}
-          location.href = 'index.html';
+          try { localStorage.setItem(AUTH_CACHE, '0'); } catch (_) {}
+          location.href = '/';
         })();
       });
     } else {
@@ -116,9 +139,9 @@
     }
   }
 
-  // まず未ログイン表示 → APIでログイン状態が分かれば差し替え
-  renderNav(null);
-  if (typeof API !== 'undefined') {
-    API.refresh().then(function (d) { renderNav(d.user); }).catch(function () {});
+  if (document.body) {
+    insertHeader();
+  } else {
+    document.addEventListener('DOMContentLoaded', insertHeader);
   }
 })();

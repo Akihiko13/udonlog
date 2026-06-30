@@ -119,6 +119,22 @@
       padding: 3rem 0;
     }
 
+    .news-more-btn {
+      display: block;
+      width: 100%;
+      margin-top: 14px;
+      padding: 11px;
+      background: none;
+      border: 0.5px solid #F0D9C0;
+      border-radius: 10px;
+      color: #BA7517;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .news-more-btn:hover { background: #FFF1E0; }
+
     .footer-links {
       text-align: center;
       margin-top: 2.5rem;
@@ -148,11 +164,13 @@
   <meta name="twitter:title" content="お知らせ｜うどログ">
   <meta name="twitter:description" content="うどログからのお知らせ・新店情報・機能追加。">
   <meta name="twitter:image" content="https://udolog.com/og-image.png">
+  <script src="header.js"></script>
+  <script src="analytics.js"></script>
 </head>
 <body>
 
   <div class="page-header">
-    <a href="index.html" class="back-btn"><i class="ti ti-arrow-left"></i></a>
+    <a href="/" class="back-btn"><i class="ti ti-arrow-left"></i></a>
     <div class="header-title">お知らせ一覧</div>
   </div>
 
@@ -161,7 +179,7 @@
     <div id="newsList"></div>
 
     <div class="footer-links">
-      <a href="index.html">トップへ戻る</a>
+      <a href="/">トップへ戻る</a>
     </div>
   </div>
 
@@ -186,7 +204,11 @@
     if (!NEWS || NEWS.length === 0) {
       list.innerHTML = '<div class="news-empty">お知らせはまだありません。</div>';
     } else {
-      list.innerHTML = NEWS.map(n => {
+      // 10件ずつ表示（「もっと見る」で追加）
+      const NEWS_STEP = 10;
+      let shownNews = 0;
+
+      function newsItemHtml(n) {
         return `
           <div class="news-item">
             <div class="news-meta">
@@ -196,10 +218,33 @@
             <div class="news-title">${escapeHtml(n.title)}</div>
             ${n.body ? `<div class="news-body">${escapeHtml(n.body)}</div>` : ''}
           </div>`;
-      }).join('');
+      }
+
+      function appendMoreNews() {
+        const next = NEWS.slice(shownNews, shownNews + NEWS_STEP);
+        list.insertAdjacentHTML('beforeend', next.map(newsItemHtml).join(''));
+        shownNews += next.length;
+
+        let btn = document.getElementById('newsMore');
+        const remaining = NEWS.length - shownNews;
+        if (remaining <= 0) {
+          if (btn) btn.remove();
+          return;
+        }
+        if (!btn) {
+          btn = document.createElement('button');
+          btn.id = 'newsMore';
+          btn.type = 'button';
+          btn.className = 'news-more-btn';
+          btn.addEventListener('click', appendMoreNews);
+          list.after(btn);
+        }
+        btn.textContent = `もっと見る（残り${remaining}件）`;
+      }
+
+      appendMoreNews();
     }
   </script>
 
-  <script src="header.js"></script>
 </body>
 </html>

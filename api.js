@@ -13,6 +13,7 @@
 const API = (function () {
   let _csrf = '';
   let _user = null;
+  let _googleClientId = '';
   const base = 'api/';
 
   async function _json(res) {
@@ -32,6 +33,7 @@ const API = (function () {
       const d = await _json(res);
       _user = d.user || null;
       _csrf = d.csrf || '';
+      if ('googleClientId' in d) _googleClientId = d.googleClientId || '';
       return d;
     })();
     return _ready;
@@ -55,10 +57,22 @@ const API = (function () {
     return d;
   }
 
+  // ファイルアップロード（multipart）。Content-Typeは指定しない（ブラウザが境界を付与）
+  async function upload(path, formData) {
+    const res = await fetch(base + path, {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: { 'X-CSRF-Token': _csrf },
+      body: formData,
+    });
+    return _json(res);
+  }
+
   return {
-    refresh, get, post,
+    refresh, get, post, upload,
     get user() { return _user; },
     get csrf() { return _csrf; },
+    get googleClientId() { return _googleClientId; },
     isLoggedIn() { return !!_user; },
   };
 })();

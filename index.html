@@ -400,6 +400,9 @@
       font-size: 22px;
     }
 
+    .shop-thumb i { color: var(--amber-dark); font-size: 24px; line-height: 1; }
+    .rank-badge i { font-size: 12px; vertical-align: -0.05em; }
+
     .shop-name { font-size: 16px; font-weight: 700; }
     .shop-meta { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
 
@@ -415,7 +418,7 @@
 
     .stamp-grid {
       display: grid;
-      grid-template-columns: repeat(6, 1fr);
+      grid-template-columns: repeat(5, 1fr);
       gap: 8px;
       margin-bottom: 1rem;
     }
@@ -459,7 +462,7 @@
     }
 
     .progress-fill {
-      width: 83%;
+      width: 100%;
       height: 100%;
       background: var(--amber);
       border-radius: 99px;
@@ -513,8 +516,7 @@
     .avatar.green { background: #E1F5EE; color: #085041; }
 
     .post-user { font-size: 14px; font-weight: 700; }
-    .post-handle { font-size: 12px; color: var(--text-muted); }
-    .post-time { margin-left: auto; font-size: 11px; color: var(--text-muted); }
+    .post-time { font-size: 11px; color: var(--text-muted); }
 
     .post-body {
       font-size: 14px;
@@ -537,32 +539,28 @@
       border: 0.5px solid #F0D9C0;
     }
 
-    .post-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 1rem; }
-
-    .tag {
-      font-size: 12px;
-      color: #185FA5;
-      background: #EEF5FC;
-      padding: 3px 10px;
-      border-radius: 99px;
+    /* 実装中の「みんなの投稿」に合わせた表示 */
+    .post-menu {
+      display: inline-block;
+      background: #FFF8EE;
+      border: 0.5px solid #F0D9C0;
+      color: var(--amber-dark);
+      font-size: 13px;
+      font-weight: 600;
+      padding: 4px 12px;
+      border-radius: 8px;
+      margin-bottom: 1rem;
     }
 
-    .post-footer {
-      display: flex;
-      gap: 20px;
-      padding-top: 1rem;
-      border-top: 0.5px solid var(--border);
-    }
-
-    .post-action {
+    .post-like {
       display: flex;
       align-items: center;
-      gap: 5px;
+      gap: 4px;
       font-size: 13px;
-      color: var(--text-muted);
+      font-weight: 600;
+      color: #e05a77;
     }
-
-    .post-action i { font-size: 15px; }
+    .post-like i { font-size: 15px; }
 
     /* ===== HOW TO ===== */
     .howto-grid {
@@ -746,6 +744,7 @@
   <meta name="twitter:title" content="うどログ｜さぬきうどんを記録して、つながる">
   <meta name="twitter:description" content="香川のさぬきうどんを記録・共有するアプリ。スタンプや常連カードでうどん歴を可視化、みんなの投稿でうどん好きとつながる。">
   <meta name="twitter:image" content="https://udolog.com/og-image.png">
+  <script src="analytics.js"></script>
 </head>
 <body>
 
@@ -768,7 +767,7 @@
           日常すぎて記憶に残らないさぬきうどんを、<br>記録して・つながる。
         </p>
         <div class="hero-actions">
-          <a href="register.html" class="btn-fill">無料で始める <i class="ti ti-arrow-right" style="font-size:15px"></i></a>
+          <a href="register.html" class="btn-fill" data-cta="無料で始める">無料で始める <i class="ti ti-arrow-right" style="font-size:15px"></i></a>
           <a href="shops.html" class="btn-outline"><i class="ti ti-bowl-chopsticks" style="font-size:15px"></i> お店一覧を見る</a>
         </div>
       </div>
@@ -897,23 +896,38 @@
     <div class="section-header">
       <div class="label-tag">機能</div>
       <h2 class="section-title">うどログでできること</h2>
-      <p class="section-desc">記録・可視化・交流。さぬきうどんライフを豊かにする3つの柱。</p>
+      <p class="section-desc">記録・可視化・交流。さぬきうどんライフを豊かにする機能がそろっています。</p>
     </div>
     <div class="features-grid">
       <div class="feature-card">
         <div class="feature-icon-wrap"><i class="ti ti-notebook" aria-hidden="true"></i></div>
         <div class="feature-title">お店の記録</div>
-        <p class="feature-desc">行った店・食べたメニュー・訪問日をワンタップで記録。後から検索できる自分だけのうどん手帳。</p>
+        <p class="feature-desc">行った店・食べたメニュー・訪問日・写真をかんたんに記録。後から検索できる自分だけのうどん手帳。</p>
       </div>
       <div class="feature-card">
         <div class="feature-icon-wrap"><i class="ti ti-rosette" aria-hidden="true"></i></div>
-        <div class="feature-title">スタンプカード</div>
-        <p class="feature-desc">店ごとに何回訪れたかをスタンプで可視化。常連度がひと目でわかり、達成バッジも獲得できる。</p>
+        <div class="feature-title">スタンプカード・常連店</div>
+        <p class="feature-desc">店ごとに何回訪れたかをスタンプで可視化。10杯で常連認定され、よく通う店は「常連店」としてプロフィールに並びます。</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon-wrap"><i class="ti ti-star" aria-hidden="true"></i></div>
+        <div class="feature-title">人気メニュー・おすすめ度</div>
+        <p class="feature-desc">みんなの記録から「人気メニュー」を集計。実際に通った人だけが付けられるおすすめ度で、お店選びの参考になります。</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon-wrap"><i class="ti ti-map-2" aria-hidden="true"></i></div>
+        <div class="feature-title">エリア制覇・達成バッジ</div>
+        <p class="feature-desc">香川の市町ごとの制覇率や、訪問数に応じた達成バッジでうどん歴を可視化。集める楽しさがあります。</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon-wrap"><i class="ti ti-user-circle" aria-hidden="true"></i></div>
+        <div class="feature-title">プロフィール・推しのうどん屋</div>
+        <p class="feature-desc">写真や自己紹介でプロフィールを作成。お気に入りを最大3軒「推しのうどん屋」として紹介できます。</p>
       </div>
       <div class="feature-card">
         <div class="feature-icon-wrap"><i class="ti ti-brand-x" aria-hidden="true"></i></div>
-        <div class="feature-title">X連携で交流</div>
-        <p class="feature-desc">Xアカウントと連携して感想やおすすめを投稿。メール登録でもX連携で交流機能を使えます。</p>
+        <div class="feature-title">うどん仲間と交流</div>
+        <p class="feature-desc">お店の「みんなの投稿」から、気になる人のプロフィールへ。Xユーザー名を登録すれば、プロフィールからXでつながれます。</p>
       </div>
     </div>
   </section>
@@ -924,16 +938,16 @@
       <div>
         <div class="label-tag">スタンプカード機能</div>
         <h2 class="section-title">常連度を、<br>見える化する。</h2>
-        <p class="section-desc" style="color:var(--text-sub);">お気に入りの店に行くたびにスタンプが増えていく。10スタンプごとにバッジ獲得。自分のうどん歴が積み重なっていく。</p>
+        <p class="section-desc" style="color:var(--text-sub);">お気に入りの店に行くたびにスタンプが増えていく。10杯で常連認定。自分のうどん歴が積み重なっていく。</p>
       </div>
       <div class="demo-card">
         <div class="demo-card-header">
-          <div class="shop-thumb">🏪</div>
+          <div class="shop-thumb"><i class="ti ti-bowl-chopsticks"></i></div>
           <div>
             <div class="shop-name">山越うどん</div>
-            <div class="shop-meta">丸亀市 ・ 通算 18回訪問</div>
+            <div class="shop-meta">丸亀市 ・ 通算 10回訪問</div>
           </div>
-          <div class="rank-badge">常連 ★★★</div>
+          <div class="rank-badge"><i class="ti ti-crown"></i> 常連認定</div>
         </div>
         <div class="stamp-grid">
           <div class="stamp-cell filled"><i class="ti ti-bowl-chopsticks"></i></div>
@@ -946,12 +960,10 @@
           <div class="stamp-cell filled"><i class="ti ti-bowl-chopsticks"></i></div>
           <div class="stamp-cell filled"><i class="ti ti-bowl-chopsticks"></i></div>
           <div class="stamp-cell filled"><i class="ti ti-bowl-chopsticks"></i></div>
-          <div class="stamp-cell empty"></div>
-          <div class="stamp-cell empty"></div>
         </div>
         <div class="stamp-progress">
           <div class="progress-bar"><div class="progress-fill"></div></div>
-          <div class="progress-label">10 / 12　次のバッジまであと2回</div>
+          <div class="progress-label">10 / 10　常連カード1枚コンプリート！</div>
         </div>
       </div>
     </div>
@@ -962,50 +974,34 @@
     <div class="section-header">
       <div class="label-tag">交流機能</div>
       <h2 class="section-title">うどんが、<br>つながりになる。</h2>
-      <p class="section-desc">Xと連携して感想を投稿。同じ店を愛する人と出会える。</p>
+      <p class="section-desc">お店ごとの「みんなの投稿」で感想をシェア。同じ店を愛する人と出会える。</p>
     </div>
     <div class="feed-grid">
       <div class="post-card">
         <div class="post-header">
-          <div class="avatar amber">さぬ</div>
+          <div class="avatar amber">さ</div>
           <div>
             <div class="post-user">さぬきうどん太郎</div>
-            <div class="post-handle">@sanuki_udon</div>
+            <div class="post-time">2026/6/29</div>
           </div>
-          <div class="post-time">今日</div>
         </div>
         <div class="post-shop-tag"><i class="ti ti-map-pin" style="font-size:12px"></i> がもううどん</div>
+        <span class="post-menu">釜玉</span>
         <p class="post-body">やっぱり釜玉が最高。朝6時から行列できてたけど並んだ価値あり。卵の黄身がとろとろで麺のコシが完璧やった</p>
-        <div class="post-tags">
-          <span class="tag">#釜玉</span>
-          <span class="tag">#坂出市</span>
-        </div>
-        <div class="post-footer">
-          <div class="post-action"><i class="ti ti-heart"></i> 24</div>
-          <div class="post-action"><i class="ti ti-message"></i> 5</div>
-          <div class="post-action"><i class="ti ti-repeat"></i> 8</div>
-        </div>
+        <div class="post-like"><i class="ti ti-heart-filled"></i> 24</div>
       </div>
       <div class="post-card">
         <div class="post-header">
           <div class="avatar green">う</div>
           <div>
             <div class="post-user">うどんハンター</div>
-            <div class="post-handle">@udon_hunter88</div>
+            <div class="post-time">2026/6/28</div>
           </div>
-          <div class="post-time">3時間前</div>
         </div>
         <div class="post-shop-tag"><i class="ti ti-map-pin" style="font-size:12px"></i> 中村うどん</div>
-        <p class="post-body">通算20回目達成！バッジもらえた🎉 ここのぶっかけはほんとに飽きない。冷やしが特におすすめ。</p>
-        <div class="post-tags">
-          <span class="tag">#ぶっかけ</span>
-          <span class="tag">#20回達成</span>
-        </div>
-        <div class="post-footer">
-          <div class="post-action"><i class="ti ti-heart"></i> 61</div>
-          <div class="post-action"><i class="ti ti-message"></i> 12</div>
-          <div class="post-action"><i class="ti ti-repeat"></i> 19</div>
-        </div>
+        <span class="post-menu">ぶっかけ</span>
+        <p class="post-body">ここのぶっかけはほんとに飽きない。冷やしが特においしかった。また通います。</p>
+        <div class="post-like"><i class="ti ti-heart-filled"></i> 61</div>
       </div>
     </div>
   </section>
@@ -1021,13 +1017,13 @@
         <i class="ti ti-user-plus step-icon" aria-hidden="true"></i>
         <div class="step-num">01</div>
         <div class="step-title">アカウント登録</div>
-        <p class="step-desc">まずはメールアドレスで登録。1分で完了。Google・Xでの登録も順次対応予定。</p>
+        <p class="step-desc">メールアドレス、またはGoogleアカウントで登録。1分で完了。</p>
       </div>
       <div class="howto-step">
         <i class="ti ti-pencil step-icon" aria-hidden="true"></i>
         <div class="step-num">02</div>
         <div class="step-title">店を記録する</div>
-        <p class="step-desc">行った店を検索して「食べた！」ボタンを押すだけ。スタンプが積み上がる。</p>
+        <p class="step-desc">行った店を選んで、食べたメニューと一緒に記録。スタンプが積み上がる。</p>
       </div>
       <div class="howto-step">
         <i class="ti ti-message step-icon" aria-hidden="true"></i>
@@ -1044,7 +1040,7 @@
       <h2 class="cta-title">さあ、今日のうどんから<br>記録しよう。</h2>
       <p class="cta-desc">「また行きたいけど店名わからん」をもう言わない。<br>あなたのうどん歴を、ここに刻もう。</p>
       <div class="cta-buttons">
-        <a href="register.html" class="btn-fill-dark">無料で登録する <i class="ti ti-arrow-right" style="font-size:15px"></i></a>
+        <a href="register.html" class="btn-fill-dark" data-cta="無料で登録する">無料で登録する <i class="ti ti-arrow-right" style="font-size:15px"></i></a>
       </div>
     </div>
   </div>
@@ -1102,6 +1098,32 @@
       }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
 
       els.forEach(function (el) { io.observe(el); });
+    })();
+  </script>
+
+  <script>
+    // ログイン中は「無料で始める／無料で登録する」CTAを「マイページへ」に切り替える。
+    // 既定は未ログイン表示（register）のまま。APIで「ログイン中」と確認できたときだけ
+    // 「マイページへ」に変える（キャッシュで先にログイン表示しない＝未ログイン誤表示を防ぐ）。
+    (function () {
+      function setCta(authed) {
+        document.querySelectorAll('a[data-cta]').forEach(function (a) {
+          var label = authed ? 'マイページへ' : a.dataset.cta;
+          a.setAttribute('href', authed ? 'mypage.html' : 'register.html');
+          // 先頭のテキストだけ差し替え、矢印アイコンは残す
+          if (a.firstChild && a.firstChild.nodeType === 3) {
+            a.firstChild.nodeValue = label + ' ';
+          } else {
+            a.insertBefore(document.createTextNode(label + ' '), a.firstChild);
+          }
+        });
+      }
+      if (typeof API !== 'undefined') {
+        API.refresh().then(function (d) {
+          try { localStorage.setItem('ulog_authed', d.user ? '1' : '0'); } catch (e) {}
+          setCta(!!d.user);
+        }).catch(function () {});
+      }
     })();
   </script>
 
