@@ -416,6 +416,23 @@
     }
 
     @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* プロフィール写真ピッカー */
+    .reg-avatar {
+      width: 88px; height: 88px; border-radius: 50%;
+      background: #FFF8EE; border: 2px dashed #F0D9C0; color: #BA7517;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 30px; position: relative; cursor: pointer; overflow: visible; margin-top: 6px;
+    }
+    .reg-avatar.has-photo { border-style: solid; border-color: #BA7517; }
+    .reg-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; display: block; }
+    .reg-avatar-cam {
+      position: absolute; right: -2px; bottom: -2px;
+      width: 30px; height: 30px; border-radius: 50%;
+      background: #BA7517; border: 2px solid #fff; color: #fff;
+      display: flex; align-items: center; justify-content: center; font-size: 15px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.18);
+    }
   </style>
   <!-- ファビコン -->
   <link rel="icon" href="favicon.ico" sizes="any">
@@ -437,6 +454,8 @@
   <meta name="twitter:title" content="無料会員登録｜うどログ">
   <meta name="twitter:description" content="メールアドレスで無料登録。さぬきうどんの記録を始めよう。">
   <meta name="twitter:image" content="https://udolog.com/og-image.png">
+  <script src="header.js"></script>
+  <script src="analytics.js"></script>
 </head>
 <body>
 
@@ -453,21 +472,15 @@
       <div class="step-title">アカウント登録</div>
       <p class="step-desc">登録方法を選んでください。どちらでも無料で始められます。</p>
 
-      <!-- Google登録（表示のみ・Google Cloud Console登録後に有効化） -->
-      <button class="btn-google" onclick="alert('Googleでの登録は準備中です。')">
-        <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
-          <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
-          <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
-          <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
-          <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
-        </svg>
-        Googleで続ける
-      </button>
+      <!-- Google登録（Googleの公式ボタンを描画。未設定時は自動で非表示）-->
+      <div id="googleBtnRegister" style="display:flex;justify-content:center;margin-bottom:10px;"></div>
 
+      <!-- Xアカウントで続ける（X連携ログインは実装後に有効化）
       <button class="btn-x" onclick="connectX()">
         <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.253 5.622 5.912-5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
         Xアカウントで続ける
       </button>
+      -->
 
       <div class="divider">または</div>
 
@@ -501,6 +514,22 @@
       </form>
     </div>
 
+    <!-- ステップ1.5: メールアドレスの確認コード -->
+    <div class="step-panel" id="stepCode">
+      <div class="step-title">メールアドレスの確認</div>
+      <p class="step-desc"><b id="codeEmailLabel"></b> に確認コード（6桁）を送りました。メールを確認してコードを入力してください。</p>
+      <div class="form-group">
+        <label for="verifyCode">確認コード</label>
+        <input type="text" id="verifyCode" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="123456" style="letter-spacing:0.35em;text-align:center;font-size:22px;">
+      </div>
+      <button class="btn-email" id="verify-btn" type="button" onclick="submitCode()" disabled>認証してすすむ</button>
+      <p class="pw-hint" style="text-align:center;margin-top:14px;line-height:2;">
+        コードが届かない場合は迷惑メールフォルダもご確認ください。<br>
+        <a id="resend-code" style="color:#BA7517;cursor:pointer;font-weight:600;">コードを再送する</a>
+        　<a id="back-to-email" style="color:#888;cursor:pointer;">メールを入力しなおす</a>
+      </p>
+    </div>
+
     <!-- ローディング -->
     <div class="loading" id="loading">
       <div class="spinner"></div>
@@ -532,6 +561,20 @@
           <div class="badge-sub">メールアドレス登録</div>
         </div>
         <i class="ti ti-circle-check-filled badge-check" style="color:#BA7517;" aria-hidden="true"></i>
+      </div>
+
+      <!-- プロフィール写真（任意） -->
+      <div class="form-group" style="text-align:center;">
+        <label style="text-align:left;">プロフィール写真 <span class="optional">任意</span></label>
+        <label class="reg-avatar" id="regAvatarLabel" title="写真を選ぶ">
+          <span class="reg-avatar-fallback" id="regAvatarFallback"><i class="ti ti-camera"></i></span>
+          <span class="reg-avatar-cam"><i class="ti ti-camera"></i></span>
+          <input type="file" id="regAvatarInput" accept="image/*" hidden>
+        </label>
+        <div style="font-size:12px;color:#aaa;margin-top:8px;">
+          <a id="regAvatarPick" style="color:#BA7517;font-weight:600;cursor:pointer;text-decoration:none;">写真を選ぶ</a>
+          <a id="regAvatarClear" style="color:#888;cursor:pointer;margin-left:12px;display:none;">取り消す</a>
+        </div>
       </div>
 
       <div class="form-group">
@@ -594,6 +637,12 @@
         </div>
       </div>
 
+      <div style="background:#FFF8EE;border:0.5px solid #F0D9C0;border-radius:10px;padding:11px 13px;margin-bottom:12px;font-size:13px;color:#8a6a3a;line-height:1.6;">
+        <i class="ti ti-info-circle" style="vertical-align:-2px;"></i>
+        下の「登録する」を押すと登録が完了します。<br>
+        このまま画面を閉じると登録されないのでご注意ください。
+      </div>
+
       <button class="btn-primary" id="submit-btn" onclick="completeRegister()" disabled>登録する</button>
     </div>
 
@@ -604,7 +653,7 @@
       </div>
       <div class="success-title">登録完了！</div>
       <p class="success-desc">うどログへようこそ。<br>さっそく今日食べたうどんを記録してみましょう。</p>
-      <a href="index.html" class="btn-start">うどログを始める →</a>
+      <a href="/" class="btn-start">うどログを始める →</a>
     </div>
 
     <div class="footer-link" id="footer-link">
@@ -704,6 +753,7 @@
         document.getElementById('step2').classList.add('active');
         document.getElementById('dot1').classList.add('done');
         document.getElementById('dot2').classList.add('active');
+        registrationPending = true;   // プロフィール画面に到達＝未完了。離脱時に警告する
 
         if (method === 'x') {
           document.getElementById('x-badge').style.display = 'flex';
@@ -715,15 +765,118 @@
       }, duration);
     }
 
+    // プロフィール未入力のまま離脱しようとしたら警告（登録は未完了のため）
+    let registrationPending = false;
+    window.addEventListener('beforeunload', function (e) {
+      if (registrationPending) { e.preventDefault(); e.returnValue = ''; }
+    });
+
     // Xログインは後日実装（auth_identitiesで対応予定）。今は案内のみ。
     function connectX() { alert('Xでの登録は準備中です。メールアドレスで登録してください。'); }
-    function connectEmail() { showStep2('email'); }
+
+    // === メール確認コードの送信・照合 ===
+    // メールアドレスで続ける → 確認コードを送ってコード入力ステップへ
+    async function connectEmail() { await sendVerifyCode(false); }
+
+    async function sendVerifyCode(isResend) {
+      const email = emailInput.value.trim();
+      const emailBtn = document.getElementById('email-btn');
+      const resend = document.getElementById('resend-code');
+      if (isResend) { resend.textContent = '送信中…'; resend.style.pointerEvents = 'none'; }
+      else { emailBtn.disabled = true; emailBtn.textContent = '送信中…'; }
+      try {
+        await API.refresh();
+        await API.post('email_verify_send.php', { email: email });
+        document.getElementById('codeEmailLabel').textContent = email;
+        document.getElementById('step1').classList.remove('active');
+        document.getElementById('stepCode').classList.add('active');
+        if (isResend) alert('確認コードを再送しました。');
+        document.getElementById('verifyCode').focus();
+      } catch (e) {
+        alert(e.message || '確認コードの送信に失敗しました');
+      } finally {
+        emailBtn.disabled = false;
+        emailBtn.textContent = 'メールアドレスで続ける';
+        resend.textContent = 'コードを再送する';
+        resend.style.pointerEvents = '';
+      }
+    }
+
+    // コード入力：6桁の数字のみ・揃ったらボタン有効化
+    document.getElementById('verifyCode').addEventListener('input', function () {
+      this.value = this.value.replace(/\D/g, '').slice(0, 6);
+      document.getElementById('verify-btn').disabled = this.value.length !== 6;
+    });
+
+    async function submitCode() {
+      const email = emailInput.value.trim();
+      const code = document.getElementById('verifyCode').value.trim();
+      const btn = document.getElementById('verify-btn');
+      btn.disabled = true; btn.textContent = '確認中…';
+      try {
+        await API.refresh();
+        await API.post('email_verify_check.php', { email: email, code: code });
+        // 認証成功 → プロフィール入力へ
+        document.getElementById('stepCode').classList.remove('active');
+        showStep2('email');
+      } catch (e) {
+        alert(e.message || '認証に失敗しました');
+        btn.disabled = false; btn.textContent = '認証してすすむ';
+      }
+    }
+
+    document.getElementById('resend-code').addEventListener('click', function () { sendVerifyCode(true); });
+    document.getElementById('back-to-email').addEventListener('click', function () {
+      document.getElementById('stepCode').classList.remove('active');
+      document.getElementById('step1').classList.add('active');
+    });
 
     // メールフォームの送信（Enter/ボタン）→ ページ遷移せずステップ2へ
     function onEmailSubmit(e) {
       e.preventDefault();
       if (!document.getElementById('email-btn').disabled) connectEmail();
     }
+
+    // === プロフィール写真の選択（登録前はサーバーへ送らず、ファイルを保持）===
+    let selectedAvatarFile = null;
+    (function setupRegAvatar() {
+      const label = document.getElementById('regAvatarLabel');
+      const input = document.getElementById('regAvatarInput');
+      const fallback = document.getElementById('regAvatarFallback');
+      const pick = document.getElementById('regAvatarPick');
+      const clear = document.getElementById('regAvatarClear');
+      if (!label) return;
+
+      pick.addEventListener('click', () => input.click());
+
+      input.addEventListener('change', () => {
+        const file = input.files && input.files[0];
+        input.value = '';
+        if (!file) return;
+        if (!file.type.startsWith('image/')) { alert('画像ファイルを選んでください'); return; }
+        if (file.size > 8 * 1024 * 1024) { alert('画像が大きすぎます（8MBまで）'); return; }
+        selectedAvatarFile = file;
+
+        // プレビュー表示
+        let img = label.querySelector('img');
+        if (!img) { img = document.createElement('img'); label.insertBefore(img, fallback); }
+        img.src = URL.createObjectURL(file);
+        fallback.style.display = 'none';
+        label.classList.add('has-photo');
+        pick.textContent = '写真を変更';
+        clear.style.display = 'inline';
+      });
+
+      clear.addEventListener('click', () => {
+        selectedAvatarFile = null;
+        const img = label.querySelector('img');
+        if (img) img.remove();
+        fallback.style.display = '';
+        label.classList.remove('has-photo');
+        pick.textContent = '写真を選ぶ';
+        clear.style.display = 'none';
+      });
+    })();
 
     async function completeRegister() {
       const btn = document.getElementById('submit-btn');
@@ -738,14 +891,30 @@
           nickname: nicknameInput.value.trim(),
           city: document.getElementById('city').value || '',
           x_handle: document.getElementById('x_handle').value.trim().replace(/^@+/, ''),
+          bio: document.getElementById('bio').value.trim(),
         });
-        // 登録成功（この時点でログイン済み）→ 完了画面へ
+
+        // 登録成功（この時点で自動ログイン済み・CSRFも更新済み）。
+        // 写真が選ばれていればアップロード。失敗しても登録自体は成功扱いにする。
+        if (selectedAvatarFile) {
+          btn.textContent = '写真を保存中…';
+          try {
+            const fd = new FormData();
+            fd.append('avatar', selectedAvatarFile);
+            await API.upload('avatar_set.php', fd);
+          } catch (e) {
+            alert('登録は完了しましたが、写真の保存に失敗しました。あとでマイページから設定できます。');
+          }
+        }
+
+        // → 完了画面へ
         document.getElementById('step2').classList.remove('active');
         document.getElementById('dot2').classList.remove('active');
         document.getElementById('dot2').classList.add('done');
         document.getElementById('dot3').classList.add('active');
         document.getElementById('step3').classList.add('active');
         document.getElementById('footer-link').style.display = 'none';
+        registrationPending = false;   // 登録完了したので離脱警告を解除
       } catch (err) {
         alert(err.message || '登録に失敗しました');
         btn.disabled = false;
@@ -754,6 +923,11 @@
     }
   </script>
 
-  <script src="header.js"></script>
+  <script src="google-auth.js"></script>
+  <script>
+    // 登録画面のGoogleボタンを描画（成功で登録／ログイン完了→トップへ）
+    setupGoogleSignIn('googleBtnRegister', function () { location.href = '/'; });
+  </script>
+
 </body>
 </html>

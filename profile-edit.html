@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>プロフィール編集 — うどログ</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --amber: #BA7517;
+      --amber-light: #FFF8EE;
+      --amber-border: #F0D9C0;
+      --bg: #FAFAF8;
+      --white: #fff;
+      --border: #e5e5e0;
+      --text: #1a1a1a;
+      --text-sub: #666;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      font-size: 16px;
+      min-height: 100vh;
+      padding-bottom: 4rem;
+    }
+    .page-header {
+      position: sticky;
+      top: 54px;
+      background: rgba(250,250,248,0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 0.5px solid var(--border);
+      padding: 0 1.25rem;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      z-index: 100;
+    }
+    .back-btn {
+      display: flex; align-items: center; justify-content: center;
+      width: 36px; height: 36px; border-radius: 50%;
+      background: var(--white); border: 0.5px solid var(--border);
+      color: #444; text-decoration: none; font-size: 18px; flex-shrink: 0;
+    }
+    .back-btn:hover { background: #f5f5f0; }
+    .header-title { font-size: 16px; font-weight: 500; }
+
+    .container { max-width: 560px; margin: 0 auto; padding: 1.5rem 1.25rem; }
+
+    /* 写真セクション */
+    .photo-section { text-align: center; margin-bottom: 2rem; }
+    .avatar {
+      width: 96px; height: 96px; border-radius: 50%;
+      background: var(--amber); color: #fff;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 42px; font-weight: 700;
+      position: relative; cursor: pointer; overflow: visible;
+    }
+    .avatar img.avatar-img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; display: block; }
+    .avatar.uploading { opacity: 0.55; pointer-events: none; }
+    .avatar-cam {
+      position: absolute; right: -2px; bottom: -2px;
+      width: 32px; height: 32px; border-radius: 50%;
+      background: var(--amber); border: 2px solid #fff; color: #fff;
+      display: flex; align-items: center; justify-content: center; font-size: 16px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.18);
+    }
+    .avatar:hover .avatar-cam { background: #9A6010; }
+    .photo-actions { margin-top: 12px; font-size: 13px; }
+    .photo-actions .change { color: var(--amber); font-weight: 600; cursor: pointer; text-decoration: none; }
+    .photo-actions .delete { color: var(--text-sub); cursor: pointer; margin-left: 14px; display: none; }
+    .photo-actions .delete:hover { color: #d9534f; }
+
+    /* フォーム */
+    .form-group { margin-bottom: 1.5rem; }
+    .form-group label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 6px; }
+    .form-group label .optional { font-size: 12px; color: #aaa; font-weight: 400; margin-left: 4px; }
+    .form-group input[type="text"], .form-group input[type="password"],
+    .form-group input[type="email"], .form-group select, .form-group textarea {
+      width: 100%; padding: 12px 14px;
+      border: 0.5px solid var(--border); border-radius: 12px;
+      font-size: 16px; font-family: inherit; background: var(--white); color: var(--text);
+      -webkit-appearance: none; appearance: none;
+    }
+    .form-group textarea { resize: vertical; min-height: 90px; line-height: 1.6; }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+      outline: none; border-color: var(--amber);
+      box-shadow: 0 0 0 3px rgba(186, 117, 23, 0.1);
+    }
+    .field-note { font-size: 12px; color: #aaa; margin-top: 4px; }
+
+    /* 推しのうどん屋ピッカー */
+    .fav-selected { display: grid; gap: 8px; margin-bottom: 10px; }
+    .fav-chip {
+      display: flex; align-items: center; gap: 10px;
+      background: #FFF8EE; border: 0.5px solid var(--amber-border);
+      border-radius: 10px; padding: 10px 12px;
+    }
+    .fav-chip-rank {
+      width: 24px; height: 24px; flex-shrink: 0; border-radius: 50%;
+      background: var(--amber); color: #fff; font-size: 13px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .fav-chip-name { font-size: 14px; font-weight: 600; }
+    .fav-chip-meta { font-size: 12px; color: var(--text-sub); }
+    .fav-chip-actions { display: flex; flex-direction: column; gap: 1px; margin-left: auto; }
+    .fav-move {
+      background: none; border: none; color: var(--text-sub);
+      cursor: pointer; font-size: 16px; line-height: 1; padding: 1px 4px;
+    }
+    .fav-move:hover:not(:disabled) { color: var(--amber); }
+    .fav-move:disabled { opacity: 0.25; cursor: default; }
+    .fav-chip-remove {
+      margin-left: 4px; background: none; border: none;
+      color: #c9938f; font-size: 20px; cursor: pointer; line-height: 1; padding: 2px 6px;
+    }
+    .fav-chip-remove:hover { color: #d9534f; }
+    .fav-picker { position: relative; }
+    .fav-results {
+      position: absolute; left: 0; right: 0; top: 100%;
+      background: #fff; border: 0.5px solid var(--border); border-radius: 10px;
+      margin-top: 4px; max-height: 240px; overflow: auto; z-index: 10;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08); display: none;
+    }
+    .fav-result { padding: 10px 12px; cursor: pointer; font-size: 14px; }
+    .fav-result:hover { background: #faf8f4; }
+    .fav-result-meta { font-size: 12px; color: var(--text-sub); }
+    .fav-result.disabled { color: #bbb; cursor: default; }
+    .fav-result.disabled:hover { background: none; }
+
+    /* Xユーザー名（@付き） */
+    .x-input-wrap { display: flex; align-items: center; border: 0.5px solid var(--border); border-radius: 12px; background: var(--white); overflow: hidden; }
+    .x-input-wrap:focus-within { border-color: var(--amber); }
+    .x-at { padding: 0 4px 0 14px; color: #aaa; font-size: 16px; }
+    .x-input-wrap input { border: none !important; padding-left: 4px !important; }
+
+    .save-btn {
+      width: 100%; background: var(--amber); color: #fff; border: none;
+      padding: 15px; border-radius: 12px; font-size: 16px; font-weight: 600;
+      cursor: pointer; margin-top: 0.5rem;
+    }
+    .save-btn:hover { background: #9A6010; }
+    .save-btn:disabled { opacity: 0.5; cursor: default; }
+
+    .state-box { text-align: center; color: var(--text-sub); font-size: 15px; padding: 3rem 1rem; }
+
+    /* アカウント設定への導線 */
+    .account-link {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-top: 2rem; padding: 14px 16px;
+      background: var(--white); border: 0.5px solid var(--border); border-radius: 12px;
+      text-decoration: none; color: var(--text); font-size: 14px; font-weight: 600;
+    }
+    .account-link:hover { background: #faf8f4; }
+  </style>
+  <link rel="icon" href="favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link rel="manifest" href="site.webmanifest">
+  <meta name="theme-color" content="#BA7517">
+  <meta name="robots" content="noindex">
+  <script src="api.js"></script>
+  <script src="header.js"></script>
+  <script src="analytics.js"></script>
+</head>
+<body>
+
+  <div class="page-header">
+    <a href="mypage.html" class="back-btn"><i class="ti ti-arrow-left"></i></a>
+    <div class="header-title">プロフィール編集</div>
+  </div>
+
+  <div class="container">
+    <div id="stateBox" class="state-box">読み込み中…</div>
+
+    <form id="editForm" style="display:none;" onsubmit="return false;">
+
+      <!-- 初回（Google登録直後）の案内 -->
+      <div id="welcomeNote" style="display:none;background:var(--amber-light);border:0.5px solid var(--amber-border);border-radius:12px;padding:14px 16px;margin-bottom:1.5rem;font-size:14px;color:#8a6a3a;line-height:1.6;">
+        <b>ようこそ、うどログへ！</b><br>
+        ニックネームは他の会員にも表示されます。Googleの名前が入っているので、必要なら変更して「保存する」を押してください。写真や自己紹介、推し店もここで設定できます。
+      </div>
+
+      <!-- 写真 -->
+      <div class="photo-section">
+        <label class="avatar" id="avatarLabel" title="写真を変更">
+          <span class="avatar-fallback" id="avatarFallback"><i class="ti ti-bowl-chopsticks"></i></span>
+          <span class="avatar-cam"><i class="ti ti-camera"></i></span>
+          <input type="file" id="avatarInput" accept="image/*" hidden>
+        </label>
+        <div class="photo-actions">
+          <a class="change" id="avatarChange">写真を変更</a>
+          <a class="delete" id="avatarDelete">削除</a>
+        </div>
+      </div>
+
+      <!-- ニックネーム -->
+      <div class="form-group">
+        <label>ニックネーム</label>
+        <input type="text" id="nickname" maxlength="50" placeholder="例：さぬきうどん太郎">
+      </div>
+
+      <!-- 活動エリア -->
+      <div class="form-group">
+        <label>活動エリア（よく行くエリア） <span class="optional">任意</span></label>
+        <select id="city">
+          <option value="">選択してください</option>
+          <optgroup label="東讃">
+            <option>高松市</option><option>さぬき市</option><option>東かがわ市</option><option>三木町</option><option>直島町</option>
+          </optgroup>
+          <optgroup label="西讃">
+            <option>丸亀市</option><option>坂出市</option><option>善通寺市</option><option>観音寺市</option><option>三豊市</option>
+            <option>宇多津町</option><option>綾川町</option><option>琴平町</option><option>多度津町</option><option>まんのう町</option>
+          </optgroup>
+          <optgroup label="小豆島・離島">
+            <option>小豆島町</option><option>土庄町</option>
+          </optgroup>
+          <optgroup label="その他">
+            <option>香川県外・その他</option>
+          </optgroup>
+        </select>
+        <div class="field-note">よく食べに行くエリアの人と繋がりやすくなります</div>
+      </div>
+
+      <!-- Xユーザー名 -->
+      <div class="form-group">
+        <label>X（旧Twitter）のユーザー名 <span class="optional">任意</span></label>
+        <div class="x-input-wrap">
+          <span class="x-at">@</span>
+          <input type="text" id="x_handle" maxlength="15" placeholder="udon_taro" autocomplete="off">
+        </div>
+        <div class="field-note">入力すると、あなたの投稿からXへリンクされ、ファン同士で交流できます</div>
+      </div>
+
+      <!-- 自己紹介 -->
+      <div class="form-group">
+        <label>自己紹介 <span class="optional">任意</span></label>
+        <textarea id="bio" maxlength="500" placeholder="例：坂出出身、釜玉派。週5でうどん食べてます。"></textarea>
+        <div class="field-note"><span id="bioCount">0</span> / 500文字</div>
+      </div>
+
+      <!-- 推しのうどん屋 -->
+      <div class="form-group">
+        <label>推しのうどん屋 <span class="optional">最大3軒・任意</span></label>
+        <div class="fav-selected" id="favSelected"></div>
+        <div class="fav-picker" id="favPicker">
+          <input type="text" id="favSearch" placeholder="店名で検索して追加" autocomplete="off">
+          <div class="fav-results" id="favResults"></div>
+        </div>
+        <div class="field-note">プロフィールに表示されます。▲▼で表示順を並び替えできます。</div>
+      </div>
+
+      <button class="save-btn" id="saveBtn">保存する</button>
+
+      <!-- メール・パスワード・退会は「アカウント設定」へ -->
+      <a href="account.html" class="account-link" id="accountLink">
+        <span><i class="ti ti-settings" style="font-size:15px;vertical-align:-2px;"></i> アカウント設定（メール・パスワード・退会）</span>
+        <i class="ti ti-chevron-right" style="color:#ccc;"></i>
+      </a>
+    </form>
+  </div>
+
+  <script src="shops-data.js"></script>
+  <script>
+    function esc(s) {
+      return String(s == null ? '' : s).replace(/[&<>"']/g, c =>
+        ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+    }
+
+    // === 推しのうどん屋 ===
+    let favShopIds = [];
+
+    function renderFavSelected() {
+      const box = document.getElementById('favSelected');
+      box.innerHTML = favShopIds.map((id, i) => {
+        const s = SHOPS.find(x => x.id === id);
+        if (!s) return '';
+        const last = favShopIds.length - 1;
+        return `<div class="fav-chip">
+            <div class="fav-chip-rank">${i + 1}</div>
+            <div style="min-width:0;">
+              <div class="fav-chip-name">${esc(s.name)}</div>
+              <div class="fav-chip-meta">${esc(s.city)} ・ ${esc(s.type)}</div>
+            </div>
+            <div class="fav-chip-actions">
+              <button type="button" class="fav-move" data-i="${i}" data-dir="-1" title="上へ" ${i === 0 ? 'disabled' : ''}><i class="ti ti-chevron-up"></i></button>
+              <button type="button" class="fav-move" data-i="${i}" data-dir="1" title="下へ" ${i === last ? 'disabled' : ''}><i class="ti ti-chevron-down"></i></button>
+            </div>
+            <button type="button" class="fav-chip-remove" data-id="${id}" title="外す">&times;</button>
+          </div>`;
+      }).join('');
+      box.querySelectorAll('.fav-move').forEach(b => {
+        b.addEventListener('click', () => {
+          const i = parseInt(b.dataset.i, 10);
+          const j = i + parseInt(b.dataset.dir, 10);
+          if (j < 0 || j >= favShopIds.length) return;
+          [favShopIds[i], favShopIds[j]] = [favShopIds[j], favShopIds[i]];
+          renderFavSelected();
+        });
+      });
+      box.querySelectorAll('.fav-chip-remove').forEach(b => {
+        b.addEventListener('click', () => {
+          favShopIds = favShopIds.filter(x => x !== parseInt(b.dataset.id, 10));
+          renderFavSelected();
+          updateFavPicker();
+        });
+      });
+    }
+
+    function updateFavPicker() {
+      const search = document.getElementById('favSearch');
+      if (favShopIds.length >= 3) {
+        search.value = ''; search.disabled = true; search.placeholder = '3軒まで選べます';
+        document.getElementById('favResults').style.display = 'none';
+      } else {
+        search.disabled = false; search.placeholder = '店名で検索して追加';
+      }
+    }
+
+    function setupFavorites() {
+      const search = document.getElementById('favSearch');
+      const results = document.getElementById('favResults');
+
+      search.addEventListener('input', () => {
+        const q = search.value.trim();
+        if (!q) { results.style.display = 'none'; results.innerHTML = ''; return; }
+        const matches = SHOPS.filter(s =>
+          s.status !== '閉店' &&
+          ((s.name && s.name.includes(q)) || (s.kana && s.kana.includes(q)) || (s.city && s.city.includes(q)))
+        ).slice(0, 20);
+        results.innerHTML = matches.length ? matches.map(s => {
+          const already = favShopIds.includes(s.id);
+          return `<div class="fav-result ${already ? 'disabled' : ''}" data-id="${s.id}">
+              ${esc(s.name)}<span class="fav-result-meta"> ・ ${esc(s.city)}</span>${already ? ' ✓' : ''}
+            </div>`;
+        }).join('') : '<div class="fav-result disabled">該当する店がありません</div>';
+        results.style.display = 'block';
+        results.querySelectorAll('.fav-result[data-id]').forEach(r => {
+          r.addEventListener('click', () => {
+            const id = parseInt(r.dataset.id, 10);
+            if (favShopIds.includes(id) || favShopIds.length >= 3) return;
+            favShopIds.push(id);
+            search.value = ''; results.style.display = 'none';
+            renderFavSelected();
+            updateFavPicker();
+          });
+        });
+      });
+
+      // 外側クリックで検索結果を閉じる
+      document.addEventListener('click', (e) => {
+        if (!document.getElementById('favPicker').contains(e.target)) results.style.display = 'none';
+      });
+    }
+
+    // === プロフィール写真 ===
+    function setAvatar(url) {
+      const label = document.getElementById('avatarLabel');
+      const fallback = document.getElementById('avatarFallback');
+      const delBtn = document.getElementById('avatarDelete');
+      let img = label.querySelector('img.avatar-img');
+      if (url) {
+        if (!img) {
+          img = document.createElement('img');
+          img.className = 'avatar-img';
+          img.alt = 'プロフィール写真';
+          label.insertBefore(img, fallback);
+        }
+        img.src = url;
+        fallback.style.display = 'none';
+        delBtn.style.display = 'inline';
+      } else {
+        if (img) img.remove();
+        const nick = (API.user && API.user.nickname) || '';
+        fallback.textContent = nick ? nick.charAt(0) : '';
+        if (!nick) fallback.innerHTML = '<i class="ti ti-bowl-chopsticks"></i>';
+        fallback.style.display = '';
+        delBtn.style.display = 'none';
+      }
+    }
+
+    function setupAvatarUpload() {
+      const input = document.getElementById('avatarInput');
+      const label = document.getElementById('avatarLabel');
+      const delBtn = document.getElementById('avatarDelete');
+      const changeBtn = document.getElementById('avatarChange');
+
+      changeBtn.addEventListener('click', () => input.click());
+
+      input.addEventListener('change', async () => {
+        const file = input.files && input.files[0];
+        input.value = '';
+        if (!file) return;
+        if (!file.type.startsWith('image/')) { alert('画像ファイルを選んでください'); return; }
+        if (file.size > 8 * 1024 * 1024) { alert('画像が大きすぎます（8MBまで）'); return; }
+        label.classList.add('uploading');
+        try {
+          await API.refresh();
+          const fd = new FormData();
+          fd.append('avatar', file);
+          const d = await API.upload('avatar_set.php', fd);
+          setAvatar(d.avatarUrl);
+        } catch (e) {
+          alert(e.message || '写真のアップロードに失敗しました');
+        } finally {
+          label.classList.remove('uploading');
+        }
+      });
+
+      delBtn.addEventListener('click', async () => {
+        if (!confirm('プロフィール写真を削除しますか？')) return;
+        try {
+          await API.refresh();
+          await API.post('avatar_delete.php', {});
+          setAvatar(null);
+        } catch (e) {
+          alert(e.message || '削除に失敗しました');
+        }
+      });
+    }
+
+    // === 保存 ===
+    function setupSave() {
+      const btn = document.getElementById('saveBtn');
+      btn.addEventListener('click', async () => {
+        const nickname = document.getElementById('nickname').value.trim();
+        if (!nickname) { alert('ニックネームを入力してください'); return; }
+        btn.disabled = true;
+        btn.textContent = '保存中…';
+        try {
+          await API.refresh();
+          await API.post('profile_update.php', {
+            nickname: nickname,
+            city: document.getElementById('city').value || '',
+            x_handle: document.getElementById('x_handle').value.trim().replace(/^@+/, ''),
+            bio: document.getElementById('bio').value.trim(),
+          });
+          await API.post('favorites_set.php', { shop_ids: favShopIds });
+          location.href = 'mypage.html';
+        } catch (e) {
+          alert(e.message || '保存に失敗しました');
+          btn.disabled = false;
+          btn.textContent = '保存する';
+        }
+      });
+
+      // 自己紹介の文字数カウント
+      const bio = document.getElementById('bio');
+      const count = document.getElementById('bioCount');
+      const upd = () => { count.textContent = bio.value.length; };
+      bio.addEventListener('input', upd);
+      upd();
+    }
+
+    // === 初期化：ログイン必須。現在の値をフォームに反映 ===
+    (async function init() {
+      try {
+        await API.refresh();
+      } catch (e) {
+        document.getElementById('stateBox').textContent = 'サーバーに接続できませんでした。時間をおいて再度お試しください。';
+        return;
+      }
+      if (!API.isLoggedIn()) {
+        location.href = 'login.html?next=' + encodeURIComponent(location.pathname);
+        return;
+      }
+      // Google登録直後の初回案内（このときはアカウント設定リンクを隠す）
+      if (new URLSearchParams(location.search).get('welcome') === '1') {
+        document.getElementById('welcomeNote').style.display = 'block';
+        document.getElementById('accountLink').style.display = 'none';
+      }
+
+      const u = API.user;
+      document.getElementById('nickname').value = u.nickname || '';
+      document.getElementById('city').value = u.city || '';
+      document.getElementById('x_handle').value = u.x_handle || '';
+      document.getElementById('bio').value = u.bio || '';
+
+      setAvatar(u.avatarUrl || null);
+      setupAvatarUpload();
+      setupSave();
+
+      // 推しのうどん屋（現在の選択を読み込む）
+      try {
+        const f = await API.get('favorites_get.php');
+        favShopIds = f.shopIds || [];
+      } catch (e) { favShopIds = []; }
+      renderFavSelected();
+      updateFavPicker();
+      setupFavorites();
+
+      document.getElementById('stateBox').style.display = 'none';
+      document.getElementById('editForm').style.display = 'block';
+    })();
+  </script>
+
+</body>
+</html>
