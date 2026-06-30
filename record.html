@@ -320,6 +320,17 @@
       margin-top: 2px;
     }
 
+    .visibility-note {
+      display: flex;
+      gap: 6px;
+      align-items: flex-start;
+      margin-top: 10px;
+      font-size: 12px;
+      line-height: 1.5;
+      color: #888;
+    }
+    .visibility-note i { color: #BA7517; font-size: 14px; margin-top: 1px; flex-shrink: 0; }
+
     /* 投稿ボタン */
     .btn-post {
       width: 100%;
@@ -553,6 +564,10 @@
           <div class="visibility-sub">自分だけが見える</div>
         </label>
       </div>
+      <p class="visibility-note">
+        <i class="ti ti-info-circle"></i>
+        「自分のみ」にした記録は、公開プロフィールのみんなの投稿・スタンプ・バッジ・制覇率には反映されません（あなたのマイページには反映されます）。
+      </p>
     </div>
 
     <!-- 投稿ボタン -->
