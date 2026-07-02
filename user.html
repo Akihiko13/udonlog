@@ -975,8 +975,14 @@
 
     // === 初期化：URLの ?id= からユーザーを取得して描画（ログイン不要）===
     (async function init() {
+      // URLからユーザーを取得（/＜username＞ 優先、無ければ ?u= / 旧 ?id= でも可）
+      // ※ きれいURLは内部リライトのため location.search は空 → パス名から取る
       const params = new URLSearchParams(location.search);
-      const uname  = (params.get('u') || '').trim();      // /username（.htaccessで ?u= に変換）
+      let uname = (params.get('u') || '').trim();
+      if (!uname) {
+        const m = location.pathname.match(/^\/([A-Za-z0-9_]{3,20})\/?$/);
+        if (m) uname = m[1];
+      }
       const userId = parseInt(params.get('id'), 10);      // 旧 ?id= も互換で受ける
       if (!uname && (!userId || userId <= 0)) {
         showState('ユーザーが指定されていません。<br><a href="shops.html">お店一覧へ</a>');
