@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <base href="/">
+  <title>新着投稿 — うどログ</title>
+  <meta name="description" content="うどログの新着投稿。誰がいつどのお店でどんな一杯を食べたか、みんなの記録を新着順で。">
+  <meta property="og:title" content="新着投稿 — うどログ">
+  <meta property="og:description" content="うどログの新着投稿。みんなのうどん記録を新着順で。">
+  <meta property="og:type" content="website">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --amber: #BA7517;
+      --amber-dark: #8A5510;
+      --amber-darker: #6F440C;
+      --amber-light: #FFF8EE;
+      --amber-border: #F0D9C0;
+      --bg: #FAFAF8;
+      --white: #fff;
+      --border: #e5e5e0;
+      --text: #1a1a1a;
+      --text-sub: #666;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      font-size: 16px;
+      min-height: 100vh;
+      padding-bottom: 4rem;
+    }
+
+    .page-header {
+      position: sticky;
+      top: 54px;
+      background: rgba(250,250,248,0.92);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 0.5px solid var(--border);
+      padding: 0 1.25rem;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      z-index: 100;
+    }
+    .header-title { font-size: 16px; font-weight: 600; }
+
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 1.5rem 1.25rem;
+    }
+
+    .feed-intro { color: var(--text-sub); font-size: 13px; margin-bottom: 1rem; }
+
+    /* 投稿カード（shop-detail の「みんなの投稿」を流用） */
+    .post-card {
+      background: var(--white);
+      border: 0.5px solid var(--border);
+      border-radius: 12px;
+      padding: 1rem;
+      margin-bottom: 10px;
+    }
+    .post-card:last-child { margin-bottom: 0; }
+
+    .post-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+    .post-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      flex-shrink: 0;
+      font-weight: 600;
+      color: #fff;
+      overflow: hidden;
+      text-decoration: none;
+    }
+    .post-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; display: block; }
+
+    .post-user-name { font-size: 14px; font-weight: 600; }
+    .post-user-link { color: inherit; text-decoration: none; }
+    .post-user-link:hover { color: var(--amber-dark); text-decoration: underline; }
+    .post-date { font-size: 12px; color: #aaa; margin-top: 1px; }
+
+    /* 店名（この投稿がどの店のものか） */
+    .post-shop {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--amber-dark);
+      text-decoration: none;
+      margin-bottom: 8px;
+    }
+    .post-shop:hover { text-decoration: underline; }
+    .post-shop i { font-size: 14px; }
+
+    .post-menu {
+      display: inline-block;
+      background: var(--amber-light);
+      color: var(--amber);
+      font-size: 12px;
+      font-weight: 600;
+      padding: 2px 10px;
+      border-radius: 99px;
+      margin-bottom: 6px;
+    }
+    .post-photo {
+      width: 100%;
+      height: 200px;
+      border-radius: 8px;
+      margin-bottom: 8px;
+      overflow: hidden;
+    }
+    .post-photo img { width: 100%; height: 100%; object-fit: cover; display: block; cursor: pointer; }
+    .post-comment { font-size: 14px; color: var(--text); line-height: 1.6; }
+
+    .post-likes {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-top: 10px;
+      font-size: 13px;
+      color: #aaa;
+      cursor: pointer;
+      width: fit-content;
+    }
+    .post-likes:hover { color: #e05a77; }
+    .post-likes.liked { color: #e05a77; }
+
+    .feed-more-btn {
+      display: block; width: 100%; margin-top: 14px; padding: 12px;
+      background: none; border: 0.5px solid var(--amber-border); border-radius: 10px;
+      color: var(--amber-dark); font-size: 14px; font-weight: 600; cursor: pointer;
+      font-family: inherit;
+    }
+    .feed-more-btn:hover { background: #fbf3e6; }
+    .feed-more-btn:disabled { opacity: 0.5; cursor: default; }
+
+    .feed-empty, .feed-end {
+      text-align: center; color: #aaa; font-size: 14px; padding: 2rem 0;
+    }
+
+    /* 写真ライトボックス */
+    .photo-lightbox {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.85);
+      display: none; align-items: center; justify-content: center; z-index: 1000; padding: 1rem;
+    }
+    .photo-lightbox.show { display: flex; }
+    .photo-lightbox img { max-width: 100%; max-height: 100%; border-radius: 8px; }
+
+    /* トースト */
+    .toast {
+      position: fixed; bottom: 2rem; left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: #1a1a1a; color: #fff; padding: 12px 20px; border-radius: 99px;
+      font-size: 14px; opacity: 0; transition: opacity 0.3s, transform 0.3s;
+      pointer-events: none; white-space: nowrap; z-index: 1100;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  </style>
+  <script src="api.js"></script>
+  <script src="header.js"></script>
+  <script src="analytics.js"></script>
+</head>
+<body>
+  <div class="page-header">
+    <span class="header-title">新着投稿</span>
+  </div>
+
+  <div class="container">
+    <p class="feed-intro">みんなのうどん記録を新着順で。タップして投稿者やお店を見に行けます。</p>
+    <div id="feedList"></div>
+    <div id="feedStatus"></div>
+  </div>
+
+  <div class="photo-lightbox" id="photoLightbox" onclick="closePhoto()">
+    <img id="photoLightboxImg" src="" alt="投稿写真">
+  </div>
+  <div class="toast" id="toast"></div>
+
+  <script src="shops-data.js"></script>
+  <script>
+    // 店ID → 店データ の逆引き（店名・きれいURL用のslugを引く）
+    const SHOP_BY_ID = {};
+    (typeof SHOPS !== 'undefined' ? SHOPS : []).forEach(s => { SHOP_BY_ID[s.id] = s; });
+
+    let nextBefore = null;   // 次ページのカーソル（null＝先頭 or 続きなし）
+    let hasMore = true;
+    let loading = false;
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"']/g, c => (
+        { '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]
+      ));
+    }
+
+    function formatPostDate(d) {
+      if (!d) return '';
+      const dt = new Date(d);
+      if (isNaN(dt)) return '';
+      return `${dt.getFullYear()}年${dt.getMonth() + 1}月${dt.getDate()}日`;
+    }
+
+    // 1件分のカードHTML
+    function postCardHtml(p) {
+      const menu = (p.menus && p.menus.length) ? p.menus.join('・') : '';
+      const dateStr = formatPostDate(p.visitDate || p.savedAt);
+      const nick = p.nickname || 'うどん好き';
+      const initial = escapeHtml((nick.charAt(0) || 'う'));
+      const avatarInner = p.avatarUrl
+        ? `<img src="${escapeHtml(p.avatarUrl)}" alt="${escapeHtml(nick)}">`
+        : initial;
+      const avatarHtml = p.username
+        ? `<a class="post-avatar" style="background:#BA7517" href="/${encodeURIComponent(p.username)}">${avatarInner}</a>`
+        : `<div class="post-avatar" style="background:#BA7517">${avatarInner}</div>`;
+      const nameInner = p.username
+        ? `<a class="post-user-link" href="/${encodeURIComponent(p.username)}">${escapeHtml(nick)}</a>`
+        : escapeHtml(nick);
+
+      // 店名リンク（SHOPSから引く。万一データに無ければ shop-detail に id で飛ばす）
+      const shop = SHOP_BY_ID[p.shopId];
+      let shopHtml = '';
+      if (shop) {
+        const href = 'shops/' + (shop.slug || ('shop' + shop.id));
+        shopHtml = `<a class="post-shop" href="${escapeHtml(href)}"><i class="ti ti-map-pin"></i>${escapeHtml(shop.name)}</a>`;
+      } else if (p.shopId) {
+        shopHtml = `<a class="post-shop" href="shop-detail.html?id=${p.shopId}"><i class="ti ti-map-pin"></i>お店を見る</a>`;
+      }
+
+      return `
+        <div class="post-card">
+          <div class="post-header">
+            ${avatarHtml}
+            <div>
+              <div class="post-user-name">${nameInner}</div>
+              <div class="post-date">${dateStr}</div>
+            </div>
+          </div>
+          ${shopHtml}
+          ${menu ? `<span class="post-menu">${escapeHtml(menu)}</span>` : ''}
+          ${p.photoUrl ? `<div class="post-photo"><img src="${escapeHtml(p.photoUrl)}" alt="投稿写真" loading="lazy" onclick="openPhoto(this.src)" onerror="this.parentNode.style.display='none'"></div>` : ''}
+          ${p.comment ? `<div class="post-comment">${escapeHtml(p.comment)}</div>` : ''}
+          <div class="post-likes${p.liked ? ' liked' : ''}" data-log="${p.logId}" onclick="toggleLike(this)" title="いいね">
+            <i class="ti ti-heart${p.liked ? '-filled' : ''}"></i>
+            <span class="post-like-count">${p.likeCount || 0}</span>
+          </div>
+        </div>`;
+    }
+
+    // 次の30件を取得して追記
+    async function loadMore() {
+      if (loading || !hasMore) return;
+      loading = true;
+      const statusEl = document.getElementById('feedStatus');
+      const btn = document.getElementById('feedMore');
+      if (btn) { btn.disabled = true; btn.textContent = '読み込み中…'; }
+      else statusEl.innerHTML = '<div class="feed-status" style="text-align:center;color:#aaa;padding:1rem;">読み込み中…</div>';
+
+      try {
+        const q = nextBefore ? ('?before_id=' + nextBefore) : '';
+        const res = await API.get('recent_logs.php' + q);
+        const posts = res.posts || [];
+        const listEl = document.getElementById('feedList');
+        listEl.insertAdjacentHTML('beforeend', posts.map(postCardHtml).join(''));
+
+        hasMore = !!res.hasMore;
+        nextBefore = res.nextBefore;
+
+        if (listEl.children.length === 0) {
+          statusEl.innerHTML =
+            '<div class="feed-empty">' +
+            '<img src="images/udomaru-hungry.svg" alt="うどまる" width="100" height="100" style="display:block;margin:0 auto 6px;">' +
+            'まだ公開された投稿がありません。</div>';
+        } else if (hasMore) {
+          renderMoreButton();
+        } else {
+          if (btn) btn.remove();
+          statusEl.innerHTML = '<div class="feed-end">これ以上の投稿はありません</div>';
+        }
+      } catch (e) {
+        statusEl.innerHTML =
+          '<div class="feed-empty">読み込みに失敗しました。<br>' +
+          '<button class="feed-more-btn" onclick="loadMore()">もう一度試す</button></div>';
+      } finally {
+        loading = false;
+      }
+    }
+
+    function renderMoreButton() {
+      const statusEl = document.getElementById('feedStatus');
+      let btn = document.getElementById('feedMore');
+      if (!btn) {
+        statusEl.innerHTML = '';
+        btn = document.createElement('button');
+        btn.id = 'feedMore';
+        btn.type = 'button';
+        btn.className = 'feed-more-btn';
+        btn.addEventListener('click', loadMore);
+        statusEl.appendChild(btn);
+      }
+      btn.disabled = false;
+      btn.textContent = 'もっと見る';
+    }
+
+    // いいねトグル（ログイン必須・サーバー保存）
+    async function toggleLike(el) {
+      const logId = parseInt(el.dataset.log, 10);
+      if (!logId || el.dataset.busy) return;
+      try {
+        await API.refresh();
+        if (!API.isLoggedIn()) {
+          location.href = 'login.html?next=' + encodeURIComponent(location.pathname + location.search);
+          return;
+        }
+        el.dataset.busy = '1';
+        const res = await API.post('like_toggle.php', { log_id: logId });
+        const liked = res.liked === 1;
+        el.classList.toggle('liked', liked);
+        el.querySelector('i').className = 'ti ti-heart' + (liked ? '-filled' : '');
+        el.querySelector('.post-like-count').textContent = res.count;
+      } catch (e) {
+        showToast(e.message || 'いいねに失敗しました');
+      } finally {
+        delete el.dataset.busy;
+      }
+    }
+
+    function openPhoto(src) {
+      document.getElementById('photoLightboxImg').src = src;
+      document.getElementById('photoLightbox').classList.add('show');
+      document.body.style.overflow = 'hidden';
+    }
+    function closePhoto() {
+      document.getElementById('photoLightbox').classList.remove('show');
+      document.body.style.overflow = '';
+    }
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2500);
+    }
+
+    // いいね状態を正しく出すため、先にログイン状態を確定してから読み込む
+    API.refresh().catch(() => {}).finally(loadMore);
+  </script>
+</body>
+</html>

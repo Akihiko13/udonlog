@@ -119,6 +119,7 @@
     if (!nav) return;
     if (user) {
       nav.innerHTML =
+        '<a href="feed.html">新着</a>' +
         '<a href="shops.html" class="ulog-hide-sm">お店を探す</a>' +
         '<a href="mypage.html">マイページ</a>' +
         '<a href="#" id="ulog-logout">ログアウト</a>';
@@ -133,6 +134,7 @@
       });
     } else {
       nav.innerHTML =
+        '<a href="feed.html">新着</a>' +
         '<a href="shops.html" class="ulog-hide-sm">お店を探す</a>' +
         '<a href="login.html">ログイン</a>' +
         '<a href="register.html" class="ulog-cta">無料登録</a>';
