@@ -10,6 +10,7 @@ SET NAMES utf8mb4;
 CREATE TABLE IF NOT EXISTS users (
   id            INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   email         VARCHAR(255) UNIQUE,                 -- メール（OAuth専用化に備えNULL許容）
+  username      VARCHAR(20)  UNIQUE,                 -- プロフィールURL用の一意名（半角英数字・_、小文字保存。例: udolog.com/kagawan）
   password_hash VARCHAR(255) NULL,                   -- パスワード（OAuthのみの人はNULL）
   nickname      VARCHAR(50)  NOT NULL,
   city          VARCHAR(20)  NULL,                   -- 活動エリア（よく行くエリア）

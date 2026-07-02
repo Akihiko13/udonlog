@@ -976,8 +976,9 @@
     // === 初期化：URLの ?id= からユーザーを取得して描画（ログイン不要）===
     (async function init() {
       const params = new URLSearchParams(location.search);
-      const userId = parseInt(params.get('id'), 10);
-      if (!userId || userId <= 0) {
+      const uname  = (params.get('u') || '').trim();      // /username（.htaccessで ?u= に変換）
+      const userId = parseInt(params.get('id'), 10);      // 旧 ?id= も互換で受ける
+      if (!uname && (!userId || userId <= 0)) {
         showState('ユーザーが指定されていません。<br><a href="shops.html">お店一覧へ</a>');
         return;
       }
@@ -987,7 +988,9 @@
 
       let data;
       try {
-        data = await API.get('user_logs.php?user_id=' + userId);
+        data = await API.get(uname
+          ? ('user_logs.php?u=' + encodeURIComponent(uname))
+          : ('user_logs.php?user_id=' + userId));
       } catch (e) {
         showState((e.message || 'プロフィールの取得に失敗しました') + '<br><a href="shops.html">お店一覧へ</a>');
         return;

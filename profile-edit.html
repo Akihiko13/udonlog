@@ -205,6 +205,13 @@
         <input type="text" id="nickname" maxlength="50" placeholder="例：さぬきうどん太郎">
       </div>
 
+      <!-- ユーザー名（プロフィールURL） -->
+      <div class="form-group">
+        <label>ユーザー名（プロフィールURL）</label>
+        <input type="text" id="username" maxlength="20" placeholder="例：sanuki_taro" autocapitalize="none" autocorrect="off" spellcheck="false">
+        <div style="font-size:12px;color:#aaa;margin-top:4px;">半角英数字とアンダースコア（_）で3〜20文字。あなたのプロフィールは udolog.com/ユーザー名 になります。</div>
+      </div>
+
       <!-- 活動エリア -->
       <div class="form-group">
         <label>活動エリア（よく行くエリア） <span class="optional">任意</span></label>
@@ -430,12 +437,17 @@
       btn.addEventListener('click', async () => {
         const nickname = document.getElementById('nickname').value.trim();
         if (!nickname) { alert('ニックネームを入力してください'); return; }
+        const username = document.getElementById('username').value.trim();
+        if (!/^[A-Za-z0-9_]{3,20}$/.test(username)) {
+          alert('ユーザー名は半角英数字とアンダースコア（_）で3〜20文字にしてください'); return;
+        }
         btn.disabled = true;
         btn.textContent = '保存中…';
         try {
           await API.refresh();
           await API.post('profile_update.php', {
             nickname: nickname,
+            username: username,
             city: document.getElementById('city').value || '',
             x_handle: document.getElementById('x_handle').value.trim().replace(/^@+/, ''),
             bio: document.getElementById('bio').value.trim(),
@@ -477,6 +489,7 @@
 
       const u = API.user;
       document.getElementById('nickname').value = u.nickname || '';
+      document.getElementById('username').value = u.username || '';
       document.getElementById('city').value = u.city || '';
       document.getElementById('x_handle').value = u.x_handle || '';
       document.getElementById('bio').value = u.bio || '';

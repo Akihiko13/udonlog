@@ -1128,13 +1128,13 @@
       const avatarInner = p.avatarUrl
         ? `<img src="${escapeHtml(p.avatarUrl)}" alt="${escapeHtml(nick)}">`
         : initial;
-      const avatarHtml = p.userId
-        ? `<a class="post-avatar" style="background:#BA7517" href="user.html?id=${p.userId}">${avatarInner}</a>`
+      const avatarHtml = p.username
+        ? `<a class="post-avatar" style="background:#BA7517" href="/${encodeURIComponent(p.username)}">${avatarInner}</a>`
         : `<div class="post-avatar" style="background:#BA7517">${avatarInner}</div>`;
       // ニックネームをタップするとその人のプロフィール（公開記録）へ。
       // Xリンクはプロフィールページに集約したため、ここには出さない。
-      const nameInner = p.userId
-        ? `<a class="post-user-link" href="user.html?id=${p.userId}">${escapeHtml(nick)}</a>`
+      const nameInner = p.username
+        ? `<a class="post-user-link" href="/${encodeURIComponent(p.username)}">${escapeHtml(nick)}</a>`
         : escapeHtml(nick);
       const nameHtml = `<div class="post-user-name">${nameInner}</div>`;
       return `

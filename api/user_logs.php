@@ -4,14 +4,23 @@
 // メールアドレスなどの非公開情報は返さない。
 require __DIR__ . '/lib.php';
 
+// プロフィールは username（?u=）で特定。互換のため user_id（?user_id=）も受ける。
+$uname   = normalize_username((string)($_GET['u'] ?? ''));
 $user_id = (int)($_GET['user_id'] ?? 0);
-if ($user_id <= 0) json_error('ユーザーが指定されていません');
 
-// 公開プロフィール（nickname / city / x_handle / avatar / bio のみ。emailは返さない）
-$st = db()->prepare('SELECT id, nickname, city, x_handle, avatar, bio FROM users WHERE id = ?');
-$st->execute([$user_id]);
+// 公開プロフィール（username / nickname / city / x_handle / avatar / bio のみ。emailは返さない）
+if ($uname !== '') {
+  $st = db()->prepare('SELECT id, username, nickname, city, x_handle, avatar, bio FROM users WHERE username = ?');
+  $st->execute([$uname]);
+} elseif ($user_id > 0) {
+  $st = db()->prepare('SELECT id, username, nickname, city, x_handle, avatar, bio FROM users WHERE id = ?');
+  $st->execute([$user_id]);
+} else {
+  json_error('ユーザーが指定されていません');
+}
 $u = $st->fetch();
 if (!$u) json_error('ユーザーが見つかりません', 404);
+$user_id = (int)$u['id'];   // 以降の記録・推し店クエリで使う
 
 // 公開記録のみ（古い順＝スタンプを押した順）
 $st = db()->prepare(
@@ -47,6 +56,7 @@ json_out([
   'favorites' => $favorites,
   'user' => [
     'id'        => (int)$u['id'],
+    'username'  => $u['username'],
     'nickname'  => $u['nickname'],
     'city'      => $u['city'],
     'xHandle'   => $u['x_handle'],

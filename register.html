@@ -583,6 +583,12 @@
       </div>
 
       <div class="form-group">
+        <label>ユーザー名（プロフィールURL）</label>
+        <input type="text" id="username" placeholder="例：sanuki_taro" maxlength="20" autocapitalize="none" autocorrect="off" spellcheck="false">
+        <div class="city-note">半角英数字とアンダースコア（_）で3〜20文字。あなたのプロフィールは udolog.com/ユーザー名 になります（後から変更できます）</div>
+      </div>
+
+      <div class="form-group">
         <label>活動エリア（よく行くエリア） <span class="optional">任意</span></label>
         <select id="city">
           <option value="">選択してください</option>
@@ -668,6 +674,7 @@
     const agreeCheckbox = document.getElementById('agree');
     const submitBtn = document.getElementById('submit-btn');
     const nicknameInput = document.getElementById('nickname');
+    const usernameInput = document.getElementById('username');
 
     function validateEmail(v) {
       return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
@@ -733,11 +740,13 @@
     }
 
     function updateSubmitBtn() {
-      submitBtn.disabled = !(agreeCheckbox.checked && nicknameInput.value.trim().length > 0);
+      const unmeOk = /^[A-Za-z0-9_]{3,20}$/.test(usernameInput.value.trim());
+      submitBtn.disabled = !(agreeCheckbox.checked && nicknameInput.value.trim().length > 0 && unmeOk);
     }
 
     agreeCheckbox.addEventListener('change', updateSubmitBtn);
     nicknameInput.addEventListener('input', updateSubmitBtn);
+    usernameInput.addEventListener('input', updateSubmitBtn);
 
     function showStep2(method) {
       document.getElementById('step1').classList.remove('active');
@@ -889,6 +898,7 @@
           email: emailInput.value.trim(),
           password: passwordInput.value,
           nickname: nicknameInput.value.trim(),
+          username: usernameInput.value.trim(),
           city: document.getElementById('city').value || '',
           x_handle: document.getElementById('x_handle').value.trim().replace(/^@+/, ''),
           bio: document.getElementById('bio').value.trim(),

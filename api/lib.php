@@ -103,10 +103,51 @@ function record_photo_url(int $logId): ?string {
   return 'uploads/records/' . $logId . '.jpg?v=' . filemtime($path);
 }
 
+// --- ユーザー名（プロフィールURL /username 用）---
+// 形式：半角英数字とアンダースコア、3〜20文字。大文字小文字は区別しない（小文字で保存・比較）。
+function normalize_username(string $name): string {
+  return strtolower(trim($name));
+}
+// 予約語（実在ページ・ディレクトリ・将来使いそうな語）。ユーザー名には使わせない。
+function is_reserved_username(string $name): bool {
+  static $reserved = [
+    'admin','api','app','about','account','assets','auth','blog','contact','css','faq',
+    'favicon','forgot-password','help','home','images','img','index','info','js','login',
+    'logout','mail','me','mypage','news','privacy','profile','profile-edit','record',
+    'register','reset-password','robots','root','search','settings','shop','shops','shop-detail',
+    'signin','signup','sitemap','static','support','terms','test','udolog','uploads','user',
+    'users','www',
+  ];
+  return in_array($name, $reserved, true);
+}
+// 妥当なユーザー名か検査。OKなら null、NGならエラーメッセージを返す。
+function username_error(string $name): ?string {
+  if ($name === '') return 'ユーザー名を入力してください';
+  if (!preg_match('/^[a-z0-9_]{3,20}$/', $name)) {
+    return 'ユーザー名は半角英数字とアンダースコア（_）で3〜20文字にしてください';
+  }
+  if (is_reserved_username($name)) return 'このユーザー名は使用できません';
+  return null;
+}
+// ニックネーム等から仮のユーザー名を自動生成（Google登録用。重複しない候補を返す）。
+function generate_username(PDO $pdo, string $seed): string {
+  $base = preg_replace('/[^a-z0-9_]/', '', strtolower($seed));
+  if (strlen($base) < 3) $base = 'user';
+  $base = substr($base, 0, 15);
+  if (is_reserved_username($base)) $base = 'user_' . $base;
+  $chk = $pdo->prepare('SELECT 1 FROM users WHERE username = ?');
+  for ($i = 0; $i < 50; $i++) {
+    $cand = ($i === 0) ? $base : $base . $i;
+    $chk->execute([$cand]);
+    if (!$chk->fetchColumn()) return $cand;
+  }
+  return $base . bin2hex(random_bytes(3));   // 万一の保険
+}
+
 // --- 認証ヘルパー ---
 function current_user(): ?array {
   if (empty($_SESSION['uid'])) return null;
-  $st = db()->prepare('SELECT id, email, nickname, city, x_handle, avatar, bio, password_hash FROM users WHERE id = ?');
+  $st = db()->prepare('SELECT id, email, username, nickname, city, x_handle, avatar, bio, password_hash FROM users WHERE id = ?');
   $st->execute([$_SESSION['uid']]);
   $u = $st->fetch();
   if (!$u) return null;

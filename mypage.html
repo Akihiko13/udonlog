@@ -1601,9 +1601,9 @@
         u.city ? (u.city + 'で活動中') : '香川のさぬきうどんを記録中';
 
       // 自分の公開プロフィールへのリンク（他の会員からの見え方）
-      if (u.id) {
+      if (u.username) {
         const link = document.getElementById('publicProfileLink');
-        link.href = 'user.html?id=' + u.id;
+        link.href = '/' + encodeURIComponent(u.username);
         link.style.display = 'inline-block';
       }
 

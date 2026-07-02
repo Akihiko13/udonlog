@@ -82,8 +82,11 @@ try {
     // 新規会員（パスワードなし＝OAuth専用）。ニックネームはGoogleの名前から。
     $nick = $name !== '' ? mb_substr($name, 0, 50)
           : ($email !== '' ? explode('@', $email)[0] : 'うどん好き');
-    $st = $pdo->prepare('INSERT INTO users (email, password_hash, nickname) VALUES (?, NULL, ?)');
-    $st->execute([($email !== '' ? $email : null), $nick]);
+    // プロフィールURL用のユーザー名を自動生成（メールのローカル部を種に。後からプロフィール編集で変更可）
+    $seed = $email !== '' ? explode('@', $email)[0] : $nick;
+    $username = generate_username($pdo, $seed);
+    $st = $pdo->prepare('INSERT INTO users (email, username, password_hash, nickname) VALUES (?, ?, NULL, ?)');
+    $st->execute([($email !== '' ? $email : null), $username, $nick]);
     $uid = (int)$pdo->lastInsertId();
   }
 

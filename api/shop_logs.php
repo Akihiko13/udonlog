@@ -12,7 +12,7 @@ $viewerId = $viewer ? (int)$viewer['id'] : 0;
 
 // 公開投稿（新しい順・最大100件）＋いいね数・自分のいいね有無
 $st = db()->prepare(
-  'SELECT l.id AS log_id, u.id AS user_id, u.nickname, u.x_handle, u.avatar,
+  'SELECT l.id AS log_id, u.id AS user_id, u.username, u.nickname, u.x_handle, u.avatar,
           l.menus, l.comment, l.visit_date, l.photo_count, l.created_at,
           (SELECT COUNT(*) FROM likes lk WHERE lk.log_id = l.id) AS like_count,
           (SELECT COUNT(*) FROM likes lk2 WHERE lk2.log_id = l.id AND lk2.user_id = ?) AS liked_by_me
@@ -26,6 +26,7 @@ foreach ($st as $r) {
   $posts[] = [
     'logId'     => (int)$r['log_id'],    // いいねの対象
     'userId'    => (int)$r['user_id'],   // 投稿者のプロフィールページ用
+    'username'  => $r['username'],       // プロフィールURL /username 用
     'nickname'  => $r['nickname'],
     'xHandle'   => $r['x_handle'],   // Xユーザー名（@なし。nullなら未設定）
     'avatarUrl' => avatar_url($r['avatar'] ?? null),

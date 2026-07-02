@@ -25,4 +25,12 @@
   # 店舗詳細のきれいなURL： /shops/＜slug＞ → shop-detail.html?slug=＜slug＞
   # （ブラウザのURLは /shops/yamagoeudon のまま。内部で詳細ページを表示）
   RewriteRule ^shops/([A-Za-z0-9_-]+)/?$ shop-detail.html?slug=$1 [L,QSA]
+
+  # 会員プロフィールのきれいなURL： /＜username＞ → user.html?u=＜username＞
+  # （ブラウザのURLは /kagawan のまま。内部でプロフィールページを表示）
+  # 実在するファイル・ディレクトリ（.html / api / uploads / images など）は除外し、
+  # そのまま表示する。名前空間の衝突を避けるため、このルールは必ず最後に置く。
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule ^([A-Za-z0-9_]{3,20})/?$ user.html?u=$1 [L,QSA]
 </IfModule>

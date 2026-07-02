@@ -8,6 +8,7 @@ $in    = body();
 $email = trim((string)($in['email'] ?? ''));
 $pass  = (string)($in['password'] ?? '');
 $nick  = trim((string)($in['nickname'] ?? ''));
+$username = normalize_username((string)($in['username'] ?? ''));
 $city  = trim((string)($in['city'] ?? ''));
 $xh    = ltrim(trim((string)($in['x_handle'] ?? '')), '@');   // 先頭の@は除去
 $bio   = trim((string)($in['bio'] ?? ''));
@@ -29,6 +30,7 @@ if (is_weak_password($pass)) {
 }
 if ($nick === '')           json_error('ニックネームを入力してください');
 if (mb_strlen($nick) > 50)  json_error('ニックネームは50文字以内にしてください');
+if ($uerr = username_error($username)) json_error($uerr);
 if (mb_strlen($city) > 20)  json_error('活動エリア名が長すぎます');
 if (mb_strlen($bio) > 500)  json_error('自己紹介は500文字以内にしてください');
 // Xユーザー名（任意）：半角英数字とアンダースコアのみ・15文字以内
@@ -43,12 +45,17 @@ $st = $pdo->prepare('SELECT id FROM users WHERE email = ?');
 $st->execute([$email]);
 if ($st->fetch()) json_error('このメールアドレスは既に登録されています', 409);
 
+// ユーザー名重複チェック
+$st = $pdo->prepare('SELECT id FROM users WHERE username = ?');
+$st->execute([$username]);
+if ($st->fetch()) json_error('このユーザー名は既に使われています', 409);
+
 // 登録（password_hashでハッシュ化して保存）
 $hash = password_hash($pass, PASSWORD_DEFAULT);
 $pdo->beginTransaction();
 try {
-  $st = $pdo->prepare('INSERT INTO users (email, password_hash, nickname, city, x_handle, bio) VALUES (?,?,?,?,?,?)');
-  $st->execute([$email, $hash, $nick, ($city !== '' ? $city : null), ($xh !== '' ? $xh : null), ($bio !== '' ? $bio : null)]);
+  $st = $pdo->prepare('INSERT INTO users (email, username, password_hash, nickname, city, x_handle, bio) VALUES (?,?,?,?,?,?,?)');
+  $st->execute([$email, $username, $hash, $nick, ($city !== '' ? $city : null), ($xh !== '' ? $xh : null), ($bio !== '' ? $bio : null)]);
   $uid = (int)$pdo->lastInsertId();
 
   // ログイン手段（パスワード）を記録 → 将来のGoogle/X連携と同じ仕組みで管理
@@ -69,6 +76,6 @@ unset($_SESSION['verified_email']);
 login_user($uid);
 json_out([
   'ok'   => true,
-  'user' => ['id' => $uid, 'email' => $email, 'nickname' => $nick, 'city' => ($city !== '' ? $city : null), 'x_handle' => ($xh !== '' ? $xh : null)],
+  'user' => ['id' => $uid, 'email' => $email, 'username' => $username, 'nickname' => $nick, 'city' => ($city !== '' ? $city : null), 'x_handle' => ($xh !== '' ? $xh : null)],
   'csrf' => csrf_token(),
 ]);
