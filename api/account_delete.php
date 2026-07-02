@@ -1,7 +1,8 @@
 <?php
 // 退会：自分のアカウントを完全に削除する（ログイン必須・パスワードで本人確認）
 // users を削除すると logs / auth_identities / ratings は ON DELETE CASCADE で自動削除される。
-// プロフィール写真ファイルは手動で削除し、最後にセッションを破棄する。
+// 写真ファイル（プロフィール・記録）はDB削除では消えないので、DBを消す前後で手動削除し、
+// 最後にセッションを破棄する。
 require __DIR__ . '/lib.php';
 require_post();
 require_csrf();
@@ -21,6 +22,14 @@ if (!empty($row['password_hash'])) {
   if (!password_verify($pass, $row['password_hash'])) {
     json_error('パスワードが違います', 401);
   }
+}
+
+// 記録写真ファイルを削除（logs は次のDELETEでCASCADE消去されるため、消える前に対象log_idの写真を消す）
+$st = db()->prepare('SELECT id FROM logs WHERE user_id = ?');
+$st->execute([$u['id']]);
+foreach ($st->fetchAll(PDO::FETCH_COLUMN) as $logId) {
+  $rp = __DIR__ . '/../uploads/records/' . (int)$logId . '.jpg';
+  if (is_file($rp)) @unlink($rp);
 }
 
 // 会員削除（関連データはCASCADEで自動削除）
