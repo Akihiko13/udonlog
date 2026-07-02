@@ -1,0 +1,5 @@
+User-agent: *
+Disallow: /api/
+Disallow: /uploads/
+
+Sitemap: https://udolog.com/sitemap.xml
