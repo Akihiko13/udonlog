@@ -562,7 +562,7 @@
       transition: width 0.4s;
     }
 
-    .progress-text { font-size: 11px; color: #aaa; }
+    .progress-text { font-size: 11px; color: #888; }
 
     .stamp-card.earned .progress-text {
       color: var(--amber);
@@ -752,7 +752,7 @@
       display: inline-flex;
     }
     .history-edit:hover { background: #f1efe9; color: var(--amber-dark); }
-    .history-empty { text-align: center; color: #aaa; font-size: 14px; padding: 1rem; }
+    .history-empty { text-align: center; color: #888; font-size: 14px; padding: 1rem; }
     /* エリア・月の折りたたみグループ */
     .group-block { margin-bottom: 8px; }
     .group-head {
@@ -1389,7 +1389,7 @@
       document.getElementById('visitedCount').textContent = `${uniqueShops.length}軒 / ${logs.length}杯`;
       const list = document.getElementById('visitedList');
       if (uniqueShops.length === 0) {
-        list.innerHTML = '<p style="color:#aaa;font-size:14px;text-align:center;padding:1rem;">まだ記録がありません</p>';
+        list.innerHTML = '<p style="color:#888;font-size:14px;text-align:center;padding:1rem;">まだ記録がありません</p>';
       } else {
         // エリア（市町）ごとにグループ化。軒数の多い順、各エリアは折りたたみ
         const byCity = {};

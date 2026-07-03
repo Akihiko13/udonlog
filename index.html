@@ -852,7 +852,7 @@
       function esc(s){ return String(s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
       var el = document.getElementById('homeNews');
       if (typeof NEWS === 'undefined' || !NEWS.length) {
-        el.innerHTML = '<div style="padding:11px 0;color:#aaa;font-size:14px;border-top:0.5px solid #f0eee9;">お知らせはまだありません。</div>';
+        el.innerHTML = '<div style="padding:11px 0;color:#888;font-size:14px;border-top:0.5px solid #f0eee9;">お知らせはまだありません。</div>';
         return;
       }
       el.innerHTML = NEWS.slice(0, 3).map(function (n) {

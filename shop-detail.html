@@ -571,7 +571,7 @@
       text-decoration: none;
     }
     .post-x-badge:hover { opacity: 0.85; }
-    .post-date { font-size: 12px; color: #aaa; margin-top: 1px; }
+    .post-date { font-size: 12px; color: #888; margin-top: 1px; }
     .posts-more-btn {
       display: block; width: 100%; margin-top: 10px; padding: 10px;
       background: none; border: 0.5px solid var(--amber-border); border-radius: 10px;
@@ -616,7 +616,7 @@
       gap: 4px;
       margin-top: 10px;
       font-size: 13px;
-      color: #aaa;
+      color: #888;
       cursor: pointer;
     }
 
@@ -816,7 +816,7 @@
     <div class="section">
       <div class="posts-header">
         <div class="section-title" style="margin-bottom:0">みんなの投稿</div>
-        <span style="font-size:13px;color:#aaa;" id="postsCount"></span>
+        <span style="font-size:13px;color:#888;" id="postsCount"></span>
       </div>
       <div id="postsList"></div>
       <button class="btn-more" onclick="alert('会員登録後にすべての投稿を見ることができます。')">
@@ -1104,7 +1104,7 @@
 
       if (allPosts.length === 0) {
         postsEl.innerHTML =
-          '<div style="text-align:center;color:#aaa;font-size:14px;padding:1.5rem 0;">' +
+          '<div style="text-align:center;color:#888;font-size:14px;padding:1.5rem 0;">' +
           '<img src="images/udomaru-hungry.svg" alt="うどまる" width="100" height="100" style="display:block;margin:0 auto 6px;">' +
           'まだ投稿がありません。<br>' +
           '<a href="record.html?id=' + shop.id +
