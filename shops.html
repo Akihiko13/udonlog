@@ -365,6 +365,32 @@
     .empty i { font-size: 40px; margin-bottom: 1rem; display: block; }
     .empty p { font-size: 15px; }
 
+    /* 店追加リクエスト枠 */
+    .shop-request {
+      max-width: 520px;
+      margin: 1.5rem auto 0;
+      background: var(--amber-light, #FFF8EE);
+      border: 0.5px solid var(--amber-border, #F0D9C0);
+      border-radius: 14px;
+      padding: 1.25rem 1.25rem 1.4rem;
+      text-align: center;
+    }
+    .shop-request-title { font-size: 15px; font-weight: 700; color: #1a1a1a; margin-bottom: 4px; }
+    .shop-request-desc { font-size: 13px; color: #666; line-height: 1.6; margin-bottom: 1rem; }
+    .shop-request-actions { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+    .shop-request-btn {
+      display: inline-flex; align-items: center; gap: 7px;
+      padding: 9px 18px; border-radius: 99px;
+      font-size: 13px; font-weight: 600; text-decoration: none;
+    }
+    .shop-request-btn i { font-size: 15px; }
+    .shop-request-btn.x { background: #000; color: #fff; }
+    .shop-request-btn.x:hover { opacity: 0.85; }
+    .shop-request-btn.mail {
+      background: #fff; color: #8A5510; border: 0.5px solid #F0D9C0;
+    }
+    .shop-request-btn.mail:hover { background: #fbf3e6; }
+
     /* TOAST */
     .toast {
       position: fixed;
@@ -476,6 +502,20 @@
     <div class="empty" id="empty">
       <img src="images/udomaru-hungry.svg" alt="うどまる" width="110" height="110" style="display:block;margin:0 auto 6px;">
       <p>該当するお店が見つかりませんでした</p>
+    </div>
+
+    <!-- 店追加リクエスト（探している店が一覧に無いとき） -->
+    <div class="shop-request">
+      <div class="shop-request-title">探しているお店が見つからない？</div>
+      <div class="shop-request-desc">まだ掲載していないお店は、店名とエリアを教えていただければ追加します。<br>公式XのDM、またはメールからお気軽にどうぞ🍜</div>
+      <div class="shop-request-actions">
+        <a class="shop-request-btn x" href="https://x.com/udolog_com" target="_blank" rel="noopener">
+          <i class="ti ti-brand-x"></i>XのDMでリクエスト
+        </a>
+        <a class="shop-request-btn mail" href="mailto:info@udolog.com?subject=%E3%81%8A%E5%BA%97%E3%81%AE%E8%BF%BD%E5%8A%A0%E3%83%AA%E3%82%AF%E3%82%A8%E3%82%B9%E3%83%88&body=%E5%BA%97%E5%90%8D%EF%BC%9A%0A%E3%82%A8%E3%83%AA%E3%82%A2%EF%BC%88%E5%B8%82%E7%94%BA%EF%BC%89%EF%BC%9A%0A%EF%BC%88%E3%82%8F%E3%81%8B%E3%82%8C%E3%81%B0%E6%89%80%E5%9C%A8%E5%9C%B0%E3%82%84URL%EF%BC%89%EF%BC%9A%0A">
+          <i class="ti ti-mail"></i>メールでリクエスト
+        </a>
+      </div>
     </div>
   </div>
 
