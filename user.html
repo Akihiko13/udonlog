@@ -104,14 +104,16 @@
     .profile-sub { font-size: 13px; color: var(--text-sub); }
     .profile-bio { font-size: 13px; color: var(--text); margin-top: 6px; line-height: 1.6; white-space: pre-wrap; word-break: break-word; }
     /* フォロワー数・フォロー中数 */
-    .profile-stats { display: flex; gap: 16px; margin-top: 8px; font-size: 13px; color: var(--text-sub); }
+    .profile-stats { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 8px; font-size: 13px; color: var(--text-sub); }
+    .profile-stats span { white-space: nowrap; }   /* 「フォロワー」等が1文字ずつ縦折れしないように */
     .profile-stats b { color: var(--text); font-weight: 700; }
     /* フォローボタン */
     .follow-btn {
       display: inline-flex; align-items: center; gap: 6px;
       background: #8A5510; color: #fff; border: none; border-radius: 99px;
-      padding: 9px 22px; font-size: 14px; font-weight: 600; cursor: pointer;
-      font-family: inherit; margin-bottom: 1.5rem;
+      padding: 8px 18px; font-size: 14px; font-weight: 600; cursor: pointer;
+      font-family: inherit;
+      align-self: flex-start; flex-shrink: 0;   /* プロフィール行の右上（ユーザー名の右）に配置 */
     }
     .follow-btn:hover { background: #6F440C; }
     .follow-btn:disabled { opacity: 0.6; cursor: default; }
@@ -385,7 +387,7 @@
       <!-- プロフィール -->
       <div class="profile">
         <div class="profile-avatar" id="profileAvatar"><i class="ti ti-bowl-chopsticks"></i></div>
-        <div style="min-width:0;">
+        <div style="min-width:0; flex:1;">
           <div class="profile-name" id="profileName"></div>
           <div class="profile-sub" id="profileSub">香川のさぬきうどんを記録中</div>
           <div class="profile-bio" id="profileBio" style="display:none;"></div>
@@ -394,10 +396,9 @@
             <span><b id="followingCount">0</b> フォロー中</span>
           </div>
         </div>
+        <!-- フォローボタン（他の会員のページでのみ表示。ユーザー名の右側） -->
+        <button class="follow-btn" id="followBtn" style="display:none;" onclick="toggleFollow()"></button>
       </div>
-
-      <!-- フォローボタン（他の会員のページでのみ表示） -->
-      <button class="follow-btn" id="followBtn" style="display:none;" onclick="toggleFollow()"></button>
 
       <!-- 推しのうどん屋 -->
       <div id="favSection" style="display:none;margin-bottom:1.5rem;">
