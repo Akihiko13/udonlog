@@ -99,7 +99,7 @@ CREATE TABLE IF NOT EXISTS comments (
   id         INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   log_id     INT UNSIGNED NOT NULL,                     -- logs.id（どの投稿へのコメントか）
   user_id    INT UNSIGNED NOT NULL,                     -- コメントした会員
-  body       VARCHAR(300) NOT NULL,                     -- 本文（最大300文字）
+  body       VARCHAR(140) NOT NULL,                     -- 本文（最大140文字。投稿のひとこと感想と統一）
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   KEY idx_log (log_id, id),                             -- 投稿ごとに新着順で引く用
   CONSTRAINT fk_cmt_log  FOREIGN KEY (log_id)  REFERENCES logs(id)  ON DELETE CASCADE,

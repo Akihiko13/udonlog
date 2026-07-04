@@ -110,7 +110,7 @@
     var footer = loggedIn
       ? '<div class="ulog-cmt-form">' +
           '<input type="text" class="ulog-cmt-input" id="ulog-cmt-input-' + logId + '" ' +
-            'maxlength="300" placeholder="コメントを書く…" enterkeyhint="send">' +
+            'maxlength="140" placeholder="コメントを書く…" enterkeyhint="send">' +
           '<button class="ulog-cmt-send" onclick="ulogCmtSubmit(' + logId + ')">送信</button>' +
         '</div>'
       : '<a class="ulog-cmt-login" href="' + loginUrl() + '">ログインしてコメント</a>';

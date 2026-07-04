@@ -12,7 +12,7 @@ $log_id = (int)($in['log_id'] ?? 0);
 $text   = trim((string)($in['body'] ?? ''));
 if ($log_id <= 0) json_error('投稿が指定されていません');
 if ($text === '') json_error('コメントを入力してください');
-if (mb_strlen($text) > 300) json_error('コメントは300文字までです');
+if (mb_strlen($text) > 140) json_error('コメントは140文字までです');
 
 // 対象投稿の存在＋コメント可否（非公開は本人のみ）
 $st = db()->prepare('SELECT id, user_id, is_public FROM logs WHERE id = ?');
