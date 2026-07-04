@@ -154,9 +154,10 @@
       .ulog-tabbar { display: flex; }
       /* タブバーの高さぶん本文下部に余白を確保（バーを出すページだけ） */
       body.ulog-has-tabbar { padding-bottom: calc(62px + env(safe-area-inset-bottom)); }
-      /* 下部タブバーがある時は上部ヘッダーのナビは冗長なので隠す。
-         「うどログ」ロゴだけ残す（認証ページ等バー無しのページではナビを維持）*/
-      body.ulog-has-tabbar .ulog-nav { display: none; }
+      /* モバイルでは上部ヘッダーのナビを隠して「うどログ」ロゴだけ残す。
+         通常ページはナビを下部タブバーへ集約。認証ページ(タブバー無し)も
+         ログイン等に集中できるようナビは出さない（ロゴからホームへは戻れる）。*/
+      .ulog-nav { display: none; }
     }
   `;
 
