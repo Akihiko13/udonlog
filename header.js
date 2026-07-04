@@ -11,6 +11,11 @@
   // 前回のログイン状態を覚えておくキー（ナビの初期表示に使う）
   var AUTH_CACHE = 'ulog_authed';
 
+  // お店選びシート用の状態（最近の店キャッシュ／SHOPS遅延読み込み管理）
+  var recentCache = null;
+  var shopsLoading = false;
+  var shopsWaiters = [];
+
   // --- ヘッダー用スタイル（他ページのCSSと衝突しないよう ulog- 接頭辞で統一）---
   // body の padding-top をここで確保しておくことで、ヘッダー挿入時に本文が
   // ガクッと下がるのを防ぐ（JSでの後付けをやめCSSで最初から確保）。
@@ -153,6 +158,78 @@
     .ulog-fab i { font-size: 28px; line-height: 1; color: #fff; }
     .ulog-fab:active { background: #8A5510; }
 
+    /* --- 記録：お店選びシート（FABから開く） ------------------------------ */
+    .ulog-sheet-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 600;
+      background: rgba(0,0,0,0.4);
+      display: none;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+    .ulog-sheet-overlay.show { display: block; opacity: 1; }
+    body.ulog-sheet-open { overflow: hidden; }
+    .ulog-sheet {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      display: flex;
+      flex-direction: column;
+      max-height: 82vh;
+      background: #FAFAF8;
+      border-radius: 18px 18px 0 0;
+      padding: 10px 16px calc(14px + env(safe-area-inset-bottom));
+      box-shadow: 0 -6px 24px rgba(0,0,0,0.18);
+      transform: translateY(100%);
+      transition: transform 0.25s ease;
+      font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+    }
+    .ulog-sheet-overlay.show .ulog-sheet { transform: translateY(0); }
+    .ulog-sheet-handle {
+      width: 40px; height: 4px; border-radius: 99px;
+      background: #d8d3c8; margin: 2px auto 12px;
+    }
+    .ulog-sheet-title { font-size: 16px; font-weight: 700; color: #1a1a1a; margin-bottom: 12px; }
+    .ulog-sheet-search {
+      display: flex; align-items: center; gap: 8px;
+      background: #fff; border: 0.5px solid #e5e5e0; border-radius: 10px;
+      padding: 10px 12px; margin-bottom: 12px; flex-shrink: 0;
+    }
+    .ulog-sheet-search i { color: #999; font-size: 18px; }
+    .ulog-sheet-search input {
+      flex: 1; min-width: 0; border: none; outline: none; background: none;
+      font-size: 15px; color: #1a1a1a; font-family: inherit;
+    }
+    .ulog-sheet-body { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+    .ulog-sheet-label { font-size: 12px; font-weight: 700; color: #999; margin: 4px 2px 6px; }
+    .ulog-sheet-row {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 8px; border-radius: 10px; text-decoration: none; color: inherit;
+    }
+    .ulog-sheet-row:active { background: #f0ece3; }
+    .ulog-sheet-row-icon {
+      width: 38px; height: 38px; flex-shrink: 0; border-radius: 9px;
+      background: #FFF8EE; display: flex; align-items: center; justify-content: center;
+    }
+    .ulog-sheet-row-icon i { color: #BA7517; font-size: 19px; }
+    .ulog-sheet-row-main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+    .ulog-sheet-row-name {
+      font-size: 15px; font-weight: 600; color: #1a1a1a;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .ulog-sheet-row-meta { font-size: 12px; color: #888; }
+    .ulog-sheet-row-add { color: #BA7517; font-size: 20px; flex-shrink: 0; }
+    .ulog-sheet-empty { text-align: center; color: #999; font-size: 14px; padding: 24px 12px; line-height: 1.6; }
+    .ulog-sheet-all {
+      display: flex; align-items: center; justify-content: center; gap: 4px;
+      flex-shrink: 0; margin-top: 8px; padding: 13px;
+      border-top: 0.5px solid #e5e5e0;
+      color: #8A5510; font-size: 14px; font-weight: 600; text-decoration: none;
+    }
+    .ulog-sheet-all:active { opacity: 0.6; }
+
     @media (max-width: 640px) {
       .ulog-tabbar { display: flex; }
       /* タブバーの高さぶん本文下部に余白を確保（バーを出すページだけ） */
@@ -233,7 +310,161 @@
     fab.href = 'shops.html';
     fab.setAttribute('aria-label', 'うどんを記録する');
     fab.innerHTML = '<i class="ti ti-plus"></i>';
+    // タップでお店選びシートを開く（JS無効時は href=shops.html にフォールバック）
+    fab.addEventListener('click', function (e) { e.preventDefault(); openSheet(); });
     document.body.appendChild(fab);
+
+    setupSheet();
+  }
+
+  // === お店選びシート ========================================================
+  function esc(s) {
+    return String(s).replace(/[&<>"']/g, function (c) {
+      return { '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c];
+    });
+  }
+
+  // 記録ページへのリンク（お店情報をURLに載せる。record.html が読む形式）
+  function recordHref(s) {
+    return 'record.html?id=' + s.id +
+      '&slug=' + encodeURIComponent(s.slug || '') +
+      '&name=' + encodeURIComponent(s.name) +
+      '&city=' + encodeURIComponent(s.city) +
+      '&type=' + encodeURIComponent(s.type);
+  }
+
+  function shopRowHtml(s) {
+    return '<a class="ulog-sheet-row" href="' + recordHref(s) + '">' +
+      '<span class="ulog-sheet-row-icon"><i class="ti ti-bowl-chopsticks"></i></span>' +
+      '<span class="ulog-sheet-row-main">' +
+        '<span class="ulog-sheet-row-name">' + esc(s.name) + '</span>' +
+        '<span class="ulog-sheet-row-meta">' + esc(s.city) + ' ・ ' + esc(s.type) + '</span>' +
+      '</span>' +
+      '<i class="ti ti-plus ulog-sheet-row-add"></i></a>';
+  }
+
+  function shopById(id) {
+    if (typeof SHOPS === 'undefined') return null;
+    for (var i = 0; i < SHOPS.length; i++) { if (SHOPS[i].id === id) return SHOPS[i]; }
+    return null;
+  }
+
+  // 検索・最近の店に必要な SHOPS を（無ければ）遅延読み込みしてから cb を呼ぶ
+  function ensureShops(cb) {
+    if (typeof SHOPS !== 'undefined') { cb(); return; }
+    shopsWaiters.push(cb);
+    if (shopsLoading) return;
+    shopsLoading = true;
+    var sc = document.createElement('script');
+    sc.src = 'shops-data.js';
+    sc.onload = function () {
+      shopsLoading = false;
+      var w = shopsWaiters; shopsWaiters = [];
+      w.forEach(function (f) { f(); });
+    };
+    sc.onerror = function () {
+      shopsLoading = false; shopsWaiters = [];
+      var body = document.getElementById('ulog-sheet-body');
+      if (body) body.innerHTML = '<div class="ulog-sheet-empty">お店データの読み込みに失敗しました</div>';
+    };
+    document.head.appendChild(sc);
+  }
+
+  // 最近記録したお店（重複を除いた直近6軒）を取得。SHOPS読み込み後に呼ぶこと。
+  function loadRecent(cb) {
+    if (recentCache) { cb(recentCache); return; }
+    if (typeof API === 'undefined') { cb([]); return; }
+    API.get('my_logs.php').then(function (d) {
+      var logs = (d && d.logs) || [];
+      var recent = [], seen = {};
+      // my_logs.php は id 昇順（古い順）。末尾から見て新しい順に拾う。
+      for (var i = logs.length - 1; i >= 0 && recent.length < 6; i--) {
+        var sid = logs[i].shopId;
+        if (seen[sid]) continue;
+        seen[sid] = 1;
+        var s = shopById(sid);
+        if (s && s.status !== '閉店') recent.push(s);
+      }
+      recentCache = recent;
+      cb(recent);
+    }).catch(function () { cb([]); });
+  }
+
+  function renderRecent() {
+    var body = document.getElementById('ulog-sheet-body');
+    if (!body) return;
+    loadRecent(function (list) {
+      var input = document.getElementById('ulog-sheet-input');
+      if (input && input.value.trim()) return;   // 途中で検索し始めていたら上書きしない
+      if (!list.length) {
+        body.innerHTML = '<div class="ulog-sheet-empty">店名を検索するか、<br>「お店一覧から探す」からお店を選んでください</div>';
+        return;
+      }
+      body.innerHTML = '<div class="ulog-sheet-label">最近記録したお店</div>' +
+        list.map(shopRowHtml).join('');
+    });
+  }
+
+  function doSearch(q) {
+    var body = document.getElementById('ulog-sheet-body');
+    if (!body) return;
+    ensureShops(function () {
+      var res = SHOPS.filter(function (s) {
+        return s.status !== '閉店' &&
+          (((s.name || '').indexOf(q) >= 0) || ((s.kana || '').indexOf(q) >= 0));
+      }).slice(0, 30);
+      if (!res.length) {
+        body.innerHTML = '<div class="ulog-sheet-empty">「' + esc(q) + '」に一致するお店がありません</div>';
+        return;
+      }
+      body.innerHTML = res.map(shopRowHtml).join('');
+    });
+  }
+
+  function openSheet() {
+    var overlay = document.getElementById('ulog-sheet-overlay');
+    if (!overlay) return;
+    var input = document.getElementById('ulog-sheet-input');
+    if (input) input.value = '';
+    var body = document.getElementById('ulog-sheet-body');
+    if (body) body.innerHTML = '<div class="ulog-sheet-empty">読み込み中…</div>';
+    overlay.classList.add('show');
+    document.body.classList.add('ulog-sheet-open');
+    ensureShops(function () { renderRecent(); });
+  }
+
+  function closeSheet() {
+    var overlay = document.getElementById('ulog-sheet-overlay');
+    if (!overlay) return;
+    overlay.classList.remove('show');
+    document.body.classList.remove('ulog-sheet-open');
+  }
+
+  function setupSheet() {
+    if (document.getElementById('ulog-sheet-overlay')) return;
+    var ov = document.createElement('div');
+    ov.className = 'ulog-sheet-overlay';
+    ov.id = 'ulog-sheet-overlay';
+    ov.innerHTML =
+      '<div class="ulog-sheet" role="dialog" aria-label="お店を選んで記録">' +
+        '<div class="ulog-sheet-handle"></div>' +
+        '<div class="ulog-sheet-title">どのお店で食べた？</div>' +
+        '<div class="ulog-sheet-search"><i class="ti ti-search"></i>' +
+          '<input type="text" id="ulog-sheet-input" placeholder="店名で検索…" autocomplete="off" enterkeyhint="search"></div>' +
+        '<div class="ulog-sheet-body" id="ulog-sheet-body"></div>' +
+        '<a class="ulog-sheet-all" href="shops.html">お店一覧から探す <i class="ti ti-chevron-right"></i></a>' +
+      '</div>';
+    document.body.appendChild(ov);
+    // 背景（オーバーレイ自身）タップで閉じる。シート内は閉じない。
+    ov.addEventListener('click', function (e) { if (e.target === ov) closeSheet(); });
+    var input = document.getElementById('ulog-sheet-input');
+    input.addEventListener('input', function () {
+      var q = input.value.trim();
+      if (q) doSearch(q); else renderRecent();
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') closeSheet();
+    });
   }
 
   function renderTabbar(user) {
