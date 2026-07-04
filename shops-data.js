@@ -161,4 +161,5 @@ const SHOPS = [
   { id:152, name:"さぬきうどん 塩がま屋", kana:"さぬきうどん しおがまや", city:"宇多津町", type:"一般", dish:"", hours:"11:00〜20:30", closed:"水曜日", parking:"あり", slug:"shiogamaya" },
   { id:153, name:"讃岐うどん むぎ", kana:"さぬきうどん むぎ", city:"宇多津町", type:"セルフ", dish:"", hours:"10:00〜14:30", closed:"火曜日・金曜日", parking:"あり", slug:"sanukiudon-mugi" },
   { id:154, name:"長楽", kana:"ちょうらく", city:"宇多津町", type:"一般", dish:"", hours:"11:00〜14:00頃（麺売切れ次第終了）", closed:"水曜日・木曜日", parking:"あり", slug:"choraku" },
+  { id:155, name:"情熱うどん わらく", kana:"わらく", city:"高松市", type:"一般", dish:"", hours:"10:30〜16:00", closed:"水曜日", parking:"あり", slug:"waraku" },
 ];
