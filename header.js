@@ -132,23 +132,26 @@
     .ulog-tab.active { color: #8A5510; }
     .ulog-tab:active { opacity: 0.6; }
 
-    /* 中央の「＋（記録）」ボタン */
-    .ulog-tab-add {
-      flex: 0 0 auto;
-      display: flex;
+    /* 記録用の浮動ボタン（FAB）。タブバーの上・右下に浮かせる（X本家と同じ発想）。
+       表示可否は renderTabbar が .ulog-fab-on の付け外しで制御する。*/
+    .ulog-fab {
+      display: none;                 /* 既定は非表示 */
+      position: fixed;
+      right: 16px;
+      bottom: calc(58px + env(safe-area-inset-bottom) + 16px);  /* タブバーの少し上 */
+      z-index: 501;                  /* タブバー(500)より前 */
       align-items: center;
       justify-content: center;
-      width: 46px;
-      height: 46px;
-      margin: 0 4px;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
       background: #BA7517;
       color: #fff !important;
-      border-radius: 50%;
       text-decoration: none;
-      box-shadow: 0 3px 10px rgba(186,117,23,0.35);
+      box-shadow: 0 4px 14px rgba(186,117,23,0.45);
     }
-    .ulog-tab-add i { font-size: 26px; line-height: 1; color: #fff; }
-    .ulog-tab-add:active { background: #8A5510; }
+    .ulog-fab i { font-size: 28px; line-height: 1; color: #fff; }
+    .ulog-fab:active { background: #8A5510; }
 
     @media (max-width: 640px) {
       .ulog-tabbar { display: flex; }
@@ -158,6 +161,8 @@
          通常ページはナビを下部タブバーへ集約。認証ページ(タブバー無し)も
          ログイン等に集中できるようナビは出さない（ロゴからホームへは戻れる）。*/
       .ulog-nav { display: none; }
+      /* 記録FABはモバイルかつ表示ONのときだけ出す */
+      .ulog-fab.ulog-fab-on { display: flex; }
     }
   `;
 
@@ -220,6 +225,15 @@
     bar.setAttribute('aria-label', 'メインメニュー');
     document.body.appendChild(bar);
     document.body.classList.add('ulog-has-tabbar');   // 本文下部の余白を有効化
+
+    // 記録用の浮動ボタン（FAB）。表示可否は renderTabbar で切り替える。
+    var fab = document.createElement('a');
+    fab.className = 'ulog-fab';
+    fab.id = 'ulog-fab';
+    fab.href = 'shops.html';
+    fab.setAttribute('aria-label', 'うどんを記録する');
+    fab.innerHTML = '<i class="ti ti-plus"></i>';
+    document.body.appendChild(fab);
   }
 
   function renderTabbar(user) {
@@ -232,11 +246,10 @@
              '<i class="ti ti-' + icon + '"></i><span>' + label + '</span></a>';
     }
     if (user) {
+      // ログイン中は移動用の3タブ。記録は右下のFAB（下記）に分離。
       bar.innerHTML =
         tab('feed.html', 'feed', 'home', '新着') +
         tab('shops.html', 'shops', 'search', '探す') +
-        '<a class="ulog-tab-add" href="shops.html" aria-label="うどんを記録する">' +
-        '<i class="ti ti-plus"></i></a>' +
         tab('mypage.html', 'mypage', 'user', 'マイページ');
     } else {
       bar.innerHTML =
@@ -244,6 +257,13 @@
         tab('shops.html', 'shops', 'search', '探す') +
         tab('login.html', 'login', 'login', 'ログイン') +
         tab('register.html', 'register', 'user-plus', '登録');
+    }
+
+    // 記録FAB：ログイン中かつ「探す/記録」ページ以外で表示（重複回避）。
+    var fab = document.getElementById('ulog-fab');
+    if (fab) {
+      var showFab = !!user && cur !== 'shops' && cur !== 'record';
+      fab.classList.toggle('ulog-fab-on', showFab);
     }
   }
 
