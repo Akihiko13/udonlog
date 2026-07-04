@@ -15,6 +15,7 @@ $st = db()->prepare(
   'SELECT l.id AS log_id, u.id AS user_id, u.username, u.nickname, u.x_handle, u.avatar,
           l.menus, l.comment, l.visit_date, l.photo_count, l.created_at,
           (SELECT COUNT(*) FROM likes lk WHERE lk.log_id = l.id) AS like_count,
+          (SELECT COUNT(*) FROM comments cm WHERE cm.log_id = l.id) AS comment_count,
           (SELECT COUNT(*) FROM likes lk2 WHERE lk2.log_id = l.id AND lk2.user_id = ?) AS liked_by_me
    FROM logs l JOIN users u ON u.id = l.user_id
    WHERE l.shop_id = ? AND l.is_public = 1
@@ -37,6 +38,7 @@ foreach ($st as $r) {
     'photoCount'=> (int)$r['photo_count'],
     'savedAt'   => $r['created_at'],
     'likeCount' => (int)$r['like_count'],
+    'commentCount' => (int)$r['comment_count'],
     'liked'     => ((int)$r['liked_by_me']) > 0 ? 1 : 0,
   ];
 }

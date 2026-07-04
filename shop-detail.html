@@ -671,6 +671,7 @@
   <link rel="manifest" href="site.webmanifest">
   <meta name="theme-color" content="#BA7517">
   <script src="api.js"></script>
+  <script src="comments.js"></script>
   <meta name="description" content="お店の情報とみんなの投稿。あなたの訪問記録・常連カードも。">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="うどログ">
@@ -1149,10 +1150,17 @@
             ${menu ? `<span class="post-menu">${escapeHtml(menu)}</span>` : ''}
             ${p.photoUrl ? `<div class="post-photo"><img src="${escapeHtml(p.photoUrl)}" alt="投稿写真" loading="lazy" onclick="openPhoto(this.src)" onerror="this.parentNode.style.display='none'"></div>` : ''}
             ${p.comment ? `<div class="post-comment">${escapeHtml(p.comment)}</div>` : ''}
-            <div class="post-likes${p.liked ? ' liked' : ''}" data-log="${p.logId}" onclick="toggleLike(this)" title="いいね">
-              <i class="ti ti-heart${p.liked ? '-filled' : ''}"></i>
-              <span class="post-like-count">${p.likeCount || 0}</span>
+            <div class="ulog-post-actions">
+              <div class="post-likes${p.liked ? ' liked' : ''}" data-log="${p.logId}" onclick="toggleLike(this)" title="いいね">
+                <i class="ti ti-heart${p.liked ? '-filled' : ''}"></i>
+                <span class="post-like-count">${p.likeCount || 0}</span>
+              </div>
+              <div class="ulog-cmt-btn" onclick="ulogCmtToggle(${p.logId})" title="コメント">
+                <i class="ti ti-message-circle"></i>
+                <span id="ulog-cmt-count-${p.logId}">${p.commentCount || 0}</span>
+              </div>
             </div>
+            <div class="ulog-cmt-box" id="ulog-cmt-box-${p.logId}" hidden></div>
           </div>`;
     }
 

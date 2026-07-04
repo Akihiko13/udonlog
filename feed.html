@@ -176,6 +176,7 @@
     .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
   </style>
   <script src="api.js"></script>
+  <script src="comments.js"></script>
   <script src="header.js"></script>
   <script src="analytics.js"></script>
 </head>
@@ -257,10 +258,17 @@
           ${menu ? `<span class="post-menu">${escapeHtml(menu)}</span>` : ''}
           ${p.photoUrl ? `<div class="post-photo"><img src="${escapeHtml(p.photoUrl)}" alt="投稿写真" loading="lazy" onclick="openPhoto(this.src)" onerror="this.parentNode.style.display='none'"></div>` : ''}
           ${p.comment ? `<div class="post-comment">${escapeHtml(p.comment)}</div>` : ''}
-          <div class="post-likes${p.liked ? ' liked' : ''}" data-log="${p.logId}" onclick="toggleLike(this)" title="いいね">
-            <i class="ti ti-heart${p.liked ? '-filled' : ''}"></i>
-            <span class="post-like-count">${p.likeCount || 0}</span>
+          <div class="ulog-post-actions">
+            <div class="post-likes${p.liked ? ' liked' : ''}" data-log="${p.logId}" onclick="toggleLike(this)" title="いいね">
+              <i class="ti ti-heart${p.liked ? '-filled' : ''}"></i>
+              <span class="post-like-count">${p.likeCount || 0}</span>
+            </div>
+            <div class="ulog-cmt-btn" onclick="ulogCmtToggle(${p.logId})" title="コメント">
+              <i class="ti ti-message-circle"></i>
+              <span id="ulog-cmt-count-${p.logId}">${p.commentCount || 0}</span>
+            </div>
           </div>
+          <div class="ulog-cmt-box" id="ulog-cmt-box-${p.logId}" hidden></div>
         </div>`;
     }
 
