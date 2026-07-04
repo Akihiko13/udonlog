@@ -5,7 +5,8 @@ $u = require_login();
 
 $st = db()->prepare(
   'SELECT id, shop_id, menus, comment, visit_date, photo_count, is_public, created_at,
-          (SELECT COUNT(*) FROM likes lk WHERE lk.log_id = logs.id) AS like_count
+          (SELECT COUNT(*) FROM likes lk WHERE lk.log_id = logs.id) AS like_count,
+          (SELECT COUNT(*) FROM comments cm WHERE cm.log_id = logs.id) AS comment_count
    FROM logs WHERE user_id = ? ORDER BY id'
 );
 $st->execute([$u['id']]);
@@ -23,6 +24,7 @@ foreach ($st as $r) {
     'savedAt'   => $r['created_at'],
     'photoUrl'  => record_photo_url((int)$r['id']),
     'likeCount' => (int)$r['like_count'],
+    'commentCount' => (int)$r['comment_count'],
   ];
 }
 

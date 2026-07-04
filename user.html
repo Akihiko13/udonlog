@@ -305,6 +305,11 @@
     .history-shop { font-size: 15px; font-weight: 600; }
     .history-meta { font-size: 12px; color: var(--text-sub); }
     .history-likes { font-size: 12px; color: #e05a77; font-weight: 600; margin-top: 3px; display: flex; align-items: center; gap: 3px; }
+    /* いいね数＋コメントボタンを1行に並べる */
+    .history-entry { margin-bottom: 8px; }
+    .history-entry .history-item { margin-bottom: 0; }
+    .history-social { display: flex; align-items: center; gap: 14px; margin-top: 3px; }
+    .history-social .history-likes { margin-top: 0; }
     .history-comment { font-size: 13px; color: var(--text); margin-top: 4px; line-height: 1.5; }
     .history-empty { text-align: center; color: #888; font-size: 14px; padding: 1rem; }
     /* エリア・月の折りたたみグループ */
@@ -327,6 +332,7 @@
   <link rel="manifest" href="site.webmanifest">
   <meta name="theme-color" content="#BA7517">
   <script src="api.js"></script>
+  <script src="comments.js"></script>
   <meta name="description" content="うどログの会員プロフィール。食べたうどん・スタンプ・制覇率。">
   <meta property="og:type" content="profile">
   <meta property="og:site_name" content="うどログ">
@@ -860,14 +866,20 @@
           const date = fmtDateMy(l.visitDate || (l.savedAt ? l.savedAt.slice(0, 10) : ''));
           const meta = [date, menu].filter(Boolean).join(' ・ ');
           return `
-            <div class="history-item">
-              ${l.photoUrl ? `<img class="history-photo" src="${l.photoUrl}" alt="写真" loading="lazy" onerror="this.style.display='none'">` : ''}
-              <div class="history-main">
-                <div class="history-shop">${escMy(shop.name)}</div>
-                <div class="history-meta">${escMy(meta)}</div>
-                ${l.comment ? `<div class="history-comment">${escMy(l.comment)}</div>` : ''}
-                ${l.likeCount ? `<div class="history-likes"><i class="ti ti-heart-filled"></i> ${l.likeCount}</div>` : ''}
+            <div class="history-entry">
+              <div class="history-item">
+                ${l.photoUrl ? `<img class="history-photo" src="${l.photoUrl}" alt="写真" loading="lazy" onerror="this.style.display='none'">` : ''}
+                <div class="history-main">
+                  <div class="history-shop">${escMy(shop.name)}</div>
+                  <div class="history-meta">${escMy(meta)}</div>
+                  ${l.comment ? `<div class="history-comment">${escMy(l.comment)}</div>` : ''}
+                  <div class="history-social">
+                    ${l.likeCount ? `<span class="history-likes"><i class="ti ti-heart-filled"></i> ${l.likeCount}</span>` : ''}
+                    <span class="ulog-cmt-btn" onclick="ulogCmtToggle(${l.id})" title="コメント"><i class="ti ti-message-circle"></i><span id="ulog-cmt-count-${l.id}">${l.commentCount || 0}</span></span>
+                  </div>
+                </div>
               </div>
+              <div class="ulog-cmt-box" id="ulog-cmt-box-${l.id}" hidden></div>
             </div>`;
         };
         // 年月（YYYY-MM）でグループ化。新しい月が先、最新月だけ開く

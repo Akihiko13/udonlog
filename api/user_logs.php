@@ -25,7 +25,8 @@ $user_id = (int)$u['id'];   // 以降の記録・推し店クエリで使う
 // 公開記録のみ（古い順＝スタンプを押した順）
 $st = db()->prepare(
   'SELECT id, shop_id, menus, comment, visit_date, photo_count, created_at,
-          (SELECT COUNT(*) FROM likes lk WHERE lk.log_id = logs.id) AS like_count
+          (SELECT COUNT(*) FROM likes lk WHERE lk.log_id = logs.id) AS like_count,
+          (SELECT COUNT(*) FROM comments cm WHERE cm.log_id = logs.id) AS comment_count
    FROM logs WHERE user_id = ? AND is_public = 1 ORDER BY id'
 );
 $st->execute([$user_id]);
@@ -42,6 +43,7 @@ foreach ($st as $r) {
     'savedAt'   => $r['created_at'],
     'photoUrl'  => record_photo_url((int)$r['id']),
     'likeCount' => (int)$r['like_count'],
+    'commentCount' => (int)$r['comment_count'],
   ];
 }
 
