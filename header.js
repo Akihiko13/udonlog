@@ -83,6 +83,67 @@
     @media (max-width: 380px) {
       .ulog-nav a.ulog-hide-sm { display: none; }
     }
+
+    /* --- 下部タブバー（モバイルのみ表示） --------------------------------- */
+    .ulog-tabbar {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 500;
+      display: none;                 /* 既定は非表示。モバイル幅でのみ表示 */
+      justify-content: space-around;
+      align-items: center;
+      height: 58px;
+      padding-bottom: env(safe-area-inset-bottom);   /* iPhoneのホームバー分 */
+      background: rgba(250,250,248,0.95);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-top: 0.5px solid #e5e5e0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+    }
+    .ulog-tab {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      height: 100%;
+      min-width: 0;
+      color: #9a9a90;
+      text-decoration: none;
+      font-size: 10px;
+      font-weight: 600;
+    }
+    .ulog-tab i { font-size: 23px; line-height: 1; }
+    .ulog-tab span { line-height: 1; }
+    .ulog-tab.active { color: #8A5510; }
+    .ulog-tab:active { opacity: 0.6; }
+
+    /* 中央の「＋（記録）」ボタン */
+    .ulog-tab-add {
+      flex: 0 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 46px;
+      height: 46px;
+      margin: 0 4px;
+      background: #BA7517;
+      color: #fff !important;
+      border-radius: 50%;
+      text-decoration: none;
+      box-shadow: 0 3px 10px rgba(186,117,23,0.35);
+    }
+    .ulog-tab-add i { font-size: 26px; line-height: 1; color: #fff; }
+    .ulog-tab-add:active { background: #8A5510; }
+
+    @media (max-width: 640px) {
+      .ulog-tabbar { display: flex; }
+      /* タブバーの高さぶん本文下部に余白を確保（バーを出すページだけ） */
+      body.ulog-has-tabbar { padding-bottom: calc(62px + env(safe-area-inset-bottom)); }
+    }
   `;
 
   var style = document.createElement('style');
@@ -99,17 +160,75 @@
       '<nav class="ulog-nav" id="ulog-nav"></nav>';
     document.body.insertBefore(header, document.body.firstChild);
 
+    // 下部タブバー（モバイル用）を body 末尾に挿入。認証系ページでは出さない。
+    insertTabbar();
+
     // 前回のログイン状態をキャッシュから復元して即描画（チラつき防止）。
     // その後 API で実際の状態を確認し、変わっていれば差し替える。
     var cached = null;
     try { cached = localStorage.getItem(AUTH_CACHE); } catch (e) {}
-    renderNav(cached === '1' ? {} : null);   // {} は「ログイン中レイアウト」を出すためのダミー
+    var cachedUser = cached === '1' ? {} : null;   // {} は「ログイン中レイアウト」用のダミー
+    renderNav(cachedUser);
+    renderTabbar(cachedUser);
 
     if (typeof API !== 'undefined') {
       API.refresh().then(function (d) {
         renderNav(d.user);
+        renderTabbar(d.user);
         try { localStorage.setItem(AUTH_CACHE, d.user ? '1' : '0'); } catch (e) {}
       }).catch(function () {});
+    }
+  }
+
+  // --- 下部タブバー ---------------------------------------------------------
+  // ログイン/登録などの集中フローでは邪魔になるので出さない
+  function isAuthPage() {
+    return /(^|\/)(login|register|forgot-password|reset-password)\.html$/.test(location.pathname);
+  }
+
+  // 現在ページがどのタブに当たるか（アクティブ表示用）
+  function currentTab() {
+    var p = location.pathname;
+    if (/(^|\/)feed\.html$/.test(p)) return 'feed';
+    if (/(^|\/)(shops|shop-detail)\.html$/.test(p) || /(^|\/)shops\//.test(p)) return 'shops';
+    if (/(^|\/)record\.html$/.test(p)) return 'record';
+    if (/(^|\/)(mypage|profile-edit|account)\.html$/.test(p)) return 'mypage';
+    return '';
+  }
+
+  function insertTabbar() {
+    if (isAuthPage()) return;
+    if (document.getElementById('ulog-tabbar')) return;
+    var bar = document.createElement('nav');
+    bar.className = 'ulog-tabbar';
+    bar.id = 'ulog-tabbar';
+    bar.setAttribute('aria-label', 'メインメニュー');
+    document.body.appendChild(bar);
+    document.body.classList.add('ulog-has-tabbar');   // 本文下部の余白を有効化
+  }
+
+  function renderTabbar(user) {
+    var bar = document.getElementById('ulog-tabbar');
+    if (!bar) return;
+    var cur = currentTab();
+    function tab(href, key, icon, label) {
+      var active = key === cur ? ' active' : '';
+      return '<a class="ulog-tab' + active + '" href="' + href + '">' +
+             '<i class="ti ti-' + icon + '"></i><span>' + label + '</span></a>';
+    }
+    if (user) {
+      bar.innerHTML =
+        tab('feed.html', 'feed', 'home', '新着') +
+        tab('shops.html', 'shops', 'search', '探す') +
+        '<a class="ulog-tab-add" href="shops.html" aria-label="うどんを記録する">' +
+        '<i class="ti ti-plus"></i></a>' +
+        tab('mypage.html', 'mypage', 'user', 'マイページ');
+    } else {
+      bar.innerHTML =
+        tab('feed.html', 'feed', 'home', '新着') +
+        tab('shops.html', 'shops', 'search', '探す') +
+        tab('login.html', 'login', 'login', 'ログイン') +
+        tab('register.html', 'register', 'user-plus', '登録');
     }
   }
 
