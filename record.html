@@ -351,6 +351,11 @@
     }
 
     .btn-post:hover { background: #6F440C; }
+    .btn-post:disabled { background: #b79a6a; cursor: default; }
+
+    /* 送信中のスピナー */
+    @keyframes ulog-spin { to { transform: rotate(360deg); } }
+    .btn-post .spin { display: inline-block; animation: ulog-spin 0.7s linear infinite; }
 
     /* 投稿完了＆シェアモーダル */
     .share-overlay {
@@ -572,7 +577,7 @@
 
     <!-- 投稿ボタン -->
     <button class="btn-post" onclick="submitRecord()">
-      <i class="ti ti-send"></i>
+      <i class="ti ti-send" id="submitBtnIcon"></i>
       <span id="submitBtnText">記録を投稿する</span>
     </button>
 
@@ -654,8 +659,13 @@
     }
     applyShopBadge();
 
-    // 今日の日付をデフォルト設定
-    document.getElementById('visitDate').value = new Date().toISOString().split('T')[0];
+    // 今日の日付をデフォルト設定（未来日は選べないよう上限も今日に）
+    (function () {
+      const today = new Date().toISOString().split('T')[0];
+      const vd = document.getElementById('visitDate');
+      vd.value = today;
+      vd.max = today;
+    })();
 
     // 戻るボタン（編集はマイページへ、新規はお店一覧へ）
     document.getElementById('backBtn').href = isEdit ? 'mypage.html' : 'shops.html';
@@ -813,8 +823,17 @@
         return;
       }
 
+      // 送信中の状態表示（ボタンを無効化＋スピナー＋文言変更で二重送信を防ぐ）
       const btn = document.querySelector('.btn-post');
-      if (btn) btn.disabled = true;
+      const btnTextEl = document.getElementById('submitBtnText');
+      const btnIconEl = document.getElementById('submitBtnIcon');
+      const origText = btnTextEl ? btnTextEl.textContent : '';
+      function setLoading(on) {
+        if (btn) btn.disabled = on;
+        if (btnTextEl) btnTextEl.textContent = on ? (isEdit ? '更新中…' : '投稿中…') : origText;
+        if (btnIconEl) btnIconEl.className = on ? 'ti ti-loader-2 spin' : 'ti ti-send';
+      }
+      setLoading(true);
       try {
         await API.refresh();
         if (!API.isLoggedIn()) {
@@ -873,7 +892,7 @@
         document.getElementById('shareOverlay').classList.add('show');
       } catch (err) {
         showToast(err.message || (isEdit ? '更新に失敗しました' : '記録に失敗しました'));
-        if (btn) btn.disabled = false;
+        setLoading(false);
       }
     }
 

@@ -209,6 +209,7 @@
     }
 
     .btn-login:hover { background: #6F440C; }
+    .btn-login:disabled { background: #b79a6a; cursor: default; }
 
     .register-link {
       text-align: center;
@@ -332,6 +333,8 @@
     async function handleLogin(e) {
       e.preventDefault();
       const btn = e.target.querySelector('.btn-login');
+      const errBox = document.getElementById('errorMsg');
+      errBox.classList.remove('show');        // 前回のエラー表示をリセット
       btn.disabled = true;
       const original = btn.textContent;
       btn.textContent = 'ログイン中…';
@@ -345,7 +348,9 @@
         const next = new URLSearchParams(location.search).get('next');
         location.href = next || 'mypage.html';
       } catch (err) {
-        alert(err.message || 'ログインに失敗しました');
+        // 無骨なalertではなく、ページ内のスタイル付きエラー欄で伝える
+        errBox.textContent = err.message || 'メールアドレスまたはパスワードが正しくありません。';
+        errBox.classList.add('show');
         btn.disabled = false;
         btn.textContent = original;
       }
