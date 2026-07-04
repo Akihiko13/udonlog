@@ -103,6 +103,20 @@
     .profile-name { font-size: 20px; font-weight: 700; }
     .profile-sub { font-size: 13px; color: var(--text-sub); }
     .profile-bio { font-size: 13px; color: var(--text); margin-top: 6px; line-height: 1.6; white-space: pre-wrap; word-break: break-word; }
+    /* フォロワー数・フォロー中数 */
+    .profile-stats { display: flex; gap: 16px; margin-top: 8px; font-size: 13px; color: var(--text-sub); }
+    .profile-stats b { color: var(--text); font-weight: 700; }
+    /* フォローボタン */
+    .follow-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: #8A5510; color: #fff; border: none; border-radius: 99px;
+      padding: 9px 22px; font-size: 14px; font-weight: 600; cursor: pointer;
+      font-family: inherit; margin-bottom: 1.5rem;
+    }
+    .follow-btn:hover { background: #6F440C; }
+    .follow-btn:disabled { opacity: 0.6; cursor: default; }
+    .follow-btn.following { background: #fff; color: #8A5510; border: 1px solid #d9c3a3; }
+    .follow-btn.following:hover { background: #fbeee0; }
 
     /* 推しのうどん屋 */
     .fav-list { display: grid; gap: 10px; }
@@ -333,6 +347,7 @@
   <meta name="theme-color" content="#BA7517">
   <script src="api.js"></script>
   <script src="comments.js"></script>
+  <script src="toast.js"></script>
   <meta name="description" content="うどログの会員プロフィール。食べたうどん・スタンプ・制覇率。">
   <meta property="og:type" content="profile">
   <meta property="og:site_name" content="うどログ">
@@ -374,8 +389,15 @@
           <div class="profile-name" id="profileName"></div>
           <div class="profile-sub" id="profileSub">香川のさぬきうどんを記録中</div>
           <div class="profile-bio" id="profileBio" style="display:none;"></div>
+          <div class="profile-stats" id="profileStats" style="display:none;">
+            <span><b id="followerCount">0</b> フォロワー</span>
+            <span><b id="followingCount">0</b> フォロー中</span>
+          </div>
         </div>
       </div>
+
+      <!-- フォローボタン（他の会員のページでのみ表示） -->
+      <button class="follow-btn" id="followBtn" style="display:none;" onclick="toggleFollow()"></button>
 
       <!-- 推しのうどん屋 -->
       <div id="favSection" style="display:none;margin-bottom:1.5rem;">
@@ -765,6 +787,38 @@
       }).join('');
     }
 
+    // === フォロー ===
+    let profileUserId = null;   // このプロフィールの会員ID
+    let isFollowing = false;    // 閲覧者がこの人をフォロー中か
+
+    function setFollowBtn() {
+      const btn = document.getElementById('followBtn');
+      btn.className = 'follow-btn' + (isFollowing ? ' following' : '');
+      btn.innerHTML = isFollowing
+        ? '<i class="ti ti-check"></i> フォロー中'
+        : '<i class="ti ti-plus"></i> フォロー';
+    }
+
+    async function toggleFollow() {
+      const btn = document.getElementById('followBtn');
+      try {
+        await API.refresh();
+        if (!API.isLoggedIn()) {
+          location.href = 'login.html?next=' + encodeURIComponent(location.pathname + location.search);
+          return;
+        }
+        btn.disabled = true;
+        const res = await API.post('follow_toggle.php', { user_id: profileUserId });
+        isFollowing = res.following === 1;
+        setFollowBtn();
+        document.getElementById('followerCount').textContent = res.followerCount;
+      } catch (e) {
+        if (window.showToast) showToast(e.message || 'フォローに失敗しました', { error: true });
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
     function render(logs) {
       const uniqueShops = [...new Map(logs.map(l => [l.shopId, shopOf(l)])).values()];
       const cities = new Set(uniqueShops.map(s => s.city));
@@ -1044,6 +1098,17 @@
         const bioEl = document.getElementById('profileBio');
         bioEl.textContent = u.bio;
         bioEl.style.display = 'block';
+      }
+
+      // フォロー情報（数値＋ボタン）
+      profileUserId = u.id;
+      document.getElementById('followerCount').textContent = u.followerCount || 0;
+      document.getElementById('followingCount').textContent = u.followingCount || 0;
+      document.getElementById('profileStats').style.display = 'flex';
+      if (!u.isSelf) {                       // 自分のページにはフォローボタンを出さない
+        isFollowing = !!u.isFollowing;
+        setFollowBtn();
+        document.getElementById('followBtn').style.display = 'inline-flex';
       }
 
       // 推しのうどん屋・常連店

@@ -60,6 +60,19 @@
 
     .feed-intro { color: var(--text-sub); font-size: 13px; margin-bottom: 1rem; }
 
+    /* 新着／フォロー中 タブ */
+    .feed-tabs { display: flex; margin-bottom: 1rem; border-bottom: 0.5px solid var(--border); }
+    .feed-tab {
+      flex: 1; background: none; border: none; padding: 12px 0;
+      font-size: 14px; font-weight: 600; color: var(--text-sub);
+      cursor: pointer; font-family: inherit; position: relative;
+    }
+    .feed-tab.active { color: var(--amber-dark); }
+    .feed-tab.active::after {
+      content: ''; position: absolute; left: 0; right: 0; bottom: -0.5px;
+      height: 2px; background: var(--amber); border-radius: 2px;
+    }
+
     /* 投稿カード（shop-detail の「みんなの投稿」を流用） */
     .post-card {
       background: var(--white);
@@ -186,7 +199,11 @@
   </div>
 
   <div class="container">
-    <p class="feed-intro">みんなのうどん記録を新着順で。タップして投稿者やお店を見に行けます。</p>
+    <div class="feed-tabs">
+      <button class="feed-tab active" data-mode="new" onclick="switchFeed('new')">新着</button>
+      <button class="feed-tab" data-mode="following" onclick="switchFeed('following')">フォロー中</button>
+    </div>
+    <p class="feed-intro">みんなのうどん記録。タップして投稿者やお店を見に行けます。</p>
     <div id="feedList"></div>
     <div id="feedStatus"></div>
   </div>
@@ -205,6 +222,8 @@
     let nextBefore = null;   // 次ページのカーソル（null＝先頭 or 続きなし）
     let hasMore = true;
     let loading = false;
+    let feedMode = 'new';    // 'new'（新着）or 'following'（フォロー中）
+    let feedToken = 0;       // タブ切替時に古い取得結果を破棄するためのトークン
 
     function escapeHtml(s) {
       return String(s).replace(/[&<>"']/g, c => (
@@ -281,9 +300,14 @@
       if (btn) { btn.disabled = true; btn.textContent = '読み込み中…'; }
       else statusEl.innerHTML = '<div class="feed-status" style="text-align:center;color:#888;padding:1rem;">読み込み中…</div>';
 
+      const myToken = feedToken;
       try {
-        const q = nextBefore ? ('?before_id=' + nextBefore) : '';
+        const qs = [];
+        if (feedMode === 'following') qs.push('following=1');
+        if (nextBefore) qs.push('before_id=' + nextBefore);
+        const q = qs.length ? ('?' + qs.join('&')) : '';
         const res = await API.get('recent_logs.php' + q);
+        if (myToken !== feedToken) { loading = false; return; }   // タブが切り替わっていたら破棄
         const posts = res.posts || [];
         const listEl = document.getElementById('feedList');
         listEl.insertAdjacentHTML('beforeend', posts.map(postCardHtml).join(''));
@@ -292,10 +316,13 @@
         nextBefore = res.nextBefore;
 
         if (listEl.children.length === 0) {
-          statusEl.innerHTML =
-            '<div class="feed-empty">' +
-            '<img src="images/udomaru-hungry.svg" alt="うどまる" width="100" height="100" style="display:block;margin:0 auto 6px;">' +
-            'まだ公開された投稿がありません。</div>';
+          statusEl.innerHTML = feedMode === 'following'
+            ? '<div class="feed-empty">' +
+              '<img src="images/udomaru-hungry.svg" alt="うどまる" width="100" height="100" style="display:block;margin:0 auto 6px;">' +
+              'フォロー中の人の新着はまだありません。<br>気になる人のプロフィールから「フォロー」してみよう。</div>'
+            : '<div class="feed-empty">' +
+              '<img src="images/udomaru-hungry.svg" alt="うどまる" width="100" height="100" style="display:block;margin:0 auto 6px;">' +
+              'まだ公開された投稿がありません。</div>';
         } else if (hasMore) {
           renderMoreButton();
         } else {
@@ -309,6 +336,32 @@
       } finally {
         loading = false;
       }
+    }
+
+    // タブ切替（新着／フォロー中）
+    function switchFeed(mode) {
+      if (mode === feedMode) return;
+      feedMode = mode;
+      feedToken++;             // 進行中の取得結果を無効化
+      document.querySelectorAll('.feed-tab').forEach(function (t) {
+        t.classList.toggle('active', t.dataset.mode === mode);
+      });
+      const listEl = document.getElementById('feedList');
+      const statusEl = document.getElementById('feedStatus');
+      listEl.innerHTML = '';
+      statusEl.innerHTML = '';
+      const oldBtn = document.getElementById('feedMore');
+      if (oldBtn) oldBtn.remove();
+      nextBefore = null; hasMore = true; loading = false;
+
+      // フォロー中は未ログインだと見られない
+      if (mode === 'following' && !(API.isLoggedIn && API.isLoggedIn())) {
+        statusEl.innerHTML =
+          '<div class="feed-empty">フォロー中の投稿を見るには<br>' +
+          '<a href="login.html?next=' + encodeURIComponent(location.pathname) + '">ログイン</a>してください。</div>';
+        return;
+      }
+      loadMore();
     }
 
     function renderMoreButton() {

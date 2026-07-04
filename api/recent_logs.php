@@ -13,9 +13,20 @@ $viewerId = $viewer ? (int)$viewer['id'] : 0;
 // before_id より小さいidだけを対象（未指定なら最新から）
 $beforeId = (int)($_GET['before_id'] ?? 0);
 
+// フォロー中モード（?following=1）：自分がフォローしている人の投稿だけに絞る。
+// 未ログインでは対象が無いので空を返す。
+$following = ((int)($_GET['following'] ?? 0) === 1);
+if ($following && $viewerId === 0) {
+  json_out(['ok' => true, 'posts' => [], 'hasMore' => false, 'nextBefore' => null]);
+}
+
 // 公開投稿を新しい順に FEED_LIMIT+1 件取得（+1件は「まだ続きがあるか」の判定用）
 $where = 'l.is_public = 1';
-$params = [$viewerId];
+$params = [$viewerId];   // SELECT内 liked_by_me 用（WHEREより先に束縛される）
+if ($following) {
+  $where .= ' AND l.user_id IN (SELECT followee_id FROM follows WHERE follower_id = ?)';
+  $params[] = $viewerId;
+}
 if ($beforeId > 0) {
   $where .= ' AND l.id < ?';
   $params[] = $beforeId;

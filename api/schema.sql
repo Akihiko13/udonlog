@@ -106,6 +106,17 @@ CREATE TABLE IF NOT EXISTS comments (
   CONSTRAINT fk_cmt_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+-- フォロー（誰が誰をフォローしているか）
+CREATE TABLE IF NOT EXISTS follows (
+  follower_id INT UNSIGNED NOT NULL,                    -- フォローする人
+  followee_id INT UNSIGNED NOT NULL,                    -- フォローされる人
+  created_at  DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (follower_id, followee_id),               -- 同じ相手を二重フォローしない
+  KEY idx_followee (followee_id),                       -- フォロワー数の集計用
+  CONSTRAINT fk_follow_follower FOREIGN KEY (follower_id) REFERENCES users(id) ON DELETE CASCADE,
+  CONSTRAINT fk_follow_followee FOREIGN KEY (followee_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 -- 新規登録のメール確認コード（アカウント作成前に所有確認。メール単位で1件）
 CREATE TABLE IF NOT EXISTS email_verifications (
   email      VARCHAR(255)     NOT NULL PRIMARY KEY,

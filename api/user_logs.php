@@ -22,6 +22,23 @@ $u = $st->fetch();
 if (!$u) json_error('ユーザーが見つかりません', 404);
 $user_id = (int)$u['id'];   // 以降の記録・推し店クエリで使う
 
+// フォロー関係（フォロワー数・フォロー中数・閲覧者がフォロー中か・本人か）
+$viewer   = current_user();
+$viewerId = $viewer ? (int)$viewer['id'] : 0;
+$st = db()->prepare('SELECT COUNT(*) AS c FROM follows WHERE followee_id = ?');
+$st->execute([$user_id]);
+$followerCount = (int)($st->fetch()['c'] ?? 0);
+$st = db()->prepare('SELECT COUNT(*) AS c FROM follows WHERE follower_id = ?');
+$st->execute([$user_id]);
+$followingCount = (int)($st->fetch()['c'] ?? 0);
+$isSelf = ($viewerId > 0 && $viewerId === $user_id);
+$isFollowing = false;
+if ($viewerId > 0 && !$isSelf) {
+  $st = db()->prepare('SELECT 1 FROM follows WHERE follower_id = ? AND followee_id = ?');
+  $st->execute([$viewerId, $user_id]);
+  $isFollowing = (bool)$st->fetch();
+}
+
 // 公開記録のみ（古い順＝スタンプを押した順）
 $st = db()->prepare(
   'SELECT id, shop_id, menus, comment, visit_date, photo_count, created_at,
@@ -64,6 +81,10 @@ json_out([
     'xHandle'   => $u['x_handle'],
     'avatarUrl' => avatar_url($u['avatar'] ?? null),
     'bio'       => $u['bio'],
+    'followerCount'  => $followerCount,
+    'followingCount' => $followingCount,
+    'isFollowing'    => $isFollowing,
+    'isSelf'         => $isSelf,
   ],
   'logs' => $logs,
 ]);
