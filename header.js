@@ -98,7 +98,12 @@
       display: none;                 /* 既定は非表示。モバイル幅でのみ表示 */
       justify-content: space-around;
       align-items: center;
-      height: 58px;
+      /* box-sizing はページ側の *{border-box} に依存せず自前で固定。
+         高さはアイコン用の58px＋セーフエリア分を加算し、その分を padding-bottom で
+         確保する。こうしないと（border-box時）セーフエリア分だけ中身が縮み、
+         アイコンが上にはみ出る。 */
+      box-sizing: border-box;
+      height: calc(58px + env(safe-area-inset-bottom));
       padding: 0 0 env(safe-area-inset-bottom);   /* 下部はiPhoneのホームバー分 */
       background: rgba(250,250,248,0.95);
       backdrop-filter: blur(12px);
