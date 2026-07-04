@@ -87,19 +87,25 @@
     /* --- 下部タブバー（モバイルのみ表示） --------------------------------- */
     .ulog-tabbar {
       position: fixed;
+      /* ページ独自の nav{ position:sticky; top:54px } 等が漏れて上部に出ないよう
+         top/margin/padding/border を明示的にリセットする（.ulog-nav と同じ方針）*/
+      top: auto;
       left: 0;
       right: 0;
       bottom: 0;
+      margin: 0;
       z-index: 500;
       display: none;                 /* 既定は非表示。モバイル幅でのみ表示 */
       justify-content: space-around;
       align-items: center;
       height: 58px;
-      padding-bottom: env(safe-area-inset-bottom);   /* iPhoneのホームバー分 */
+      padding: 0 0 env(safe-area-inset-bottom);   /* 下部はiPhoneのホームバー分 */
       background: rgba(250,250,248,0.95);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
+      border: none;
       border-top: 0.5px solid #e5e5e0;
+      box-shadow: none;
       font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
     }
     .ulog-tab {
