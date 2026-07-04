@@ -130,6 +130,7 @@
   <script src="api.js"></script>
   <script src="header.js"></script>
   <script src="analytics.js"></script>
+  <script src="toast.js"></script>
 </head>
 <body>
 
@@ -204,9 +205,9 @@
       const pw2 = document.getElementById('newPassword2');
 
       btn.addEventListener('click', async () => {
-        if (!cur.value) { alert('現在のパスワードを入力してください'); return; }
-        if (pw1.value.length < 8) { alert('新しいパスワードは8文字以上にしてください'); return; }
-        if (pw1.value !== pw2.value) { alert('新しいパスワード（確認）が一致しません'); return; }
+        if (!cur.value) { showToast('現在のパスワードを入力してください', { error: true }); return; }
+        if (pw1.value.length < 8) { showToast('新しいパスワードは8文字以上にしてください', { error: true }); return; }
+        if (pw1.value !== pw2.value) { showToast('新しいパスワード（確認）が一致しません', { error: true }); return; }
 
         btn.disabled = true;
         btn.textContent = '変更中…';
@@ -216,10 +217,10 @@
             current_password: cur.value,
             new_password: pw1.value,
           });
-          alert('パスワードを変更しました。');
+          showToast('パスワードを変更しました');
           cur.value = ''; pw1.value = ''; pw2.value = '';
         } catch (e) {
-          alert(e.message || 'パスワードの変更に失敗しました');
+          showToast(e.message || 'パスワードの変更に失敗しました', { error: true });
         } finally {
           btn.disabled = false;
           btn.textContent = 'パスワードを変更する';
@@ -250,9 +251,9 @@
 
       confirmBtn.addEventListener('click', async () => {
         if (hasPassword) {
-          if (!pwd.value) { alert('パスワードを入力してください'); return; }
+          if (!pwd.value) { showToast('パスワードを入力してください', { error: true }); return; }
         } else {
-          if (pwd.value.trim() !== '削除') { alert('確認のため「削除」と入力してください'); return; }
+          if (pwd.value.trim() !== '削除') { showToast('確認のため「削除」と入力してください', { error: true }); return; }
         }
         if (!confirm('本当に退会しますか？\nすべてのデータが削除され、元に戻せません。')) return;
         confirmBtn.disabled = true;
@@ -260,10 +261,10 @@
         try {
           await API.refresh();
           await API.post('account_delete.php', { password: hasPassword ? pwd.value : '' });
-          alert('退会が完了しました。ご利用ありがとうございました。');
-          location.href = '/';
+          showToast('退会が完了しました。ご利用ありがとうございました。');
+          setTimeout(function () { location.href = '/'; }, 1600);
         } catch (e) {
-          alert(e.message || '退会に失敗しました');
+          showToast(e.message || '退会に失敗しました', { error: true });
           confirmBtn.disabled = false;
           confirmBtn.textContent = '退会する';
         }

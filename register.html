@@ -456,6 +456,7 @@
   <meta name="twitter:image" content="https://udolog.com/images/og-image.png">
   <script src="header.js"></script>
   <script src="analytics.js"></script>
+  <script src="toast.js"></script>
 </head>
 <body>
 
@@ -781,7 +782,7 @@
     });
 
     // Xログインは後日実装（auth_identitiesで対応予定）。今は案内のみ。
-    function connectX() { alert('Xでの登録は準備中です。メールアドレスで登録してください。'); }
+    function connectX() { showToast('Xでの登録は準備中です。メールアドレスで登録してください。'); }
 
     // === メール確認コードの送信・照合 ===
     // メールアドレスで続ける → 確認コードを送ってコード入力ステップへ
@@ -799,10 +800,10 @@
         document.getElementById('codeEmailLabel').textContent = email;
         document.getElementById('step1').classList.remove('active');
         document.getElementById('stepCode').classList.add('active');
-        if (isResend) alert('確認コードを再送しました。');
+        if (isResend) showToast('確認コードを再送しました');
         document.getElementById('verifyCode').focus();
       } catch (e) {
-        alert(e.message || '確認コードの送信に失敗しました');
+        showToast(e.message || '確認コードの送信に失敗しました', { error: true });
       } finally {
         emailBtn.disabled = false;
         emailBtn.textContent = 'メールアドレスで続ける';
@@ -829,7 +830,7 @@
         document.getElementById('stepCode').classList.remove('active');
         showStep2('email');
       } catch (e) {
-        alert(e.message || '認証に失敗しました');
+        showToast(e.message || '認証に失敗しました', { error: true });
         btn.disabled = false; btn.textContent = '認証してすすむ';
       }
     }
@@ -862,8 +863,8 @@
         const file = input.files && input.files[0];
         input.value = '';
         if (!file) return;
-        if (!file.type.startsWith('image/')) { alert('画像ファイルを選んでください'); return; }
-        if (file.size > 8 * 1024 * 1024) { alert('画像が大きすぎます（8MBまで）'); return; }
+        if (!file.type.startsWith('image/')) { showToast('画像ファイルを選んでください', { error: true }); return; }
+        if (file.size > 8 * 1024 * 1024) { showToast('画像が大きすぎます（8MBまで）', { error: true }); return; }
         selectedAvatarFile = file;
 
         // プレビュー表示
@@ -913,7 +914,7 @@
             fd.append('avatar', selectedAvatarFile);
             await API.upload('avatar_set.php', fd);
           } catch (e) {
-            alert('登録は完了しましたが、写真の保存に失敗しました。あとでマイページから設定できます。');
+            showToast('登録は完了しましたが、写真の保存に失敗しました。あとでマイページから設定できます。', { error: true, duration: 4500 });
           }
         }
 
@@ -926,7 +927,7 @@
         document.getElementById('footer-link').style.display = 'none';
         registrationPending = false;   // 登録完了したので離脱警告を解除
       } catch (err) {
-        alert(err.message || '登録に失敗しました');
+        showToast(err.message || '登録に失敗しました', { error: true });
         btn.disabled = false;
         btn.textContent = original;
       }

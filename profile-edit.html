@@ -167,6 +167,7 @@
   <script src="api.js"></script>
   <script src="header.js"></script>
   <script src="analytics.js"></script>
+  <script src="toast.js"></script>
 </head>
 <body>
 
@@ -403,8 +404,8 @@
         const file = input.files && input.files[0];
         input.value = '';
         if (!file) return;
-        if (!file.type.startsWith('image/')) { alert('画像ファイルを選んでください'); return; }
-        if (file.size > 8 * 1024 * 1024) { alert('画像が大きすぎます（8MBまで）'); return; }
+        if (!file.type.startsWith('image/')) { showToast('画像ファイルを選んでください', { error: true }); return; }
+        if (file.size > 8 * 1024 * 1024) { showToast('画像が大きすぎます（8MBまで）', { error: true }); return; }
         label.classList.add('uploading');
         try {
           await API.refresh();
@@ -413,7 +414,7 @@
           const d = await API.upload('avatar_set.php', fd);
           setAvatar(d.avatarUrl);
         } catch (e) {
-          alert(e.message || '写真のアップロードに失敗しました');
+          showToast(e.message || '写真のアップロードに失敗しました', { error: true });
         } finally {
           label.classList.remove('uploading');
         }
@@ -426,7 +427,7 @@
           await API.post('avatar_delete.php', {});
           setAvatar(null);
         } catch (e) {
-          alert(e.message || '削除に失敗しました');
+          showToast(e.message || '削除に失敗しました', { error: true });
         }
       });
     }
@@ -436,10 +437,10 @@
       const btn = document.getElementById('saveBtn');
       btn.addEventListener('click', async () => {
         const nickname = document.getElementById('nickname').value.trim();
-        if (!nickname) { alert('ニックネームを入力してください'); return; }
+        if (!nickname) { showToast('ニックネームを入力してください', { error: true }); return; }
         const username = document.getElementById('username').value.trim();
         if (!/^[A-Za-z0-9_]{3,20}$/.test(username)) {
-          alert('ユーザー名は半角英数字とアンダースコア（_）で3〜20文字にしてください'); return;
+          showToast('ユーザー名は半角英数字とアンダースコア（_）で3〜20文字にしてください', { error: true }); return;
         }
         btn.disabled = true;
         btn.textContent = '保存中…';
@@ -455,7 +456,7 @@
           await API.post('favorites_set.php', { shop_ids: favShopIds });
           location.href = 'mypage.html';
         } catch (e) {
-          alert(e.message || '保存に失敗しました');
+          showToast(e.message || '保存に失敗しました', { error: true });
           btn.disabled = false;
           btn.textContent = '保存する';
         }

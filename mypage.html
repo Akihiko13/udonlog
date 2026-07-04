@@ -788,6 +788,7 @@
   <meta name="twitter:image" content="https://udolog.com/images/og-image.png">
   <script src="header.js"></script>
   <script src="analytics.js"></script>
+  <script src="toast.js"></script>
 </head>
 <body>
 
@@ -1543,7 +1544,7 @@
         const data = await API.get('my_logs.php');
         render(data.logs || []);
       } catch (e) {
-        alert(e.message || '記録の取得に失敗しました');
+        showToast(e.message || '記録の取得に失敗しました', { error: true });
         render([]);
       }
     }
@@ -1556,7 +1557,7 @@
         await API.post('log_delete.php', { id: id });
         await loadAndRender();
       } catch (e) {
-        alert(e.message || '削除に失敗しました');
+        showToast(e.message || '削除に失敗しました', { error: true });
       }
     }
 
@@ -1588,7 +1589,7 @@
       try {
         await API.refresh();
       } catch (e) {
-        alert('サーバーに接続できませんでした。時間をおいて再度お試しください。');
+        showToast('サーバーに接続できませんでした。時間をおいて再度お試しください。', { error: true });
         return;
       }
       if (!API.isLoggedIn()) {
