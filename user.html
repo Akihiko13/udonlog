@@ -324,7 +324,9 @@
     .history-shop { font-size: 15px; font-weight: 600; color: #8A5510; text-decoration: none; }
     .history-shop:hover { text-decoration: underline; }
     .history-meta { font-size: 12px; color: var(--text-sub); }
-    .history-likes { font-size: 12px; color: #e05a77; font-weight: 600; margin-top: 3px; display: flex; align-items: center; gap: 3px; }
+    .history-likes { font-size: 12px; color: #999; font-weight: 600; margin-top: 3px; display: flex; align-items: center; gap: 3px; cursor: pointer; user-select: none; }
+    .history-likes:hover { color: #e05a77; }
+    .history-likes.liked { color: #e05a77; }
     /* いいね数＋コメントボタンを1行に並べる */
     .history-entry { margin-bottom: 8px; }
     .history-entry .history-item { margin-bottom: 0; }
@@ -826,6 +828,29 @@
       }
     }
 
+    // いいねのトグル（ログイン必須・サーバー保存）
+    async function toggleLike(el) {
+      const logId = parseInt(el.dataset.log, 10);
+      if (!logId || el.dataset.busy) return;
+      try {
+        await API.refresh();
+        if (!API.isLoggedIn()) {
+          location.href = 'login.html?next=' + encodeURIComponent(location.pathname + location.search);
+          return;
+        }
+        el.dataset.busy = '1';
+        const res = await API.post('like_toggle.php', { log_id: logId });
+        const liked = res.liked === 1;
+        el.classList.toggle('liked', liked);
+        el.querySelector('i').className = 'ti ti-heart' + (liked ? '-filled' : '');
+        el.querySelector('.like-count').textContent = res.count;
+      } catch (e) {
+        if (window.showToast) showToast(e.message || 'いいねに失敗しました', { error: true });
+      } finally {
+        delete el.dataset.busy;
+      }
+    }
+
     function render(logs) {
       const uniqueShops = [...new Map(logs.map(l => [l.shopId, shopOf(l)])).values()];
       const cities = new Set(uniqueShops.map(s => s.city));
@@ -935,7 +960,7 @@
                   <div class="history-meta">${escMy(meta)}</div>
                   ${l.comment ? `<div class="history-comment">${escMy(l.comment)}</div>` : ''}
                   <div class="history-social">
-                    ${l.likeCount ? `<span class="history-likes"><i class="ti ti-heart-filled"></i> ${l.likeCount}</span>` : ''}
+                    <span class="history-likes${l.liked ? ' liked' : ''}" data-log="${l.id}" onclick="toggleLike(this)" title="いいね"><i class="ti ti-heart${l.liked ? '-filled' : ''}"></i> <span class="like-count">${l.likeCount || 0}</span></span>
                     <span class="ulog-cmt-btn" onclick="ulogCmtToggle(${l.id})" title="コメント"><i class="ti ti-message-circle"></i><span id="ulog-cmt-count-${l.id}">${l.commentCount || 0}</span></span>
                   </div>
                 </div>
