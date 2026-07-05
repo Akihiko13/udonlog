@@ -93,6 +93,8 @@
       background: #d9534f; color: #fff; font-size: 10px; font-weight: 700;
       display: flex; align-items: center; justify-content: center; line-height: 1;
     }
+    /* display:flex が hidden属性(display:none)を打ち消さないよう、未読0では確実に隠す */
+    .ulog-bell-badge[hidden] { display: none; }
 
     @media (max-width: 560px) {
       .ulog-nav { gap: 0.85rem; }
