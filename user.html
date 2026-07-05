@@ -321,7 +321,8 @@
     .history-item { display: flex; align-items: center; gap: 12px; background: var(--white); border: 0.5px solid var(--border); border-radius: 12px; padding: 12px 14px; margin-bottom: 8px; }
     .history-photo { width: 48px; height: 48px; object-fit: cover; border-radius: 8px; flex-shrink: 0; }
     .history-main { min-width: 0; flex: 1; }
-    .history-shop { font-size: 15px; font-weight: 600; }
+    .history-shop { font-size: 15px; font-weight: 600; color: #8A5510; text-decoration: none; }
+    .history-shop:hover { text-decoration: underline; }
     .history-meta { font-size: 12px; color: var(--text-sub); }
     .history-likes { font-size: 12px; color: #e05a77; font-weight: 600; margin-top: 3px; display: flex; align-items: center; gap: 3px; }
     /* いいね数＋コメントボタンを1行に並べる */
@@ -930,7 +931,7 @@
               <div class="history-item">
                 ${l.photoUrl ? `<img class="history-photo" src="${l.photoUrl}" alt="写真" loading="lazy" onerror="this.style.display='none'">` : ''}
                 <div class="history-main">
-                  <div class="history-shop">${escMy(shop.name)}</div>
+                  <a class="history-shop" href="shops/${shop.slug || ('shop' + shop.id)}">${escMy(shop.name)}</a>
                   <div class="history-meta">${escMy(meta)}</div>
                   ${l.comment ? `<div class="history-comment">${escMy(l.comment)}</div>` : ''}
                   <div class="history-social">
