@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <base href="/">
+  <title>通知 — うどログ</title>
+  <meta name="robots" content="noindex">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --amber: #BA7517; --amber-dark: #8A5510; --amber-light: #FFF8EE; --amber-border: #F0D9C0;
+      --bg: #FAFAF8; --white: #fff; --border: #e5e5e0; --text: #1a1a1a; --text-sub: #666;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+      background: var(--bg); color: var(--text); line-height: 1.7; font-size: 16px;
+      min-height: 100vh; padding-bottom: 4rem;
+    }
+    .page-header {
+      position: sticky; top: 54px; background: rgba(250,250,248,0.92);
+      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+      border-bottom: 0.5px solid var(--border); padding: 0 1.25rem; height: 56px;
+      display: flex; align-items: center; gap: 12px; z-index: 100;
+    }
+    .back-btn {
+      display: flex; align-items: center; justify-content: center;
+      width: 36px; height: 36px; border-radius: 50%; background: var(--white);
+      border: 0.5px solid var(--border); color: #444; text-decoration: none; font-size: 18px; flex-shrink: 0;
+    }
+    .back-btn:hover { background: #f5f5f0; }
+    .header-title { font-size: 16px; font-weight: 600; }
+    .container { max-width: 600px; margin: 0 auto; padding: 1.5rem 1.25rem; }
+
+    .notif-item {
+      display: flex; gap: 12px; align-items: flex-start;
+      background: var(--white); border: 0.5px solid var(--border); border-radius: 12px;
+      padding: 12px 14px; margin-bottom: 8px; text-decoration: none; color: inherit;
+    }
+    .notif-item:hover { background: #faf8f4; }
+    .notif-item.unread { background: var(--amber-light); border-color: var(--amber-border); }
+
+    .notif-avatar-wrap { position: relative; flex-shrink: 0; }
+    .notif-avatar {
+      width: 42px; height: 42px; border-radius: 50%; background: var(--amber);
+      color: #fff; display: flex; align-items: center; justify-content: center;
+      font-size: 16px; font-weight: 600; overflow: hidden;
+    }
+    .notif-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .notif-type {
+      position: absolute; right: -3px; bottom: -3px; width: 20px; height: 20px;
+      border-radius: 50%; border: 2px solid var(--bg);
+      display: flex; align-items: center; justify-content: center; color: #fff;
+    }
+    .notif-type i { font-size: 11px; line-height: 1; }
+    .notif-type-comment { background: var(--amber); }
+    .notif-type-like { background: #e05a77; }
+    .notif-type-follow { background: #4a90c7; }
+
+    .notif-body { flex: 1; min-width: 0; font-size: 14px; line-height: 1.5; }
+    .notif-name { font-weight: 700; }
+    .notif-date { font-size: 12px; color: var(--text-sub); margin-top: 2px; }
+
+    .notif-empty, .notif-loading {
+      text-align: center; color: #888; font-size: 14px; padding: 2.5rem 0;
+    }
+    .notif-empty img { display: block; margin: 0 auto 8px; }
+  </style>
+  <link rel="icon" href="favicon.ico" sizes="any">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <meta name="theme-color" content="#BA7517">
+  <script src="api.js"></script>
+  <script src="header.js"></script>
+  <script src="analytics.js"></script>
+</head>
+<body>
+  <div class="page-header">
+    <a href="/" class="back-btn"><i class="ti ti-arrow-left"></i></a>
+    <div class="header-title">通知</div>
+  </div>
+
+  <div class="container">
+    <div id="notifList"></div>
+    <div id="notifStatus" class="notif-loading">読み込み中…</div>
+  </div>
+
+  <script>
+    function escapeHtml(s) {
+      return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+        return { '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c];
+      });
+    }
+    function fmtDate(d) {
+      if (!d) return '';
+      var dt = new Date((d + '').replace(' ', 'T'));
+      if (isNaN(dt)) return '';
+      return dt.getFullYear() + '年' + (dt.getMonth() + 1) + '月' + dt.getDate() + '日';
+    }
+
+    // 通知の種類ごとの文言・アイコン・遷移先
+    var TYPE = {
+      comment: { verb: 'あなたの投稿にコメントしました', icon: 'ti-message-circle' },
+      like:    { verb: 'あなたの投稿にいいねしました',   icon: 'ti-heart-filled' },
+      follow:  { verb: 'あなたをフォローしました',       icon: 'ti-user-plus' },
+    };
+
+    function hrefFor(n) {
+      if (n.type === 'follow') {
+        return n.actor.username ? ('/' + encodeURIComponent(n.actor.username)) : 'javascript:void(0)';
+      }
+      // comment / like → その投稿のお店ページへ（無ければマイページ）
+      return n.shopId ? ('shop-detail.html?id=' + n.shopId) : 'mypage.html';
+    }
+
+    function rowHtml(n) {
+      var t = TYPE[n.type] || { verb: 'お知らせ', icon: 'ti-bell' };
+      var nick = n.actor.nickname || 'うどん好き';
+      var avatarInner = n.actor.avatarUrl
+        ? '<img src="' + escapeHtml(n.actor.avatarUrl) + '" alt="">'
+        : escapeHtml(nick.charAt(0) || 'う');
+      return '<a class="notif-item' + (n.isRead ? '' : ' unread') + '" href="' + hrefFor(n) + '">' +
+          '<div class="notif-avatar-wrap">' +
+            '<div class="notif-avatar">' + avatarInner + '</div>' +
+            '<span class="notif-type notif-type-' + n.type + '"><i class="ti ' + t.icon + '"></i></span>' +
+          '</div>' +
+          '<div class="notif-body">' +
+            '<span class="notif-name">' + escapeHtml(nick) + '</span>さんが' + t.verb +
+            '<div class="notif-date">' + escapeHtml(fmtDate(n.createdAt)) + '</div>' +
+          '</div>' +
+        '</a>';
+    }
+
+    (async function init() {
+      try {
+        await API.refresh();
+        if (!API.isLoggedIn()) {
+          location.href = 'login.html?next=' + encodeURIComponent(location.pathname);
+          return;
+        }
+      } catch (e) {
+        document.getElementById('notifStatus').textContent = 'サーバーに接続できませんでした。';
+        return;
+      }
+
+      var data;
+      try {
+        data = await API.get('notifications.php');
+      } catch (e) {
+        document.getElementById('notifStatus').textContent = '通知の読み込みに失敗しました。';
+        return;
+      }
+
+      var list = data.notifications || [];
+      var listEl = document.getElementById('notifList');
+      var statusEl = document.getElementById('notifStatus');
+      if (!list.length) {
+        statusEl.className = 'notif-empty';
+        statusEl.innerHTML =
+          '<img src="images/udomaru-hungry.svg" alt="うどまる" width="100" height="100">' +
+          'まだ通知はありません。<br>コメント・いいね・フォローがあると、ここに届きます。';
+      } else {
+        listEl.innerHTML = list.map(rowHtml).join('');
+        statusEl.style.display = 'none';
+      }
+
+      // 開いたら既読にする（ヘッダーのバッジも消す）
+      try {
+        await API.post('notifications_read.php', {});
+        if (window.ulogClearNotifBadge) window.ulogClearNotifBadge();
+      } catch (e) { /* 失敗しても表示は継続 */ }
+    })();
+  </script>
+</body>
+</html>

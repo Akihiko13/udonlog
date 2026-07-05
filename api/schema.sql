@@ -117,6 +117,22 @@ CREATE TABLE IF NOT EXISTS follows (
   CONSTRAINT fk_follow_followee FOREIGN KEY (followee_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+-- 通知（コメント・フォロー・いいねを受け取った人へ）
+CREATE TABLE IF NOT EXISTS notifications (
+  id         INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  user_id    INT UNSIGNED NOT NULL,      -- 通知を受け取る人
+  actor_id   INT UNSIGNED NOT NULL,      -- 行動した人
+  type       VARCHAR(16) NOT NULL,       -- 'comment' | 'follow' | 'like'
+  log_id     INT UNSIGNED NULL,          -- comment/like の対象投稿（follow は NULL）
+  is_read    TINYINT NOT NULL DEFAULT 0,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  KEY idx_user   (user_id, id),
+  KEY idx_unread (user_id, is_read),
+  CONSTRAINT fk_notif_user  FOREIGN KEY (user_id)  REFERENCES users(id) ON DELETE CASCADE,
+  CONSTRAINT fk_notif_actor FOREIGN KEY (actor_id) REFERENCES users(id) ON DELETE CASCADE,
+  CONSTRAINT fk_notif_log   FOREIGN KEY (log_id)   REFERENCES logs(id)  ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 -- 新規登録のメール確認コード（アカウント作成前に所有確認。メール単位で1件）
 CREATE TABLE IF NOT EXISTS email_verifications (
   email      VARCHAR(255)     NOT NULL PRIMARY KEY,

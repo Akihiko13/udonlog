@@ -80,6 +80,20 @@
     }
     .ulog-cta:hover { background: #6F440C; }
 
+    /* ヘッダー右側（通知ベル＋ナビ）。ベルはモバイルでも表示する */
+    .ulog-header-right { display: flex; align-items: center; gap: 1.25rem; }
+    .ulog-bell {
+      position: relative; display: none; align-items: center;
+      color: #555; text-decoration: none; font-size: 21px; line-height: 1;
+    }
+    .ulog-bell:hover { color: #1a1a1a; }
+    .ulog-bell-badge {
+      position: absolute; top: -5px; right: -6px;
+      min-width: 16px; height: 16px; padding: 0 4px; border-radius: 99px;
+      background: #d9534f; color: #fff; font-size: 10px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center; line-height: 1;
+    }
+
     @media (max-width: 560px) {
       .ulog-nav { gap: 0.85rem; }
       .ulog-nav a:not(.ulog-cta) { font-size: 12px; }
@@ -254,7 +268,13 @@
     header.className = 'ulog-header';
     header.innerHTML =
       '<a href="/" class="ulog-logo">うどログ</a>' +
-      '<nav class="ulog-nav" id="ulog-nav"></nav>';
+      '<div class="ulog-header-right">' +
+        '<a href="notifications.html" class="ulog-bell" id="ulog-bell" aria-label="通知">' +
+          '<i class="ti ti-bell"></i>' +
+          '<span class="ulog-bell-badge" id="ulog-bell-badge" hidden></span>' +
+        '</a>' +
+        '<nav class="ulog-nav" id="ulog-nav"></nav>' +
+      '</div>';
     document.body.insertBefore(header, document.body.firstChild);
 
     // 下部タブバー（モバイル用）を body 末尾に挿入。認証系ページでは出さない。
@@ -267,15 +287,40 @@
     var cachedUser = cached === '1' ? {} : null;   // {} は「ログイン中レイアウト」用のダミー
     renderNav(cachedUser);
     renderTabbar(cachedUser);
+    renderBell(cachedUser, null);   // キャッシュ時は数はまだ分からない（ベルだけ出す）
 
     if (typeof API !== 'undefined') {
       API.refresh().then(function (d) {
         renderNav(d.user);
         renderTabbar(d.user);
+        renderBell(d.user, d.notifUnread);
         try { localStorage.setItem(AUTH_CACHE, d.user ? '1' : '0'); } catch (e) {}
       }).catch(function () {});
     }
   }
+
+  // --- 通知ベル（ログイン中のみ・未読数バッジ）---
+  function renderBell(user, unread) {
+    var bell = document.getElementById('ulog-bell');
+    if (!bell) return;
+    if (!user) { bell.style.display = 'none'; return; }
+    bell.style.display = 'flex';
+    var badge = document.getElementById('ulog-bell-badge');
+    if (badge) {
+      if (unread && unread > 0) {
+        badge.textContent = unread > 99 ? '99+' : unread;
+        badge.removeAttribute('hidden');
+      } else {
+        badge.setAttribute('hidden', '');
+      }
+    }
+  }
+
+  // 通知ページで既読にした後にバッジを消すための公開関数
+  window.ulogClearNotifBadge = function () {
+    var badge = document.getElementById('ulog-bell-badge');
+    if (badge) badge.setAttribute('hidden', '');
+  };
 
   // --- 下部タブバー ---------------------------------------------------------
   // ログイン/登録などの集中フローでは邪魔になるので出さない

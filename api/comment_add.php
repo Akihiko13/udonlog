@@ -27,6 +27,9 @@ $st = db()->prepare('INSERT INTO comments (log_id, user_id, body) VALUES (?, ?, 
 $st->execute([$log_id, $u['id'], $text]);
 $cid = (int)db()->lastInsertId();
 
+// 投稿の持ち主に通知（自分の投稿へのコメントは通知しない＝notify内で判定）
+notify((int)$log['user_id'], (int)$u['id'], 'comment', $log_id);
+
 // 合計コメント数
 $st = db()->prepare('SELECT COUNT(*) AS c FROM comments WHERE log_id = ?');
 $st->execute([$log_id]);

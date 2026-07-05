@@ -167,3 +167,30 @@ function login_user(int $uid): void {
   session_regenerate_id(true);   // ログイン時にセッションID再発行（固定化対策）
   $_SESSION['uid'] = $uid;
 }
+
+// --- 通知 ---
+// 受け取る人($userId)へ、行動した人($actorId)による通知を1件作る。
+// 自分自身の行動は通知しない。通知の失敗は本処理を止めない（握りつぶす）。
+function notify(int $userId, int $actorId, string $type, ?int $logId = null): void {
+  if ($userId <= 0 || $userId === $actorId) return;
+  try {
+    $st = db()->prepare(
+      'INSERT INTO notifications (user_id, actor_id, type, log_id) VALUES (?, ?, ?, ?)'
+    );
+    $st->execute([$userId, $actorId, $type, $logId]);
+  } catch (\Throwable $e) {
+    // notifications テーブル未作成などでも本処理（コメント等）は成功させる
+  }
+}
+
+// 未読の通知数（ログイン中ユーザー）
+function unread_notif_count(int $userId): int {
+  if ($userId <= 0) return 0;
+  try {
+    $st = db()->prepare('SELECT COUNT(*) AS c FROM notifications WHERE user_id = ? AND is_read = 0');
+    $st->execute([$userId]);
+    return (int)($st->fetch()['c'] ?? 0);
+  } catch (\Throwable $e) {
+    return 0;
+  }
+}

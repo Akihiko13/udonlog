@@ -30,6 +30,8 @@ if ($already) {
   $st = db()->prepare('INSERT IGNORE INTO follows (follower_id, followee_id) VALUES (?, ?)');
   $st->execute([$u['id'], $target]);
   $following = 1;
+  // フォローされた相手に通知（解除時は通知しない）
+  notify($target, (int)$u['id'], 'follow', null);
 }
 
 // 対象の最新フォロワー数
