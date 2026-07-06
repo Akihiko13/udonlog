@@ -152,6 +152,15 @@
     .ulog-tab span { line-height: 1; }
     .ulog-tab.active { color: #8A5510; }
     .ulog-tab:active { opacity: 0.6; }
+    /* 通知タブの未読バッジ */
+    .ulog-tab-iconwrap { position: relative; display: inline-flex; line-height: 1; }
+    .ulog-tab-badge {
+      position: absolute; top: -4px; right: -7px;
+      min-width: 15px; height: 15px; padding: 0 3px; border-radius: 99px;
+      background: #d9534f; color: #fff; font-size: 9px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center; line-height: 1;
+    }
+    .ulog-tab-badge[hidden] { display: none; }
 
     /* 記録用の浮動ボタン（FAB）。タブバーの上・右下に浮かせる（X本家と同じ発想）。
        表示可否は renderTabbar が .ulog-fab-on の付け外しで制御する。*/
@@ -256,6 +265,9 @@
       .ulog-nav { display: none; }
       /* 記録FABはモバイルかつ表示ONのときだけ出す */
       .ulog-fab.ulog-fab-on { display: flex; }
+      /* モバイルは通知タブに集約するので、ヘッダー右上のベルは隠す
+         （renderBellのinline display:flexを上書きするため!important）*/
+      .ulog-bell { display: none !important; }
     }
   `;
 
@@ -303,25 +315,28 @@
 
   // --- 通知ベル（ログイン中のみ・未読数バッジ）---
   function renderBell(user, unread) {
+    var label = (unread && unread > 0) ? (unread > 99 ? '99+' : unread) : null;
+    // ヘッダーのベル（PC用。モバイルはCSSで非表示にし通知タブへ集約）
     var bell = document.getElementById('ulog-bell');
-    if (!bell) return;
-    if (!user) { bell.style.display = 'none'; return; }
-    bell.style.display = 'flex';
-    var badge = document.getElementById('ulog-bell-badge');
-    if (badge) {
-      if (unread && unread > 0) {
-        badge.textContent = unread > 99 ? '99+' : unread;
-        badge.removeAttribute('hidden');
-      } else {
-        badge.setAttribute('hidden', '');
-      }
+    if (bell) {
+      bell.style.display = user ? 'flex' : 'none';
+      setBadge('ulog-bell-badge', user ? label : null);
     }
+    // 下部タブバーの通知バッジ（モバイル用）
+    setBadge('ulog-tab-notif-badge', user ? label : null);
+  }
+
+  function setBadge(id, label) {
+    var b = document.getElementById(id);
+    if (!b) return;
+    if (label) { b.textContent = label; b.removeAttribute('hidden'); }
+    else b.setAttribute('hidden', '');
   }
 
   // 通知ページで既読にした後にバッジを消すための公開関数
   window.ulogClearNotifBadge = function () {
-    var badge = document.getElementById('ulog-bell-badge');
-    if (badge) badge.setAttribute('hidden', '');
+    setBadge('ulog-bell-badge', null);
+    setBadge('ulog-tab-notif-badge', null);
   };
 
   // --- 下部タブバー ---------------------------------------------------------
@@ -336,6 +351,7 @@
     if (/(^|\/)feed\.html$/.test(p)) return 'feed';
     if (/(^|\/)(shops|shop-detail)\.html$/.test(p) || /(^|\/)shops\//.test(p)) return 'shops';
     if (/(^|\/)record\.html$/.test(p)) return 'record';
+    if (/(^|\/)notifications\.html$/.test(p)) return 'notif';
     if (/(^|\/)(mypage|profile-edit|account)\.html$/.test(p)) return 'mypage';
     return '';
   }
@@ -524,10 +540,15 @@
              '<i class="ti ti-' + icon + '"></i><span>' + label + '</span></a>';
     }
     if (user) {
-      // ログイン中は移動用の3タブ。記録は右下のFAB（下記）に分離。
+      // ログイン中は 新着／探す／通知／マイページ。記録は右下のFAB（下記）に分離。
+      var notifActive = cur === 'notif' ? ' active' : '';
       bar.innerHTML =
         tab('feed.html', 'feed', 'home', '新着') +
         tab('shops.html', 'shops', 'search', '探す') +
+        '<a class="ulog-tab' + notifActive + '" href="notifications.html">' +
+          '<span class="ulog-tab-iconwrap"><i class="ti ti-bell"></i>' +
+            '<span class="ulog-tab-badge" id="ulog-tab-notif-badge" hidden></span></span>' +
+          '<span>通知</span></a>' +
         tab('mypage.html', 'mypage', 'user', 'マイページ');
     } else {
       bar.innerHTML =
