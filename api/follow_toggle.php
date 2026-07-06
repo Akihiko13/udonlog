@@ -9,6 +9,13 @@ $u = require_login();
 
 $in     = body();
 $target = (int)($in['user_id'] ?? 0);
+// user_id が無ければ username から解決（連番ID露出を避けたい画面用）
+if ($target <= 0 && !empty($in['username'])) {
+  $st = db()->prepare('SELECT id FROM users WHERE username = ?');
+  $st->execute([normalize_username((string)$in['username'])]);
+  $row = $st->fetch();
+  if ($row) $target = (int)$row['id'];
+}
 if ($target <= 0) json_error('ユーザーが指定されていません');
 if ($target === (int)$u['id']) json_error('自分自身はフォローできません');
 

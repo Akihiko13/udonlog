@@ -110,6 +110,11 @@
     }
     /* プロフィール下のリンク */
     .profile-links { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 8px; }
+    /* フォロワー・フォロー中（一覧への入口） */
+    .profile-stats { display: flex; gap: 18px; margin-top: 6px; font-size: 13px; color: var(--text-sub); }
+    .profile-stats a { text-decoration: none; color: inherit; white-space: nowrap; }
+    .profile-stats a:hover b { text-decoration: underline; }
+    .profile-stats b { color: var(--text); font-weight: 700; }
     .profile-links a { font-size: 12px; font-weight: 600; text-decoration: none; color: var(--amber-dark); }
     .profile-links a:hover { text-decoration: underline; }
 
@@ -817,6 +822,10 @@
         <div class="profile-name"></div>
         <div class="profile-sub">香川のさぬきうどんを記録中</div>
         <div class="profile-bio" id="profileBio" style="display:none;"></div>
+        <div class="profile-stats" id="profileStats" style="display:none;">
+          <a id="statFollowing" href="#"><b id="followingCount">0</b> フォロー中</a>
+          <a id="statFollowers" href="#"><b id="followerCount">0</b> フォロワー</a>
+        </div>
         <div class="profile-links">
           <a href="profile-edit.html" class="edit-link"><i class="ti ti-pencil" style="font-size:12px;"></i> プロフィールを編集</a>
           <a href="account.html" class="edit-link"><i class="ti ti-settings" style="font-size:12px;"></i> アカウント設定</a>
@@ -1557,6 +1566,16 @@
       try {
         const data = await API.get('my_logs.php');
         render(data.logs || []);
+        // フォロワー・フォロー中の数値＋一覧へのリンク
+        document.getElementById('followerCount').textContent = data.followerCount || 0;
+        document.getElementById('followingCount').textContent = data.followingCount || 0;
+        const uname = API.user && API.user.username;
+        if (uname) {
+          const fu = encodeURIComponent(uname);
+          document.getElementById('statFollowers').href = 'follows.html?u=' + fu + '&tab=followers';
+          document.getElementById('statFollowing').href = 'follows.html?u=' + fu + '&tab=following';
+        }
+        document.getElementById('profileStats').style.display = 'flex';
       } catch (e) {
         showToast(e.message || '記録の取得に失敗しました', { error: true });
         render([]);

@@ -36,4 +36,15 @@ $st->execute([$u['id']]);
 $ratings = [];
 foreach ($st as $r) { $ratings[(string)(int)$r['shop_id']] = (int)$r['score']; }
 
-json_out(['ok' => true, 'logs' => $logs, 'ratings' => $ratings]);
+// フォロワー数・フォロー中数（マイページの一覧への入口用）
+$st = db()->prepare('SELECT COUNT(*) AS c FROM follows WHERE followee_id = ?');
+$st->execute([$u['id']]);
+$followerCount = (int)($st->fetch()['c'] ?? 0);
+$st = db()->prepare('SELECT COUNT(*) AS c FROM follows WHERE follower_id = ?');
+$st->execute([$u['id']]);
+$followingCount = (int)($st->fetch()['c'] ?? 0);
+
+json_out([
+  'ok' => true, 'logs' => $logs, 'ratings' => $ratings,
+  'followerCount' => $followerCount, 'followingCount' => $followingCount,
+]);

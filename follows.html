@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <base href="/">
+  <title>フォロー — うどログ</title>
+  <meta name="robots" content="noindex">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --amber: #BA7517; --amber-dark: #8A5510; --amber-light: #FFF8EE; --amber-border: #F0D9C0;
+      --bg: #FAFAF8; --white: #fff; --border: #e5e5e0; --text: #1a1a1a; --text-sub: #666;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+      background: var(--bg); color: var(--text); line-height: 1.7; font-size: 16px;
+      min-height: 100vh; padding-bottom: 4rem;
+    }
+    .page-header {
+      position: sticky; top: 54px; background: rgba(250,250,248,0.92);
+      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+      border-bottom: 0.5px solid var(--border); padding: 0 1.25rem; height: 56px;
+      display: flex; align-items: center; gap: 12px; z-index: 100;
+    }
+    .back-btn {
+      display: flex; align-items: center; justify-content: center;
+      width: 36px; height: 36px; border-radius: 50%; background: var(--white);
+      border: 0.5px solid var(--border); color: #444; text-decoration: none; font-size: 18px; flex-shrink: 0;
+    }
+    .back-btn:hover { background: #f5f5f0; }
+    .header-title { font-size: 16px; font-weight: 600; }
+    .container { max-width: 600px; margin: 0 auto; padding: 0 1.25rem 1.5rem; }
+
+    .fl-tabs { display: flex; margin: 0 0 1rem; border-bottom: 0.5px solid var(--border); position: sticky; top: 110px; background: var(--bg); z-index: 50; }
+    .fl-tab {
+      flex: 1; background: none; border: none; padding: 12px 0; font-size: 14px; font-weight: 600;
+      color: var(--text-sub); cursor: pointer; font-family: inherit; position: relative;
+    }
+    .fl-tab.active { color: var(--amber-dark); }
+    .fl-tab.active::after {
+      content: ''; position: absolute; left: 0; right: 0; bottom: -0.5px; height: 2px;
+      background: var(--amber); border-radius: 2px;
+    }
+
+    .fl-row { display: flex; align-items: center; gap: 12px; padding: 10px 2px; }
+    .fl-user { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0; text-decoration: none; color: inherit; }
+    .fl-avatar {
+      width: 46px; height: 46px; border-radius: 50%; background: var(--amber); color: #fff;
+      display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 600;
+      overflow: hidden; flex-shrink: 0;
+    }
+    .fl-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .fl-name { font-size: 15px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .fl-handle { font-size: 12px; color: var(--text-sub); }
+    .fl-follow-btn {
+      flex-shrink: 0; background: #8A5510; color: #fff; border: none; border-radius: 99px;
+      padding: 7px 16px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit;
+    }
+    .fl-follow-btn:hover { background: #6F440C; }
+    .fl-follow-btn:disabled { opacity: 0.6; cursor: default; }
+    .fl-follow-btn.following { background: #fff; color: #8A5510; border: 1px solid #d9c3a3; }
+    .fl-follow-btn.following:hover { background: #fbeee0; }
+
+    .fl-empty, .fl-loading { text-align: center; color: #888; font-size: 14px; padding: 2.5rem 0; }
+    .fl-empty img { display: block; margin: 0 auto 8px; }
+  </style>
+  <link rel="icon" href="favicon.ico" sizes="any">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <meta name="theme-color" content="#BA7517">
+  <script src="api.js"></script>
+  <script src="header.js"></script>
+  <script src="analytics.js"></script>
+</head>
+<body>
+  <div class="page-header">
+    <a href="/" class="back-btn" id="backBtn"><i class="ti ti-arrow-left"></i></a>
+    <div class="header-title" id="headerTitle">フォロー</div>
+  </div>
+
+  <div class="container">
+    <div class="fl-tabs">
+      <button class="fl-tab" data-tab="followers" onclick="switchTab('followers')" id="tabFollowers">フォロワー</button>
+      <button class="fl-tab" data-tab="following" onclick="switchTab('following')" id="tabFollowing">フォロー中</button>
+    </div>
+    <div id="flList"></div>
+    <div id="flStatus" class="fl-loading">読み込み中…</div>
+  </div>
+
+  <script>
+    var params = new URLSearchParams(location.search);
+    var uname = (params.get('u') || '').trim();
+    var tab = params.get('tab') === 'following' ? 'following' : 'followers';
+    var cache = {};   // type -> users（一度読んだら使い回す）
+
+    function escapeHtml(s) {
+      return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+        return { '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c];
+      });
+    }
+
+    function setActiveTab() {
+      document.getElementById('tabFollowers').classList.toggle('active', tab === 'followers');
+      document.getElementById('tabFollowing').classList.toggle('active', tab === 'following');
+    }
+
+    function followBtnHtml(u) {
+      if (u.isSelf) return '';   // 自分にはボタンを出さない
+      var cls = 'fl-follow-btn' + (u.isFollowing ? ' following' : '');
+      var label = u.isFollowing ? 'フォロー中' : 'フォロー';
+      return '<button class="' + cls + '" data-username="' + escapeHtml(u.username || '') +
+             '" onclick="toggleFollowRow(this)">' + label + '</button>';
+    }
+
+    function rowHtml(u) {
+      var nick = u.nickname || 'うどん好き';
+      var inner = u.avatarUrl ? '<img src="' + escapeHtml(u.avatarUrl) + '" alt="">' : escapeHtml(nick.charAt(0) || 'う');
+      var href = u.username ? ('/' + encodeURIComponent(u.username)) : 'javascript:void(0)';
+      return '<div class="fl-row">' +
+          '<a class="fl-user" href="' + href + '">' +
+            '<span class="fl-avatar">' + inner + '</span>' +
+            '<span style="min-width:0;">' +
+              '<span class="fl-name">' + escapeHtml(nick) + '</span>' +
+              (u.username ? '<div class="fl-handle">@' + escapeHtml(u.username) + '</div>' : '') +
+            '</span>' +
+          '</a>' + followBtnHtml(u) +
+        '</div>';
+    }
+
+    async function toggleFollowRow(btn) {
+      if (btn.dataset.busy) return;
+      try {
+        await API.refresh();
+        if (!API.isLoggedIn()) {
+          location.href = 'login.html?next=' + encodeURIComponent(location.pathname + location.search);
+          return;
+        }
+        btn.dataset.busy = '1';
+        var res = await API.post('follow_toggle.php', { username: btn.dataset.username });
+        var following = res.following === 1;
+        btn.classList.toggle('following', following);
+        btn.textContent = following ? 'フォロー中' : 'フォロー';
+      } catch (e) {
+        if (window.showToast) showToast(e.message || 'フォローに失敗しました', { error: true });
+      } finally {
+        delete btn.dataset.busy;
+      }
+    }
+
+    function renderList(users) {
+      var listEl = document.getElementById('flList');
+      var statusEl = document.getElementById('flStatus');
+      if (!users.length) {
+        listEl.innerHTML = '';
+        statusEl.className = 'fl-empty';
+        statusEl.innerHTML =
+          '<img src="images/udomaru-hungry.svg" alt="うどまる" width="90" height="90">' +
+          (tab === 'followers' ? 'まだフォロワーがいません。' : 'まだ誰もフォローしていません。');
+        statusEl.style.display = 'block';
+      } else {
+        statusEl.style.display = 'none';
+        listEl.innerHTML = users.map(rowHtml).join('');
+      }
+    }
+
+    async function load() {
+      setActiveTab();
+      if (cache[tab]) { renderList(cache[tab]); return; }
+      var listEl = document.getElementById('flList');
+      var statusEl = document.getElementById('flStatus');
+      listEl.innerHTML = '';
+      statusEl.className = 'fl-loading'; statusEl.style.display = 'block'; statusEl.textContent = '読み込み中…';
+      try {
+        var d = await API.get('follows_list.php?type=' + tab + '&u=' + encodeURIComponent(uname));
+        cache[tab] = d.users || [];
+        // タブ見出しに件数、タイトルに名前
+        document.getElementById('tabFollowers').textContent = 'フォロワー ' + d.followerCount;
+        document.getElementById('tabFollowing').textContent = 'フォロー中 ' + d.followingCount;
+        if (d.owner && d.owner.nickname) {
+          document.getElementById('headerTitle').textContent = d.owner.nickname + 'さん';
+          document.getElementById('backBtn').setAttribute('href', '/' + encodeURIComponent(d.owner.username || ''));
+        }
+        renderList(cache[tab]);
+      } catch (e) {
+        statusEl.className = 'fl-empty';
+        statusEl.textContent = (e.message || '読み込みに失敗しました');
+      }
+    }
+
+    function switchTab(t) {
+      if (t === tab) return;
+      tab = t;
+      try { history.replaceState(null, '', location.pathname + '?u=' + encodeURIComponent(uname) + '&tab=' + tab); } catch (e) {}
+      load();
+    }
+
+    if (!uname) {
+      document.getElementById('flStatus').textContent = 'ユーザーが指定されていません。';
+    } else {
+      load();
+    }
+  </script>
+</body>
+</html>
