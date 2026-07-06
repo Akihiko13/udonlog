@@ -380,7 +380,7 @@
         '<a href="https://x.com/udolog_com" target="_blank" rel="noopener">公式X</a>' +
         '<a href="https://kagawan.com/" target="_blank" rel="noopener">カガワン（香川県情報ブログ）</a>' +
       '</div>' +
-      '<div class="ulog-footer-copy">&copy; 2026 うどログ（カガワン）. All rights reserved.</div>';
+      '<div class="ulog-footer-copy">&copy; 2026 うどログ. All rights reserved.</div>';
     document.body.appendChild(f);
   }
 
