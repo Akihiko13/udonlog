@@ -96,6 +96,29 @@
     /* display:flex が hidden属性(display:none)を打ち消さないよう、未読0では確実に隠す */
     .ulog-bell-badge[hidden] { display: none; }
 
+    /* --- 共通フッター（全ページ共通） --------------------------------------
+       ページ独自の footer{} 指定が漏れないよう主要プロパティは明示する。*/
+    .ulog-footer {
+      box-sizing: border-box;
+      width: 100%;
+      margin: 2.5rem 0 0;
+      padding: 2rem 1.25rem;
+      border-top: 0.5px solid #e5e5e0;
+      background: none;
+      color: #999;
+      text-align: center;
+      font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+      font-size: 12px;
+      line-height: 1.7;
+    }
+    .ulog-footer-links {
+      display: flex; flex-wrap: wrap; justify-content: center;
+      gap: 8px 16px; margin-bottom: 12px;
+    }
+    .ulog-footer-links a { color: #8A5510; text-decoration: none; font-size: 13px; white-space: nowrap; }
+    .ulog-footer-links a:hover { text-decoration: underline; }
+    .ulog-footer-copy { color: #aaa; }
+
     @media (max-width: 560px) {
       .ulog-nav { gap: 0.85rem; }
       .ulog-nav a:not(.ulog-cta) { font-size: 12px; }
@@ -294,6 +317,9 @@
     // 下部タブバー（モバイル用）を body 末尾に挿入。認証系ページでは出さない。
     insertTabbar();
 
+    // 共通フッターを body 末尾に挿入（全ページ共通）
+    insertFooter();
+
     // 前回のログイン状態をキャッシュから復元して即描画（チラつき防止）。
     // その後 API で実際の状態を確認し、変わっていれば差し替える。
     var cached = null;
@@ -338,6 +364,25 @@
     setBadge('ulog-bell-badge', null);
     setBadge('ulog-tab-notif-badge', null);
   };
+
+  // --- 共通フッター ---------------------------------------------------------
+  function insertFooter() {
+    if (document.getElementById('ulog-footer')) return;
+    var f = document.createElement('footer');
+    f.className = 'ulog-footer';
+    f.id = 'ulog-footer';
+    f.innerHTML =
+      '<div class="ulog-footer-links">' +
+        '<a href="/news.html">お知らせ</a>' +
+        '<a href="/terms.html">利用規約</a>' +
+        '<a href="/privacy.html">プライバシーポリシー</a>' +
+        '<a href="mailto:info@udolog.com">お問い合わせ</a>' +
+        '<a href="https://x.com/udolog_com" target="_blank" rel="noopener">公式X</a>' +
+        '<a href="https://kagawan.com/" target="_blank" rel="noopener">カガワン（香川県情報ブログ）</a>' +
+      '</div>' +
+      '<div class="ulog-footer-copy">&copy; 2026 うどログ（カガワン）. All rights reserved.</div>';
+    document.body.appendChild(f);
+  }
 
   // --- 下部タブバー ---------------------------------------------------------
   // ログイン/登録などの集中フローでは邪魔になるので出さない
