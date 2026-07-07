@@ -262,13 +262,18 @@
       margin-left: auto;
     }
 
-    /* 未記録の人は評価できない（星を無効化） */
+    /* 未記録で評価できない状態：ひと目で分かるようブロック全体をグレーに */
+    .my-rating.locked {
+      background: #f3f1ee;
+      border-color: #ddd9d2;
+    }
+    .my-rating.locked .my-rating-label { color: #999; }
     .my-rating.locked .my-star {
       pointer-events: none;
-      color: #e6e0d6;
+      color: #d8d4cc;
       cursor: default;
     }
-    .my-rating.locked .my-rating-text { color: #b0a690; }
+    .my-rating.locked .my-rating-text { color: #999; }
 
     /* あなたの訪問回数 */
     .my-visit {
@@ -1206,12 +1211,9 @@
         document.getElementById('myVisitSub').textContent = last ? `最後の訪問：${last}` : '';
         renderLoyaltyCard(count, shop.name, my.dates || []);
       } else {
-        myVisit.classList.add('my-visit-empty');
-        myVisit.style.display = 'flex';
-        document.getElementById('myVisitNum').style.display = 'none';
-        document.querySelector('#myVisit .my-visit-label').textContent =
-          'あなたはまだこの店を記録していません';
-        document.getElementById('myVisitSub').textContent = '';
+        // 未記録：おすすめ度ブロック側で「記録すると評価できます」と案内するため、
+        // 同じ意味になるこの空状態は出さない（重複を避ける）。
+        myVisit.style.display = 'none';
         document.getElementById('loyaltyCard').style.display = 'none';
       }
     }
@@ -1265,7 +1267,7 @@
       document.getElementById('myRating').classList.toggle('locked', !can);
       if (!can) {
         document.getElementById('myRatingText').textContent =
-          (my ? '記録すると評価できます' : 'ログインして記録すると評価できます');
+          (my ? 'この店を記録すると評価できます' : 'ログインして記録すると評価できます');
       }
     }
 
