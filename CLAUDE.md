@@ -44,6 +44,12 @@ login / register / forgot-password / reset-password / news / privacy / terms
 2. `python3 build-shops-data.py` を実行 → `shops-data.js` を再生成（現在 **156店**）。
 3. `sitemap.xml` に新店URL `https://udolog.com/shops/{slug}` を追記（自動生成スクリプトは無い＝手動）。
 
+## アイコン（Tabler サブセット・自前ホスト）
+- アイコンはCDNではなく**サブセットフォント自前ホスト**（`tabler-icons.css` + `fonts/*.woff2`、使用56種のみ・約10KB）。
+- **新しい `ti-*` アイコンをページに追加したら `python3 build-tabler-subset.py` を再実行**して両生成物を再アップ（`pip3 install --user fonttools brotli` が必要）。
+- JSで名前を変数から組み立てていて「ti-」の文字が現れない場合（header.jsのタブ等）は、スクリプト内の `EXTRA` に手で追加。
+- `ti-*-filled` はTabler 3.xで別フォント（filled）に分離済み。スクリプトが自動で filled 側から取り込む。
+
 ## デプロイ（FileZilla → エックスサーバー）
 ローカル→本番の対応:
 - `udonlog/` 直下（*.html, *.js, 画像, favicon類, sitemap.xml 等）→ **`public_html/` 直下**
