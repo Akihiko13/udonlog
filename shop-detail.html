@@ -670,24 +670,12 @@
 
     @media (max-width: 480px) {
       .rating-bars { display: none; }
-      /* 画面が狭いモバイルでも1行に収める（ラベルと星だけで幅が足りないため縮小） */
-      .my-rating { gap: 6px; }
-      .my-rating-label { font-size: 11px; }
-      .my-star { font-size: 16px; }
-      .my-rating-text { font-size: 11px; }
-      /* 評価できない時は星を隠して、ラベル＋案内文を1行に */
-      .my-rating.locked .my-stars { display: none; }
-    }
-
-    /* さらに狭い端末（360px級）では記録済み時の評価語を省略（星で伝わる）。
-       ※評価できない時の案内文は情報として必要なので残す（.locked は対象外） */
-    @media (max-width: 374px) {
-      .my-rating:not(.locked) .my-rating-text { display: none; }
-    }
-    /* 極狭端末（320px級）では評価できない時のラベルも省略し、案内文だけで1行を保つ
-       （案内文に「評価」が含まれるため意味は通る） */
-    @media (max-width: 340px) {
-      .my-rating.locked .my-rating-label { display: none; }
+      /* モバイルは幅が足りず無理に1行にすると窮屈なので、星を見せて自然に折り返す
+         （ラベル＋星で1行、案内文/評価語が2行目）。フォントは通常サイズに戻す。 */
+      .my-rating { flex-wrap: wrap; gap: 12px; }
+      .my-rating-label { font-size: 14px; }
+      .my-star { font-size: 26px; }
+      .my-rating-text { font-size: 13px; }
     }
   </style>
   <!-- ファビコン -->
