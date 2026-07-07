@@ -230,23 +230,25 @@
       margin-bottom: 1.25rem;
       display: flex;
       align-items: center;
-      gap: 12px;
-      flex-wrap: wrap;
+      gap: 10px;
+      flex-wrap: nowrap;        /* ラベル・星・文言を1行に保つ */
     }
 
     .my-rating-label {
       font-size: 14px;
       font-weight: 600;
       color: #8a6a3a;
+      flex-shrink: 0;
+      white-space: nowrap;
     }
 
-    .my-stars { display: flex; gap: 4px; }
+    .my-stars { display: flex; gap: 3px; flex-shrink: 0; }
 
     .my-star {
       background: none;
       border: none;
       cursor: pointer;
-      font-size: 26px;
+      font-size: 22px;
       color: #e0d8cc;
       padding: 0;
       line-height: 1;
@@ -257,9 +259,11 @@
     .my-star:hover { transform: scale(1.15); }
 
     .my-rating-text {
-      font-size: 13px;
+      font-size: 12px;
       color: #999;
       margin-left: auto;
+      white-space: nowrap;
+      flex-shrink: 0;
     }
 
     /* 未記録で評価できない状態：ひと目で分かるようブロック全体をグレーに */
@@ -666,6 +670,24 @@
 
     @media (max-width: 480px) {
       .rating-bars { display: none; }
+      /* 画面が狭いモバイルでも1行に収める（ラベルと星だけで幅が足りないため縮小） */
+      .my-rating { gap: 6px; }
+      .my-rating-label { font-size: 11px; }
+      .my-star { font-size: 16px; }
+      .my-rating-text { font-size: 11px; }
+      /* 評価できない時は星を隠して、ラベル＋案内文を1行に */
+      .my-rating.locked .my-stars { display: none; }
+    }
+
+    /* さらに狭い端末（360px級）では記録済み時の評価語を省略（星で伝わる）。
+       ※評価できない時の案内文は情報として必要なので残す（.locked は対象外） */
+    @media (max-width: 374px) {
+      .my-rating:not(.locked) .my-rating-text { display: none; }
+    }
+    /* 極狭端末（320px級）では評価できない時のラベルも省略し、案内文だけで1行を保つ
+       （案内文に「評価」が含まれるため意味は通る） */
+    @media (max-width: 340px) {
+      .my-rating.locked .my-rating-label { display: none; }
     }
   </style>
   <!-- ファビコン -->
@@ -1267,7 +1289,7 @@
       document.getElementById('myRating').classList.toggle('locked', !can);
       if (!can) {
         document.getElementById('myRatingText').textContent =
-          (my ? 'この店を記録すると評価できます' : 'ログインして記録すると評価できます');
+          (my ? 'この店を記録すると評価できます' : 'ログインすると評価できます');
       }
     }
 
