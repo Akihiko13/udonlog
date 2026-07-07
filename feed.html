@@ -189,6 +189,7 @@
     .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
   </style>
   <script src="api.js"></script>
+  <script src="time.js"></script>
   <script src="comments.js"></script>
   <script src="header.js"></script>
   <script src="analytics.js"></script>
@@ -241,7 +242,10 @@
     // 1件分のカードHTML
     function postCardHtml(p) {
       const menu = (p.menus && p.menus.length) ? p.menus.join('・') : '';
-      const dateStr = formatPostDate(p.visitDate || p.savedAt);
+      // 投稿日時（savedAt）を相対表記に。ホバーで正確な日時を表示。
+      const ts = p.savedAt || p.visitDate;
+      const dateStr = window.ulogTimeAgo ? ulogTimeAgo(ts) : formatPostDate(p.visitDate || p.savedAt);
+      const dateTitle = window.ulogDateFull ? ulogDateFull(ts) : '';
       const nick = p.nickname || 'うどん好き';
       const initial = escapeHtml((nick.charAt(0) || 'う'));
       const avatarInner = p.avatarUrl
@@ -270,7 +274,7 @@
             ${avatarHtml}
             <div>
               <div class="post-user-name">${nameInner}</div>
-              <div class="post-date">${dateStr}</div>
+              <div class="post-date" title="${escapeHtml(dateTitle)}">${dateStr}</div>
             </div>
           </div>
           ${shopHtml}

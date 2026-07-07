@@ -63,8 +63,10 @@
     });
   }
 
+  // コメントの日時。共通ヘルパー(time.js)があれば相対表記、無ければ従来の絶対表記。
   function fmtDate(d) {
     if (!d) return '';
+    if (window.ulogTimeAgo) return window.ulogTimeAgo(d);
     var dt = new Date((d + '').replace(' ', 'T'));   // "YYYY-MM-DD HH:MM:SS" もSafariで解釈できるように
     if (isNaN(dt)) return '';
     return dt.getFullYear() + '年' + (dt.getMonth() + 1) + '月' + dt.getDate() + '日';
@@ -96,7 +98,9 @@
         avatar +
         '<div class="ulog-cmt-main">' +
           '<div class="ulog-cmt-head">' + name +
-            '<span class="ulog-cmt-date">' + esc(fmtDate(c.createdAt)) + '</span></div>' +
+            '<span class="ulog-cmt-date"' +
+              (window.ulogDateFull ? ' title="' + esc(window.ulogDateFull(c.createdAt)) + '"' : '') +
+              '>' + esc(fmtDate(c.createdAt)) + '</span></div>' +
           '<div class="ulog-cmt-body">' + esc(c.body) + '</div>' +
         '</div>' + del +
       '</div>';
