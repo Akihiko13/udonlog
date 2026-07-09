@@ -82,7 +82,7 @@ login / register / forgot-password / reset-password / news / privacy / terms
 ## 未実装の候補（優先度目安）
 - 香川うどんランキング、絞り込み検索（今営業中/エリア/セルフ・製麺所/駐車場）、地図、行きたいリスト
 - Google連携のみユーザーの「パスワード新規設定」（forgot フローの拡張が最小コスト）
-- 投稿ヘッダーのフォローボタン、通知のページング
+- 通知のページング、投稿ヘッダーのフォローボタン（feedは実装済み・shop-detailの「みんなの投稿」は未対応）
 
 ## ハマりどころメモ
 - ページ独自の `nav{}`/`footer{}` が共有部品(`<nav class=ulog-*>`/`<footer class=ulog-footer>`)に漏れる → 共有側で主要プロパティを明示リセット済み。

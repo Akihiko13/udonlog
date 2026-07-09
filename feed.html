@@ -110,6 +110,37 @@
     .post-user-link:hover { color: var(--amber-dark); text-decoration: underline; }
     .post-date { font-size: 12px; color: #888; margin-top: 1px; }
 
+    /* 長い名前でもフォローボタンを押し出さない */
+    .post-header-main { min-width: 0; }
+
+    /* 投稿ヘッダーのフォローボタン（右端・コンパクト） */
+    .post-follow-btn {
+      margin-left: auto;
+      flex-shrink: 0;
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      background: var(--amber-dark);
+      color: #fff;
+      border: 1px solid var(--amber-dark);
+      border-radius: 99px;
+      padding: 5px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .post-follow-btn:hover { background: var(--amber-darker); border-color: var(--amber-darker); }
+    .post-follow-btn:disabled { opacity: 0.6; cursor: default; }
+    /* フォロー中は白抜き（もう一度押すと解除） */
+    .post-follow-btn.following {
+      background: #fff;
+      color: var(--amber-dark);
+      border-color: #d9c3a3;
+    }
+    .post-follow-btn.following:hover { background: #fbeee0; }
+
     /* 店名（この投稿がどの店のものか） */
     .post-shop {
       display: inline-flex;
@@ -268,6 +299,13 @@
         ? `<a class="post-user-link" href="/${encodeURIComponent(p.username)}">${escapeHtml(nick)}</a>`
         : escapeHtml(nick);
 
+      // 投稿ヘッダーのフォローボタン（ログイン中かつ自分以外の投稿にだけ表示）。
+      // 同じ人が複数投稿していても data-user で一括更新できるようにする。
+      const showFollow = API.isLoggedIn && API.isLoggedIn() && !p.isSelf && p.userId;
+      const followHtml = showFollow
+        ? `<button class="post-follow-btn${p.isFollowing ? ' following' : ''}" data-user="${p.userId}" onclick="toggleFollow(this)">${followLabel(!!p.isFollowing)}</button>`
+        : '';
+
       // 店名リンク（SHOPSから引く。万一データに無ければ shop-detail に id で飛ばす）
       const shop = SHOP_BY_ID[p.shopId];
       let shopHtml = '';
@@ -282,10 +320,11 @@
         <div class="post-card">
           <div class="post-header">
             ${avatarHtml}
-            <div>
+            <div class="post-header-main">
               <div class="post-user-name">${nameInner}</div>
               <div class="post-date" title="${escapeHtml(dateTitle)}">${dateStr}</div>
             </div>
+            ${followHtml}
           </div>
           ${shopHtml}
           ${menu ? `<span class="post-menu">${escapeHtml(menu)}</span>` : ''}
@@ -412,6 +451,41 @@
         showToast(e.message || 'いいねに失敗しました');
       } finally {
         delete el.dataset.busy;
+      }
+    }
+
+    // フォローボタンの中身（フォロー中は白抜き＋チェック）
+    function followLabel(following) {
+      return following
+        ? '<i class="ti ti-check"></i>フォロー中'
+        : '<i class="ti ti-plus"></i>フォロー';
+    }
+
+    // 投稿ヘッダーからフォロー/解除（ログイン必須）。
+    // 同じ人が複数投稿していても、全カードのボタンをまとめて更新する。
+    async function toggleFollow(btn) {
+      const userId = parseInt(btn.dataset.user, 10);
+      if (!userId || btn.dataset.busy) return;
+      const sel = '.post-follow-btn[data-user="' + userId + '"]';
+      try {
+        await API.refresh();
+        if (!API.isLoggedIn()) {
+          location.href = 'login.html?next=' + encodeURIComponent(location.pathname + location.search);
+          return;
+        }
+        document.querySelectorAll(sel).forEach(function (b) { b.dataset.busy = '1'; b.disabled = true; });
+        const res = await API.post('follow_toggle.php', { user_id: userId });
+        const following = res.following === 1;
+        document.querySelectorAll(sel).forEach(function (b) {
+          b.classList.toggle('following', following);
+          b.innerHTML = followLabel(following);
+          b.disabled = false;
+          delete b.dataset.busy;
+        });
+        showToast(following ? 'フォローしました' : 'フォローを解除しました');
+      } catch (e) {
+        document.querySelectorAll(sel).forEach(function (b) { b.disabled = false; delete b.dataset.busy; });
+        showToast(e.message || 'フォローに失敗しました');
       }
     }
 
