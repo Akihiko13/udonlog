@@ -292,13 +292,6 @@
       box-shadow: 0 6px 20px rgba(0,0,0,0.07);
     }
 
-    .card-top {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 8px;
-    }
-
     .shop-name {
       font-size: 16px;
       font-weight: 700;
@@ -327,6 +320,8 @@
     }
 
     .card-meta i { font-size: 13px; }
+    /* 種類バッジはエリア行の右端に寄せる（店名は1行めに全幅で置く） */
+    .card-meta .type-badge { margin-left: auto; }
 
     .btn-detail {
       display: flex;
@@ -436,10 +431,14 @@
     }
 
     @media (max-width: 600px) {
-      .shops-grid { grid-template-columns: 1fr 1fr; }
+      /* スマホは2カラム（密度を上げる）。左右余白とカード余白を詰めて幅を稼ぐ */
+      .shops-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+      .grid-wrap { padding-left: 1rem; padding-right: 1rem; }
+      .shop-card { padding: 0.9rem 1rem; }
     }
 
-    @media (max-width: 400px) {
+    /* ごく狭い端末（旧SE等）だけ1カラムに戻す */
+    @media (max-width: 340px) {
       .shops-grid { grid-template-columns: 1fr; }
     }
   </style>
@@ -612,13 +611,11 @@
         const done = visited.has(s.id);
         return `
           <div class="shop-card">
-            <div class="card-top">
-              <div class="shop-name">${s.name}</div>
-              ${typeBadge(s.type)}
-            </div>
+            <div class="shop-name">${s.name}</div>
             <div class="card-meta">
               <i class="ti ti-map-pin" aria-hidden="true"></i>
               ${s.city}
+              ${typeBadge(s.type)}
             </div>
             <a class="btn-detail" href="shops/${s.slug || ('shop' + s.id)}"><i class="ti ti-info-circle" aria-hidden="true"></i> 詳細</a>
             <a class="btn-taberu ${done ? 'done' : ''}" href="record.html?id=${s.id}&slug=${encodeURIComponent(s.slug || '')}&name=${encodeURIComponent(s.name)}&city=${encodeURIComponent(s.city)}&type=${encodeURIComponent(s.type)}">
