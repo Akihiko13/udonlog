@@ -81,6 +81,27 @@
     .nav-count-val { font-size: 13px; color: var(--amber); font-weight: 700; }
 
     /* SEARCH BAR */
+    /* ランキングへの導線バナー */
+    .rank-banner {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      max-width: 600px;
+      margin: 12px auto 0;
+      padding: 12px 16px;
+      background: linear-gradient(135deg, #BA7517 0%, #D89030 100%);
+      color: #fff;
+      border-radius: 12px;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 14px;
+      box-shadow: 0 2px 8px rgba(186,117,23,0.25);
+    }
+    .rank-banner > span { flex: 1; }
+    .rank-banner .ti { font-size: 20px; }
+    .rank-banner .rank-banner-arrow { font-size: 18px; opacity: 0.85; }
+    @media (max-width: 640px) { .rank-banner { margin: 12px 1rem 0; } }
+
     .search-bar {
       background: var(--white);
       border-bottom: 0.5px solid var(--border);
@@ -455,6 +476,12 @@
     <span class="nav-title">お店を選ぶ</span>
     <a href="mypage.html" class="nav-count" id="nav-count"></a>
   </nav>
+
+  <a href="ranking.html" class="rank-banner">
+    <i class="ti ti-award" aria-hidden="true"></i>
+    <span>香川うどんランキングを見る</span>
+    <i class="ti ti-chevron-right rank-banner-arrow" aria-hidden="true"></i>
+  </a>
 
   <div class="search-bar">
     <div class="search-wrap">

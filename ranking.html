@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <base href="/">
+  <title>香川うどんランキング — うどログ</title>
+  <meta name="description" content="うどログ会員のおすすめ度・記録数から集計した香川のさぬきうどん店ランキング。">
+  <meta property="og:title" content="香川うどんランキング — うどログ">
+  <meta property="og:description" content="みんなのおすすめ度・記録数で見る香川うどん店ランキング。">
+  <meta property="og:type" content="website">
+  <link rel="stylesheet" href="tabler-icons.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --amber: #BA7517;
+      --amber-dark: #8A5510;
+      --amber-darker: #6F440C;
+      --amber-light: #FFF8EE;
+      --amber-mid: #FAEEDA;
+      --amber-border: #F0D9C0;
+      --bg: #FAFAF8;
+      --white: #fff;
+      --border: #e5e5e0;
+      --text: #1a1a1a;
+      --text-sub: #666;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      font-size: 16px;
+      min-height: 100vh;
+      padding-bottom: 4rem;
+    }
+
+    .page-header {
+      position: sticky;
+      top: 54px;
+      background: rgba(250,250,248,0.92);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 0.5px solid var(--border);
+      padding: 0 1.25rem;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      z-index: 100;
+    }
+    .header-title { font-size: 16px; font-weight: 600; }
+
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 1.5rem 1.25rem;
+    }
+
+    .rank-intro { color: var(--text-sub); font-size: 13px; margin-bottom: 1rem; }
+
+    /* おすすめ度／記録数 タブ */
+    .rank-tabs { display: flex; margin-bottom: 1rem; border-bottom: 0.5px solid var(--border); }
+    .rank-tab {
+      flex: 1; background: none; border: none; padding: 12px 0;
+      font-size: 14px; font-weight: 600; color: var(--text-sub);
+      cursor: pointer; font-family: inherit; position: relative;
+    }
+    .rank-tab.active { color: var(--amber-dark); }
+    .rank-tab.active::after {
+      content: ''; position: absolute; left: 0; right: 0; bottom: -0.5px;
+      height: 2px; background: var(--amber); border-radius: 2px;
+    }
+
+    /* ランキング行 */
+    .rank-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: var(--white);
+      border: 0.5px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 14px;
+      margin-bottom: 8px;
+      text-decoration: none;
+      color: inherit;
+    }
+    .rank-row:hover { background: #fffdf9; }
+
+    .rank-num {
+      flex-shrink: 0;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 700;
+      background: #f0ece4;
+      color: #8a8377;
+    }
+    /* 上位3位は目立たせる（金・銀・銅） */
+    .rank-num.top1 { background: #E8B923; color: #fff; }
+    .rank-num.top2 { background: #B8BCC2; color: #fff; }
+    .rank-num.top3 { background: #C9925E; color: #fff; }
+
+    .rank-main { flex: 1; min-width: 0; }
+    .rank-shop {
+      font-size: 15px; font-weight: 600; color: var(--text);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .rank-meta {
+      font-size: 12px; color: var(--text-sub);
+      display: flex; align-items: center; gap: 6px; margin-top: 1px;
+    }
+
+    .type-badge {
+      display: inline-block; font-size: 10px; font-weight: 600;
+      padding: 1px 6px; border-radius: 5px; line-height: 1.5;
+    }
+    .type-badge.self { background: #EEF5FC; color: #185FA5; }
+    .type-badge.general { background: #EAF3DE; color: #3B6D11; }
+    .type-badge.seimen { background: var(--amber-mid); color: #633806; }
+
+    .rank-metric { flex-shrink: 0; text-align: right; }
+    .rank-value {
+      font-size: 15px; font-weight: 700; color: var(--amber-dark);
+      display: inline-flex; align-items: center; gap: 3px;
+    }
+    .rank-value .ti { font-size: 15px; color: var(--amber); }
+    .rank-sub { font-size: 11px; color: var(--text-sub); margin-top: 1px; }
+
+    .rank-status, .rank-empty {
+      text-align: center; color: #888; font-size: 14px; padding: 2.5rem 0;
+    }
+    .rank-empty img { display: block; margin: 0 auto 8px; }
+    .rank-status .ti { font-size: 20px; vertical-align: middle; margin-right: 4px; animation: rank-spin 0.8s linear infinite; }
+    @keyframes rank-spin { to { transform: rotate(360deg); } }
+  </style>
+  <link rel="icon" href="favicon.ico" sizes="any">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <meta name="theme-color" content="#BA7517">
+  <script src="api.js"></script>
+  <script src="header.js"></script>
+  <script src="analytics.js"></script>
+</head>
+<body>
+  <div class="page-header">
+    <span class="header-title">香川うどんランキング</span>
+  </div>
+
+  <div class="container">
+    <div class="rank-tabs">
+      <button class="rank-tab active" data-type="rating" onclick="switchTab('rating')">おすすめ度</button>
+      <button class="rank-tab" data-type="records" onclick="switchTab('records')">よく記録されている</button>
+    </div>
+    <p class="rank-intro" id="rankIntro">みんなのおすすめ度が高い順。店名をタップで詳細へ。</p>
+    <div id="rankingList"></div>
+    <div id="rankingStatus" class="rank-status"><i class="ti ti-loader-2"></i>読み込み中…</div>
+  </div>
+
+  <script src="shops-data.js"></script>
+  <script>
+    var SHOP_BY_ID = {};
+    (typeof SHOPS !== 'undefined' ? SHOPS : []).forEach(function (s) { SHOP_BY_ID[s.id] = s; });
+
+    var MAX_ROWS = 50;          // 閉店店を除いたあと表示する最大件数
+    var currentType = 'rating';
+    var token = 0;              // タブ連打時に古い結果を捨てる
+
+    function escapeHtml(s) {
+      return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+        return { '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c];
+      });
+    }
+
+    function typeBadge(type) {
+      if (type === 'セルフ') return '<span class="type-badge self">セルフ</span>';
+      if (type === '一般') return '<span class="type-badge general">一般店</span>';
+      if (type === '製麺所') return '<span class="type-badge seimen">製麺所</span>';
+      return '';
+    }
+
+    // 1行分のHTML（rank=1始まりの順位）
+    function rowHtml(item, rank, type) {
+      var shop = SHOP_BY_ID[item.shopId];
+      if (!shop) return '';   // マスタに無い/閉店で除外済み
+      var href = 'shops/' + (shop.slug || ('shop' + shop.id));
+      var topClass = rank <= 3 ? (' top' + rank) : '';
+
+      var value, sub;
+      if (type === 'records') {
+        value = '<span class="rank-value">' + item.records + '杯</span>';
+        sub = '<div class="rank-sub">' + item.users + '人が記録</div>';
+      } else {
+        value = '<span class="rank-value"><i class="ti ti-star-filled"></i>' + item.avg.toFixed(1) + '</span>';
+        sub = '<div class="rank-sub">' + item.count + '件</div>';
+      }
+
+      return '<a class="rank-row" href="' + escapeHtml(href) + '">' +
+          '<div class="rank-num' + topClass + '">' + rank + '</div>' +
+          '<div class="rank-main">' +
+            '<div class="rank-shop">' + escapeHtml(shop.name) + '</div>' +
+            '<div class="rank-meta">' + escapeHtml(shop.city) + typeBadge(shop.type) + '</div>' +
+          '</div>' +
+          '<div class="rank-metric">' + value + sub + '</div>' +
+        '</a>';
+    }
+
+    function switchTab(type) {
+      if (type === currentType && document.getElementById('rankingList').children.length) return;
+      currentType = type;
+      document.querySelectorAll('.rank-tab').forEach(function (t) {
+        t.classList.toggle('active', t.dataset.type === type);
+      });
+      document.getElementById('rankIntro').textContent = (type === 'records')
+        ? 'みんながよく記録している（＝人気の）お店順。店名をタップで詳細へ。'
+        : 'みんなのおすすめ度が高い順。店名をタップで詳細へ。';
+      loadRanking();
+    }
+
+    async function loadRanking() {
+      var myToken = ++token;
+      var type = currentType;
+      var listEl = document.getElementById('rankingList');
+      var statusEl = document.getElementById('rankingStatus');
+      listEl.innerHTML = '';
+      statusEl.className = 'rank-status';
+      statusEl.style.display = '';
+      statusEl.innerHTML = '<i class="ti ti-loader-2"></i>読み込み中…';
+
+      var data;
+      try {
+        data = await API.get('ranking.php?type=' + type);
+      } catch (e) {
+        if (myToken !== token) return;
+        statusEl.className = 'rank-empty';
+        statusEl.innerHTML = 'ランキングの読み込みに失敗しました。';
+        return;
+      }
+      if (myToken !== token) return;   // タブが切り替わっていたら破棄
+
+      // 閉店店を除いて上位 MAX_ROWS 件に絞り、1位から番号を振り直す
+      var items = (data.items || []).filter(function (it) {
+        var s = SHOP_BY_ID[it.shopId];
+        return s && s.status !== '閉店';
+      }).slice(0, MAX_ROWS);
+
+      if (!items.length) {
+        statusEl.className = 'rank-empty';
+        statusEl.innerHTML =
+          '<img src="images/udomaru-hungry.svg" alt="うどまる" width="100" height="100">' +
+          (type === 'records'
+            ? 'まだ記録が集まっていません。<br>記録が増えるとランキングが埋まっていきます。'
+            : 'まだ評価が集まっていません。<br>おすすめ度が付くとランキングに載ります。');
+        return;
+      }
+
+      listEl.innerHTML = items.map(function (it, i) { return rowHtml(it, i + 1, type); }).join('');
+      statusEl.style.display = 'none';
+    }
+
+    // ランキングはログイン不要。すぐ読み込む（ヘッダーは header.js が別途処理）
+    loadRanking();
+  </script>
+</body>
+</html>
