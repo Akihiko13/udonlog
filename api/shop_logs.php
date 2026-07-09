@@ -16,12 +16,14 @@ $st = db()->prepare(
           l.menus, l.comment, l.visit_date, l.photo_count, l.created_at,
           (SELECT COUNT(*) FROM likes lk WHERE lk.log_id = l.id) AS like_count,
           (SELECT COUNT(*) FROM comments cm WHERE cm.log_id = l.id) AS comment_count,
-          (SELECT COUNT(*) FROM likes lk2 WHERE lk2.log_id = l.id AND lk2.user_id = ?) AS liked_by_me
+          (SELECT COUNT(*) FROM likes lk2 WHERE lk2.log_id = l.id AND lk2.user_id = ?) AS liked_by_me,
+          (SELECT COUNT(*) FROM follows f WHERE f.follower_id = ? AND f.followee_id = l.user_id) AS following_by_me
    FROM logs l JOIN users u ON u.id = l.user_id
    WHERE l.shop_id = ? AND l.is_public = 1
    ORDER BY l.id DESC LIMIT 100'
 );
-$st->execute([$viewerId, $shop_id]);
+// プレースホルダ順＝ liked_by_me, following_by_me, WHERE shop_id
+$st->execute([$viewerId, $viewerId, $shop_id]);
 $posts = [];
 foreach ($st as $r) {
   $posts[] = [
@@ -40,6 +42,9 @@ foreach ($st as $r) {
     'likeCount' => (int)$r['like_count'],
     'commentCount' => (int)$r['comment_count'],
     'liked'     => ((int)$r['liked_by_me']) > 0 ? 1 : 0,
+    // 投稿ヘッダーのフォローボタン用。isSelf=自分の投稿 / isFollowing=閲覧者がフォロー中
+    'isSelf'      => ($viewerId > 0 && (int)$r['user_id'] === $viewerId) ? 1 : 0,
+    'isFollowing' => ((int)$r['following_by_me']) > 0 ? 1 : 0,
   ];
 }
 
