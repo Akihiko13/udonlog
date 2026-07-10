@@ -380,18 +380,22 @@
       text-align: center;
     }
 
-    .share-check {
-      width: 56px;
-      height: 56px;
-      margin: 0 auto 1rem;
-      background: #F0FAF3;
-      border: 0.5px solid #A8D9B5;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 28px;
-      color: #5BAD6F;
+    /* 記録できた瞬間の「うどまる（食べた表情）」。常に見える状態を基本にし、
+       動きは reduced-motion でない時だけ（透明化はせずポップだけ） */
+    .share-udomaru {
+      display: block;
+      width: 96px;
+      height: 96px;
+      margin: 0 auto 0.75rem;
+    }
+    @media (prefers-reduced-motion: no-preference) {
+      .share-overlay.show .share-udomaru {
+        animation: udomaru-pop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+      }
+    }
+    @keyframes udomaru-pop {
+      from { transform: scale(0.5); }
+      to   { transform: scale(1); }
     }
 
     .share-title { font-size: 18px; font-weight: 700; margin-bottom: 6px; }
@@ -586,7 +590,7 @@
   <!-- 投稿完了＆Xシェア -->
   <div class="share-overlay" id="shareOverlay">
     <div class="share-modal">
-      <div class="share-check"><i class="ti ti-check"></i></div>
+      <img class="share-udomaru" src="images/udomaru-eaten.svg" alt="うどまる" width="96" height="96">
       <div class="share-title">記録を投稿しました！</div>
       <div class="share-desc">この記録をXでシェアできます。</div>
       <button class="share-x" onclick="shareToX()">
