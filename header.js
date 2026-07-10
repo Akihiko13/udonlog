@@ -646,4 +646,36 @@
   } else {
     document.addEventListener('DOMContentLoaded', insertHeader);
   }
+
+  // --- うどまるの季節衣替え（全ページ共通）---
+  // 空状態などの udomaru-hungry を、夏(7〜8月)は「ひやかけ」、年末年始(12/25〜1/7)は
+  // 「年越し」うどまるに自動で差し替える。動的に挿入される空状態にも対応。
+  (function seasonalUdomaru() {
+    var d = new Date(), m = d.getMonth() + 1, day = d.getDate();
+    var file = null;
+    if (m === 7 || m === 8) file = 'udomaru-summer.svg';
+    else if ((m === 12 && day >= 25) || (m === 1 && day <= 7)) file = 'udomaru-newyear.svg';
+    if (!file) return;   // 通常期はそのまま（hungry）
+
+    function swapIn(node) {
+      if (node.nodeType !== 1) return;
+      var imgs = [];
+      if (node.matches && node.matches('img[src*="udomaru-hungry"]')) imgs = [node];
+      else if (node.querySelectorAll) imgs = node.querySelectorAll('img[src*="udomaru-hungry"]');
+      for (var i = 0; i < imgs.length; i++) {
+        imgs[i].src = imgs[i].src.replace('udomaru-hungry.svg', file);
+      }
+    }
+    function start() {
+      swapIn(document.body);   // 既にあるもの
+      // これから挿入される空状態も差し替える
+      new MutationObserver(function (muts) {
+        for (var j = 0; j < muts.length; j++) {
+          var added = muts[j].addedNodes;
+          for (var k = 0; k < added.length; k++) swapIn(added[k]);
+        }
+      }).observe(document.body, { childList: true, subtree: true });
+    }
+    if (document.body) start(); else document.addEventListener('DOMContentLoaded', start);
+  })();
 })();

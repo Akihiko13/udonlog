@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120" role="img" aria-label="うどまる 年越し鉢巻表情">
+  <title>うどまる - 年越し（鉢巻）</title>
+  <ellipse cx="60" cy="86" rx="42" ry="26" fill="#BA7517"/>
+  <ellipse cx="60" cy="80" rx="42" ry="22" fill="#FAC775"/>
+  <ellipse cx="60" cy="78" rx="36" ry="17" fill="#FAF6EE"/>
+  <path d="M40 78 Q44 56 50 78" stroke="#EADBB8" stroke-width="5" fill="none" stroke-linecap="round"/>
+  <path d="M70 78 Q76 54 80 78" stroke="#EADBB8" stroke-width="5" fill="none" stroke-linecap="round"/>
+  <circle cx="60" cy="60" r="22" fill="#FAF6EE" stroke="#EADBB8" stroke-width="2"/>
+  <path d="M48 56 L57 60" stroke="#444441" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+  <path d="M72 56 L63 60" stroke="#444441" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+  <circle cx="52" cy="61" r="3.2" fill="#444441"/>
+  <circle cx="68" cy="61" r="3.2" fill="#444441"/>
+  <path d="M54 68 Q60 73 66 68" stroke="#444441" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+  <path d="M37 50 Q60 42 83 50 L83 56 Q60 48 37 56 Z" fill="#FFFFFF" stroke="#D3D1C7" stroke-width="1"/>
+  <circle cx="60" cy="53" r="4.5" fill="#E24B4A"/>
+  <path d="M82 50 L94 44 M82 54 L95 54" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round"/>
+</svg>
