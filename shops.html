@@ -365,8 +365,10 @@
       align-items: center;
       justify-content: center;
       gap: 6px;
+      line-height: 1.35;
       transition: background 0.15s;
     }
+    .taberu-text { text-align: center; }
 
     .btn-taberu:hover { background: var(--amber-darker); }
 
@@ -441,6 +443,8 @@
       .shops-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
       .grid-wrap { padding-left: 1rem; padding-right: 1rem; }
       .shop-card { padding: 0.9rem 1rem; }
+      /* 記録済みボタンは狭いので「もう一杯！／（記録数：N杯）」の2行に */
+      .btn-taberu .taberu-count { display: block; }
     }
 
     /* ごく狭い端末（旧SE等）だけ1カラムに戻す */
@@ -627,7 +631,7 @@
               <a class="btn-detail" href="shops/${s.slug || ('shop' + s.id)}"><i class="ti ti-info-circle" aria-hidden="true"></i> 詳細</a>
               <a class="btn-taberu ${done ? 'done' : ''}" href="record.html?id=${s.id}&slug=${encodeURIComponent(s.slug || '')}&name=${encodeURIComponent(s.name)}&city=${encodeURIComponent(s.city)}&type=${encodeURIComponent(s.type)}">
                 ${done
-                  ? `<i class="ti ti-plus" aria-hidden="true"></i> もう一杯！（${visitCount[s.id] || 0}杯）`
+                  ? `<i class="ti ti-plus" aria-hidden="true"></i><span class="taberu-text">もう一杯！<span class="taberu-count">（記録数：${visitCount[s.id] || 0}杯）</span></span>`
                   : '<i class="ti ti-plus" aria-hidden="true"></i> 食べた！'}
               </a>
             </div>
