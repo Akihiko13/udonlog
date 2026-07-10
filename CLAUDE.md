@@ -42,7 +42,7 @@ login / register / forgot-password / reset-password / news / privacy / terms
 
 ## 店舗データの更新フロー
 1. `shops.csv` を編集（列: id,name,kana,city,type,dish,hours,closed,status,blog,parking,slug。type=セルフ/一般/製麺所、status空=営業中/「閉店」）。
-2. `python3 build-shops-data.py` を実行 → `shops-data.js` を再生成（現在 **187店**）。
+2. `python3 build-shops-data.py` を実行 → `shops-data.js` を再生成（現在 **217店**）。
 3. `sitemap.xml` に新店URL `https://udolog.com/shops/{slug}` を追記（自動生成スクリプトは無い＝手動）。
 
 ## アイコン（Tabler サブセット・自前ホスト）
