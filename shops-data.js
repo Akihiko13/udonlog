@@ -133,7 +133,7 @@ const SHOPS = [
   { id:124, name:"手打ちうどん 歩", kana:"てうちうどん あゆみ", city:"丸亀市", type:"一般", dish:"", hours:"10:30〜17:00", closed:"火曜日（祝日の場合は営業）", parking:"あり", slug:"ayumi" },
   { id:125, name:"手打うどん まごころ", kana:"てうちうどん まごころ", city:"丸亀市", type:"セルフ", dish:"", hours:"6:00〜16:00", closed:"元日のみ", parking:"あり", slug:"magokoro" },
   { id:126, name:"手打うどん 飯野屋", kana:"てうちうどん いいのや", city:"丸亀市", type:"一般", dish:"", hours:"9:00〜15:00", closed:"月曜日・第4火曜日", parking:"あり", slug:"iinoya" },
-  { id:127, name:"純手打うどん 山とも", kana:"じゅんてうちうどん やまとも", city:"丸亀市", type:"セルフ", dish:"", hours:"9:00〜14:00（玉切れ次第終了）", closed:"日曜日", parking:"あり", slug:"teuchiudon-yamatomo" },
+  { id:127, name:"純手打うどん 山とも", kana:"じゅんてうちうどん やまとも", city:"丸亀市", type:"セルフ", dish:"", hours:"9:00〜14:00（玉切れ次第終了）", closed:"日曜日", parking:"あり", slug:"yamatomo" },
   { id:128, name:"セルフうどん かまや", kana:"せるふうどん かまや", city:"坂出市", type:"セルフ", dish:"", hours:"9:00〜15:00", closed:"木曜日", parking:"あり", slug:"self-udon-kamaya" },
   { id:129, name:"セルフうどんさぬきまるふじ 本店", kana:"せるふうどんさぬきまるふじ ほんてん", city:"坂出市", type:"セルフ", dish:"", hours:"10:00〜15:00", closed:"水曜日", parking:"あり", slug:"self-udon-sanuki-marufuji-honten" },
   { id:130, name:"手打うどん 町川", kana:"てうちうどん まちかわ", city:"坂出市", type:"一般", dish:"", hours:"10:00〜14:00", closed:"月曜日", parking:"あり", slug:"teuchi-udon-machikawa" },
