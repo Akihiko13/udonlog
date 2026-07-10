@@ -777,6 +777,59 @@
     .group-chevron { font-size: 18px; transition: transform 0.15s; }
     .group-chevron.open { transform: rotate(180deg); }
     .group-body { margin-top: 8px; }
+
+    /* バッジ獲得のお祝いモーダル（うどまる） */
+    .celebrate-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
+      z-index: 1100;
+      align-items: center;
+      justify-content: center;
+      padding: 1.25rem;
+    }
+    .celebrate-overlay.show { display: flex; }
+    .celebrate-modal {
+      background: #fff;
+      border-radius: 18px;
+      padding: 1.75rem 1.5rem 1.5rem;
+      width: 100%;
+      max-width: 340px;
+      text-align: center;
+    }
+    .celebrate-udomaru {
+      display: block;
+      width: 104px;
+      height: 104px;
+      margin: 0 auto 0.5rem;
+    }
+    @media (prefers-reduced-motion: no-preference) {
+      .celebrate-overlay.show .celebrate-udomaru {
+        animation: celebrate-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+      }
+    }
+    @keyframes celebrate-pop {
+      from { transform: scale(0.5) rotate(-8deg); }
+      to   { transform: scale(1) rotate(0); }
+    }
+    .celebrate-title { font-size: 19px; font-weight: 800; color: var(--amber-dark); margin-bottom: 0.75rem; }
+    .celebrate-list {
+      display: flex; flex-direction: column; gap: 6px;
+      margin-bottom: 1.25rem;
+    }
+    .celebrate-badge {
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      background: #F4FBF7; border: 0.5px solid #B9E6D3; border-radius: 10px;
+      padding: 8px 12px; font-size: 14px; font-weight: 600; color: #2f7a5f;
+    }
+    .celebrate-badge .cb-icon { font-size: 18px; }
+    .celebrate-close {
+      width: 100%; background: var(--amber-dark); color: #fff; border: none;
+      padding: 12px; border-radius: 10px; font-size: 15px; font-weight: 700;
+      cursor: pointer; font-family: inherit;
+    }
+    .celebrate-close:hover { background: var(--amber-darker); }
   </style>
   <!-- ファビコン -->
   <link rel="icon" href="favicon.ico" sizes="any">
@@ -950,6 +1003,16 @@
       <i class="ti ti-plus"></i> お店を記録する
     </a>
 
+  </div>
+
+  <!-- バッジ獲得のお祝い（うどまる） -->
+  <div class="celebrate-overlay" id="badgeCelebrate" onclick="closeBadgeCelebration(event)">
+    <div class="celebrate-modal">
+      <img class="celebrate-udomaru" id="celebrateUdomaru" src="images/udomaru-achievement.svg" alt="うどまる" width="104" height="104">
+      <div class="celebrate-title" id="celebrateTitle">バッジ獲得！</div>
+      <div class="celebrate-list" id="celebrateList"></div>
+      <button class="celebrate-close" onclick="closeBadgeCelebration()">やったー！</button>
+    </div>
   </div>
 
   <script src="shops-data.js"></script>
@@ -1363,10 +1426,11 @@
       // 達成バッジ判定（広さ=軒数・深さ=杯数・行動・エリアを集計したコンテキストで判定）
       const badgeCtx = buildBadgeContext(logs, uniqueShops);
       let earnedCount = 0;
+      const earnedStamps = [];   // 新規獲得の演出用に、獲得済みバッジを集める
       const stampCard = (stamp) => {
         const { current, goal } = stamp.check(badgeCtx);
         const earned = current >= goal;
-        if (earned) earnedCount++;
+        if (earned) { earnedCount++; earnedStamps.push(stamp); }
         const pct = Math.round((current / goal) * 100);
         return `
           <div class="stamp-card ${earned ? 'earned' : 'locked'}">
@@ -1394,6 +1458,9 @@
 
       document.getElementById('statStamps').textContent = earnedCount;
       document.getElementById('stampCount').textContent = `${earnedCount} / ${STAMPS.length} 獲得`;
+
+      // 新しく獲得したバッジがあれば「うどまる」でお祝い
+      maybeCelebrateBadges(earnedStamps);
 
       // エリア制覇バッジ
       renderAreaBadges(uniqueShops);
@@ -1639,6 +1706,50 @@
         if (!nick) fallback.innerHTML = '<i class="ti ti-bowl-chopsticks"></i>';
         fallback.style.display = '';
       }
+    }
+
+    // === 新しく獲得したバッジを「うどまる」でお祝い ===
+    function seenBadgesKey() {
+      var uid = (window.API && API.user && API.user.id) ? API.user.id : 'me';
+      return 'ulog_seen_badges_' + uid;
+    }
+
+    function maybeCelebrateBadges(earnedStamps) {
+      var key = seenBadgesKey();
+      var earnedIds = earnedStamps.map(function (s) { return s.id; });
+      var raw = null;
+      try { raw = localStorage.getItem(key); } catch (e) { return; }
+      // 初回は既存の獲得をすべて「確認済み」にして演出しない（過去分を一気に祝わない）
+      if (raw === null) {
+        try { localStorage.setItem(key, JSON.stringify(earnedIds)); } catch (e) {}
+        return;
+      }
+      var seen = [];
+      try { seen = JSON.parse(raw) || []; } catch (e) { seen = []; }
+      var seenSet = new Set(seen);
+      var fresh = earnedStamps.filter(function (s) { return !seenSet.has(s.id); });
+      // 見た分を更新（今の獲得済み全部を保存）
+      try { localStorage.setItem(key, JSON.stringify(earnedIds)); } catch (e) {}
+      if (fresh.length) showBadgeCelebration(fresh);
+    }
+
+    function showBadgeCelebration(freshStamps) {
+      // 制覇系（area）が含まれていれば王冠うどまる、それ以外は達成うどまる
+      var isConquer = freshStamps.some(function (s) { return s.g === 'area'; });
+      document.getElementById('celebrateUdomaru').src =
+        isConquer ? 'images/udomaru-conquer.svg' : 'images/udomaru-achievement.svg';
+      document.getElementById('celebrateTitle').textContent =
+        isConquer ? '制覇達成！' : (freshStamps.length > 1 ? freshStamps.length + 'つのバッジを獲得！' : 'バッジ獲得！');
+      document.getElementById('celebrateList').innerHTML = freshStamps.map(function (s) {
+        return '<div class="celebrate-badge"><span class="cb-icon">' + s.icon + '</span>' + escMy(s.name) + '</div>';
+      }).join('');
+      document.getElementById('badgeCelebrate').classList.add('show');
+    }
+
+    function closeBadgeCelebration(e) {
+      // オーバーレイ自身のクリックか、閉じるボタンのみで閉じる（中身クリックでは閉じない）
+      if (e && e.target && e.target.id !== 'badgeCelebrate' && e.type === 'click' && !e.target.classList.contains('celebrate-close')) return;
+      document.getElementById('badgeCelebrate').classList.remove('show');
     }
 
     // === 初期化：ログイン必須。サーバーから記録を取得して描画 ===

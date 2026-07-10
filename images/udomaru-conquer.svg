@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120" role="img" aria-label="うどまる 店制覇王冠表情">
+  <title>うどまる - 店制覇（王冠）</title>
+  <ellipse cx="60" cy="86" rx="42" ry="26" fill="#BA7517"/>
+  <ellipse cx="60" cy="80" rx="42" ry="22" fill="#FAC775"/>
+  <ellipse cx="60" cy="78" rx="36" ry="17" fill="#FAF6EE"/>
+  <path d="M40 78 Q44 56 50 78" stroke="#EADBB8" stroke-width="5" fill="none" stroke-linecap="round"/>
+  <path d="M70 78 Q76 54 80 78" stroke="#EADBB8" stroke-width="5" fill="none" stroke-linecap="round"/>
+  <circle cx="60" cy="61" r="22" fill="#FAF6EE" stroke="#EADBB8" stroke-width="2"/>
+  <path d="M48 58 Q52 54 56 58" stroke="#444441" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+  <path d="M64 58 Q68 54 72 58" stroke="#444441" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+  <path d="M53 65 Q60 72 67 65" stroke="#444441" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+  <path d="M44 40 L51 47 L60 38 L69 47 L76 40 L74 51 L46 51 Z" fill="#EF9F27" stroke="#BA7517" stroke-width="1.2" stroke-linejoin="round"/>
+  <circle cx="60" cy="40" r="2.6" fill="#E24B4A"/>
+  <circle cx="46" cy="42" r="2" fill="#5DCAA5"/>
+  <circle cx="74" cy="42" r="2" fill="#5DCAA5"/>
+</svg>
