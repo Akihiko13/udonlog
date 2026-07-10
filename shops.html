@@ -443,8 +443,9 @@
       .shops-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
       .grid-wrap { padding-left: 1rem; padding-right: 1rem; }
       .shop-card { padding: 0.9rem 1rem; }
-      /* 記録済みボタンは狭いので「もう一杯！／（記録数：N杯）」の2行に */
-      .btn-taberu .taberu-count { display: block; }
+      /* 記録済みボタンは狭いので「もう一杯！／（記録数：N杯）」の2行に。
+         2行目は小さめにして、未記録の「食べた！」ボタンとの高さ差を抑える */
+      .btn-taberu .taberu-count { display: block; font-size: 11px; font-weight: 600; }
     }
 
     /* ごく狭い端末（旧SE等）だけ1カラムに戻す */
