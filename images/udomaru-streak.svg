@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120" role="img" aria-label="うどまる 連続記録表情">
+  <title>うどまる - 連続記録</title>
+  <ellipse cx="60" cy="86" rx="42" ry="26" fill="#BA7517"/>
+  <ellipse cx="60" cy="80" rx="42" ry="22" fill="#FAC775"/>
+  <ellipse cx="60" cy="78" rx="36" ry="17" fill="#FAF6EE"/>
+  <path d="M40 78 Q44 56 50 78" stroke="#EADBB8" stroke-width="5" fill="none" stroke-linecap="round"/>
+  <path d="M70 78 Q76 54 80 78" stroke="#EADBB8" stroke-width="5" fill="none" stroke-linecap="round"/>
+  <circle cx="60" cy="60" r="22" fill="#FAF6EE" stroke="#EADBB8" stroke-width="2"/>
+  <path d="M48 54 L57 59" stroke="#444441" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+  <path d="M72 54 L63 59" stroke="#444441" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+  <circle cx="52" cy="60" r="3.2" fill="#444441"/>
+  <circle cx="68" cy="60" r="3.2" fill="#444441"/>
+  <path d="M54 67 Q60 72 66 67" stroke="#444441" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+  <path d="M60 18 Q66 26 60 32 Q54 26 60 18 Z" fill="#D85A30"/>
+  <path d="M60 22 Q63 27 60 31 Q57 27 60 22 Z" fill="#FAC775"/>
+</svg>

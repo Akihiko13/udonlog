@@ -1420,8 +1420,8 @@
       // スタンプ帳（1杯=1スタンプ）
       renderBook(logs);
 
-      // 常連店（10杯以上記録した店）
-      renderRegulars(logs);
+      // 常連店（10杯以上記録した店）。新しく常連になった店は後でお祝いする
+      const regulars = renderRegulars(logs);
 
       // 達成バッジ判定（広さ=軒数・深さ=杯数・行動・エリアを集計したコンテキストで判定）
       const badgeCtx = buildBadgeContext(logs, uniqueShops);
@@ -1459,8 +1459,10 @@
       document.getElementById('statStamps').textContent = earnedCount;
       document.getElementById('stampCount').textContent = `${earnedCount} / ${STAMPS.length} 獲得`;
 
-      // 新しく獲得したバッジがあれば「うどまる」でお祝い
+      // 新しく獲得したバッジ・新しく常連になった店を「うどまる」でお祝い（順番に表示）
       maybeCelebrateBadges(earnedStamps);
+      maybeCelebrateRegulars(regulars || []);
+      flushCelebrations();
 
       // エリア制覇バッジ
       renderAreaBadges(uniqueShops);
@@ -1627,6 +1629,7 @@
       }).join('');
       list.innerHTML = cards;
       section.style.display = cards.trim() ? 'block' : 'none';
+      return regs;   // 常連達成の演出用に返す
     }
 
     // サーバーから記録を取得して全体を描画（削除後の再描画にも使う）
@@ -1708,48 +1711,76 @@
       }
     }
 
-    // === 新しく獲得したバッジを「うどまる」でお祝い ===
-    function seenBadgesKey() {
+    // === 獲得・達成を「うどまる」でお祝い（複数あればキューで順番に表示） ===
+    var celebrateQueue = [];
+
+    function seenKey(kind) {
       var uid = (window.API && API.user && API.user.id) ? API.user.id : 'me';
-      return 'ulog_seen_badges_' + uid;
+      return 'ulog_seen_' + kind + '_' + uid;
     }
 
-    function maybeCelebrateBadges(earnedStamps) {
-      var key = seenBadgesKey();
-      var earnedIds = earnedStamps.map(function (s) { return s.id; });
+    // 未確認の新規分だけを返す共通処理。初回（キー無し）は全部を確認済みにして空を返す。
+    function freshItems(kind, items, idOf) {
+      var key = seenKey(kind);
+      var ids = items.map(idOf);
       var raw = null;
-      try { raw = localStorage.getItem(key); } catch (e) { return; }
-      // 初回は既存の獲得をすべて「確認済み」にして演出しない（過去分を一気に祝わない）
+      try { raw = localStorage.getItem(key); } catch (e) { return []; }
       if (raw === null) {
-        try { localStorage.setItem(key, JSON.stringify(earnedIds)); } catch (e) {}
-        return;
+        try { localStorage.setItem(key, JSON.stringify(ids)); } catch (e) {}
+        return [];   // 初回は過去分を一気に祝わない
       }
       var seen = [];
       try { seen = JSON.parse(raw) || []; } catch (e) { seen = []; }
       var seenSet = new Set(seen);
-      var fresh = earnedStamps.filter(function (s) { return !seenSet.has(s.id); });
-      // 見た分を更新（今の獲得済み全部を保存）
-      try { localStorage.setItem(key, JSON.stringify(earnedIds)); } catch (e) {}
-      if (fresh.length) showBadgeCelebration(fresh);
+      var fresh = items.filter(function (it) { return !seenSet.has(idOf(it)); });
+      try { localStorage.setItem(key, JSON.stringify(ids)); } catch (e) {}
+      return fresh;
     }
 
-    function showBadgeCelebration(freshStamps) {
-      // 制覇系（area）が含まれていれば王冠うどまる、それ以外は達成うどまる
-      var isConquer = freshStamps.some(function (s) { return s.g === 'area'; });
-      document.getElementById('celebrateUdomaru').src =
-        isConquer ? 'images/udomaru-conquer.svg' : 'images/udomaru-achievement.svg';
-      document.getElementById('celebrateTitle').textContent =
-        isConquer ? '制覇達成！' : (freshStamps.length > 1 ? freshStamps.length + 'つのバッジを獲得！' : 'バッジ獲得！');
-      document.getElementById('celebrateList').innerHTML = freshStamps.map(function (s) {
-        return '<div class="celebrate-badge"><span class="cb-icon">' + s.icon + '</span>' + escMy(s.name) + '</div>';
+    // 新しく獲得したバッジ
+    function maybeCelebrateBadges(earnedStamps) {
+      var fresh = freshItems('badges', earnedStamps, function (s) { return s.id; });
+      if (!fresh.length) return;
+      var isConquer = fresh.some(function (s) { return s.g === 'area'; });
+      celebrateQueue.push({
+        udomaru: isConquer ? 'images/udomaru-conquer.svg' : 'images/udomaru-achievement.svg',
+        title: isConquer ? '制覇達成！' : (fresh.length > 1 ? fresh.length + 'つのバッジを獲得！' : 'バッジ獲得！'),
+        items: fresh.map(function (s) { return { icon: s.icon, name: s.name }; })
+      });
+    }
+
+    // 新しく常連になった店（同じ店を10杯以上）
+    function maybeCelebrateRegulars(regs) {
+      var fresh = freshItems('regulars', regs, function (r) { return r.id; });
+      if (!fresh.length) return;
+      celebrateQueue.push({
+        udomaru: 'images/udomaru-streak.svg',
+        title: fresh.length > 1 ? fresh.length + '軒の常連になった！' : '常連になった！',
+        items: fresh.map(function (r) {
+          var s = SHOPS.find(function (x) { return x.id === r.id; });
+          return { icon: '🔥', name: (s ? s.name : 'お店') + '（通算' + r.visits + '杯）' };
+        })
+      });
+    }
+
+    // キューの先頭を表示（表示中は待つ。閉じると次を出す）
+    function flushCelebrations() {
+      var overlay = document.getElementById('badgeCelebrate');
+      if (overlay.classList.contains('show') || !celebrateQueue.length) return;
+      var c = celebrateQueue.shift();
+      document.getElementById('celebrateUdomaru').src = c.udomaru;
+      document.getElementById('celebrateTitle').textContent = c.title;
+      document.getElementById('celebrateList').innerHTML = c.items.map(function (it) {
+        return '<div class="celebrate-badge"><span class="cb-icon">' + it.icon + '</span>' + escMy(it.name) + '</div>';
       }).join('');
-      document.getElementById('badgeCelebrate').classList.add('show');
+      overlay.classList.add('show');
     }
 
     function closeBadgeCelebration(e) {
       // オーバーレイ自身のクリックか、閉じるボタンのみで閉じる（中身クリックでは閉じない）
       if (e && e.target && e.target.id !== 'badgeCelebrate' && e.type === 'click' && !e.target.classList.contains('celebrate-close')) return;
       document.getElementById('badgeCelebrate').classList.remove('show');
+      setTimeout(flushCelebrations, 250);   // 次のお祝いがあれば続けて表示
     }
 
     // === 初期化：ログイン必須。サーバーから記録を取得して描画 ===
