@@ -157,7 +157,7 @@ function h(string $s): string { return htmlspecialchars($s, ENT_QUOTES, 'UTF-8')
 <?php if (!$authed): ?>
 
   <form class="login-card" method="post" autocomplete="off">
-    <h1>🍜 管理ダッシュボード</h1>
+    <h1>🥢 管理ダッシュボード</h1>
     <?php if ($loginError): ?><div class="err"><?= h($loginError) ?></div><?php endif; ?>
     <input type="password" name="password" placeholder="管理パスワード" autofocus>
     <input type="hidden" name="csrf" value="<?= h(csrf_token()) ?>">
