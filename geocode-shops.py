@@ -17,8 +17,10 @@
 #   その後: python3 build-shops-data.py で shops-data.js を再生成。
 #
 # オプション:
-#   --force   … 既に lat/lng があっても全店やり直す
-#   --limit N … 先頭 N 件だけ処理（お試し・キー動作確認用）
+#   --force      … 既に lat/lng があっても全店やり直す
+#   --limit N    … 先頭 N 件だけ処理（お試し・キー動作確認用）
+#   --ids a,b,c  … 指定IDの店だけ取り直す（座標があっても上書き）。店名で正しく
+#                  引けない店は下の ADDR_OVERRIDE に住所を書いて --ids で取り直す。
 #
 # ※ APIキーはコードに書かず、必ず環境変数で渡すこと（キーを git に含めない）。
 # ===========================================================================
@@ -37,12 +39,20 @@ API_URL = 'https://maps.googleapis.com/maps/api/geocode/json'
 KAGAWA_BOUNDS = '34.0,133.4|34.6,134.5'
 SLEEP_SEC = 0.12   # レート制限に配慮した待機（約8件/秒）
 
+# 店名では正しく引けない店の「住所で引く」上書き（id → 住所）。
+# 店名検索がAPPROXIMATE等になった店をここに書き、`--ids <id>` で取り直す。
+ADDR_OVERRIDE = {
+    67:  'さぬき市大川町田面2250-2',      # うどん そらいけ
+    103: '仲多度郡琴平町718',            # 手打ちうどん てんてこ舞
+    136: '三豊市高瀬町比地1583-1',        # 三好うどん（CSVの name は「うどん」）
+    112: '高松市上福岡町',               # はなまるうどん TKMT本店（番地未確定・跡地の町名）
+}
 
-def geocode(name, city, api_key):
-    """店名＋市＋香川県 で照会。(lat, lng, quality, formatted) を返す。見つからなければ None。"""
-    address = f'{name} {city} 香川県'
+
+def geocode(query, api_key):
+    """query（店名＋市 か 住所）で照会。(lat, lng, quality, formatted) を返す。見つからなければ None。"""
     params = {
-        'address': address,
+        'address': query,
         'key': api_key,
         'language': 'ja',
         'region': 'jp',
@@ -76,6 +86,13 @@ def main():
         except (IndexError, ValueError):
             print('エラー: --limit の後に件数を指定してください（例: --limit 5）')
             sys.exit(1)
+    only_ids = None
+    if '--ids' in sys.argv:
+        try:
+            only_ids = {s.strip() for s in sys.argv[sys.argv.index('--ids') + 1].split(',') if s.strip()}
+        except IndexError:
+            print('エラー: --ids の後にIDを指定してください（例: --ids 67,103,136,112）')
+            sys.exit(1)
 
     api_key = os.environ.get('GOOGLE_GEOCODING_API_KEY', '').strip()
     if not api_key:
@@ -99,10 +116,18 @@ def main():
 
     todo = []
     for row in rows:
-        if (row.get('name') or '').strip() and not (row.get('status') or '').strip() == '閉店':
-            has_coord = (row.get('lat') or '').strip() and (row.get('lng') or '').strip()
-            if force or not has_coord:
+        if not (row.get('name') or '').strip():
+            continue
+        if only_ids is not None:
+            # 指定IDだけを対象（既に座標があっても取り直す）
+            if (row.get('id') or '').strip() in only_ids:
                 todo.append(row)
+            continue
+        if (row.get('status') or '').strip() == '閉店':
+            continue
+        has_coord = (row.get('lat') or '').strip() and (row.get('lng') or '').strip()
+        if force or not has_coord:
+            todo.append(row)
     if limit is not None:
         todo = todo[:limit]
 
@@ -119,8 +144,18 @@ def main():
         for i, row in enumerate(todo, 1):
             name = row['name'].strip()
             city = (row.get('city') or '').strip()
+            # 住所上書きがあれば住所で、無ければ店名＋市で照会
             try:
-                res = geocode(name, city, api_key)
+                sid = int((row.get('id') or '').strip())
+            except ValueError:
+                sid = None
+            if sid in ADDR_OVERRIDE:
+                addr = ADDR_OVERRIDE[sid]
+                query = addr if '香川' in addr else addr + ' 香川県'
+            else:
+                query = f'{name} {city} 香川県'
+            try:
+                res = geocode(query, api_key)
             except RuntimeError as e:
                 # キー無効やクォータ超過は続けても無駄なので中断（ここまでの結果は保存する）
                 print(f'\n⛔ 中断: {e}')

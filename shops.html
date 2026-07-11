@@ -412,12 +412,16 @@
     .card-meta {
       display: flex;
       align-items: center;
+      flex-wrap: wrap;
       gap: 6px;
+      row-gap: 4px;
       font-size: 12px;
       color: var(--text-muted);
     }
 
-    .card-meta i { font-size: 13px; }
+    .card-meta i { font-size: 13px; flex-shrink: 0; }
+    /* 市名はチップで押されても縦に割れないよう1語扱い */
+    .card-meta .card-city { white-space: nowrap; }
     /* 種類バッジはエリア行の右端に寄せる（店名は1行めに全幅で置く） */
     .card-meta .type-badge { margin-left: auto; }
 
@@ -836,7 +840,7 @@
             <div class="shop-name">${s.name}</div>
             <div class="card-meta">
               <i class="ti ti-map-pin" aria-hidden="true"></i>
-              ${s.city}
+              <span class="card-city">${s.city}</span>
               ${showDist && s._dist !== Infinity ? `<span class="dist-chip"><i class="ti ti-map-pin" aria-hidden="true"></i>${formatDistance(s._dist)}</span>` : ''}
               ${openBadge(s, now)}
               ${typeBadge(s.type)}
