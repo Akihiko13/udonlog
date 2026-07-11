@@ -366,6 +366,31 @@
     .type-badge.general { background: #EAF3DE; color: #3B6D11; }
     .type-badge.seimen { background: var(--amber-mid); color: #633806; }
 
+    /* 営業中/時間外バッジ（目安） */
+    .open-badge {
+      flex-shrink: 0;
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 6px;
+      line-height: 1;
+    }
+    .open-badge::before {
+      content: "";
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+    .open-badge.open { background: #E6F4EA; color: #1E7B39; }
+    .open-badge.closed { background: #F0F0EE; color: #8A8A82; }
+    /* 営業中バッジをエリア行の右端側へ（種類バッジの左隣に並べる） */
+    .card-meta .open-badge { margin-left: auto; }
+    .card-meta .open-badge + .type-badge { margin-left: 0; }
+
     .card-meta {
       display: flex;
       align-items: center;
@@ -498,6 +523,10 @@
       .shops-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
       .grid-wrap { padding-left: 1rem; padding-right: 1rem; }
       .shop-card { padding: 0.9rem 1rem; }
+      /* 狭い2カラムではバッジが1行に収まらないので折り返し＆左詰めに */
+      .card-meta { flex-wrap: wrap; row-gap: 5px; }
+      .card-meta .open-badge, .card-meta .open-badge + .type-badge { margin-left: 0; }
+      .open-badge { padding: 2px 7px; }
       /* 記録済みボタンは狭いので「もう一杯！／（記録数：N杯）」の2行に。
          2行目は小さめにして、未記録の「食べた！」ボタンとの高さ差を抑える */
       .btn-taberu .taberu-count { display: block; font-size: 11px; font-weight: 600; }
@@ -588,8 +617,8 @@
     <button class="cond-pill" data-cond="parking"><i class="ti ti-parking" aria-hidden="true"></i>駐車場あり</button>
   </div>
 
-  <p class="cond-note" id="cond-note">
-    <i class="ti ti-info-circle" aria-hidden="true"></i>「今営業中」は営業時間・定休日からの<strong>目安</strong>です。売り切れ終了・臨時休業・祝日は反映されません。お出かけ前に各店の情報をご確認ください。
+  <p class="cond-note show" id="cond-note">
+    <i class="ti ti-info-circle" aria-hidden="true"></i>「営業中／時間外」は営業時間・定休日からの<strong>目安</strong>です。売り切れ終了・臨時休業・祝日は反映されません。お出かけ前に各店の情報をご確認ください。
   </p>
 
   <div class="grid-wrap">
@@ -687,6 +716,17 @@
       if (within === false) return 'closed';
       return 'unknown';   // 時間が読めない店は「営業中」と断定しない
     }
+
+    // 営業中/時間外バッジのHTML（unknownは空＝出さない）
+    function openBadge(shop, now) {
+      const st = openState(shop, now);
+      if (st === 'open') return '<span class="open-badge open">営業中</span>';
+      if (st === 'closed') {
+        const label = isClosedToday(shop.closed, now) ? '定休日' : '時間外';
+        return `<span class="open-badge closed">${label}</span>`;
+      }
+      return '';
+    }
     // 訪問記録（ログイン時にサーバーから取得して「店ごとの杯数」「記録済み店舗」を集計）
     let logs = [];
     let visitCount = {};
@@ -751,6 +791,7 @@
             <div class="card-meta">
               <i class="ti ti-map-pin" aria-hidden="true"></i>
               ${s.city}
+              ${openBadge(s, now)}
               ${typeBadge(s.type)}
             </div>
             <div class="card-actions">
@@ -810,7 +851,6 @@
       const on = pill.classList.toggle('active');
       if (pill.dataset.cond === 'open') condOpen = on;
       if (pill.dataset.cond === 'parking') condParking = on;
-      document.getElementById('cond-note').classList.toggle('show', condOpen);
       render();
     });
 
