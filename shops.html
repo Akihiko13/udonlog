@@ -754,7 +754,6 @@
       <div class="result-label" id="result-label"></div>
       <div class="sort-toggle" id="sort-toggle">
         <button class="sort-btn active" data-sort="kana">五十音順</button>
-        <button class="sort-btn" data-sort="area">エリア順</button>
         <button class="sort-btn" data-sort="near"><i class="ti ti-map-pin" aria-hidden="true"></i>近い順</button>
       </div>
     </div>
@@ -788,7 +787,7 @@
     let currentArea = '全て';
     let currentType = '全て';
     let searchQuery = '';
-    let currentSort = 'kana';   // 既定は五十音順。'area'（id順）/ 'kana'（五十音順）/ 'near'（近い順）
+    let currentSort = 'kana';   // 既定は五十音順。'kana'（五十音順）/ 'near'（近い順）
     let condOpen = false;       // 今営業中（目安）で絞り込み
     let condParking = false;    // 駐車場あり で絞り込み
     let condVisit = 'all';      // 記録の有無で絞り込み 'all'/'undone'(まだ)/'done'(記録済み)。ログイン中のみ
@@ -993,7 +992,7 @@
       render();
     });
 
-    // sort toggle（あいうえお順／エリア順／近い順）
+    // sort toggle（あいうえお順／近い順）
     function setActiveSort(btn, sort) {
       document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
