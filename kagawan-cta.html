@@ -55,14 +55,20 @@
   .udolog-cta__link:hover{ box-shadow:0 6px 20px rgba(138,85,16,.16); transform:translateY(-2px); }
   .udolog-cta__img{ width:72px; height:72px; flex:0 0 auto; }
   .udolog-cta__body{ min-width:0; }
-  .udolog-cta__eyebrow{ font-size:12px; font-weight:700; color:#BA7517; letter-spacing:.02em; margin:0 0 2px; }
-  .udolog-cta__title{ font-size:20px; font-weight:800; color:#6F440C; line-height:1.2; margin:0; }
-  .udolog-cta__desc{ font-size:13px; color:#5a5a55; line-height:1.6; margin:6px 0 12px; }
+  .udolog-cta__eyebrow{ font-size:12px; font-weight:700; color:#BA7517 !important; letter-spacing:.02em; margin:0 0 2px; }
+  .udolog-cta__title{ font-size:20px; font-weight:800; color:#6F440C !important; line-height:1.2; margin:0; }
+  .udolog-cta__desc{ font-size:13px; color:#5a5a55 !important; line-height:1.6; margin:6px 0 12px; }
   .udolog-cta__btn{
-    display:inline-block; background:#8A5510; color:#fff; font-size:14px; font-weight:700;
+    display:inline-block; background:#8A5510; color:#fff !important; font-size:14px; font-weight:700;
     padding:9px 18px; border-radius:999px; line-height:1;
   }
   .udolog-cta__link:hover .udolog-cta__btn{ background:#6F440C; }
+  /* フッター等のテーマ色に負けないよう色を固定 */
+  .udolog-cta a, .udolog-cta a:link, .udolog-cta a:visited, .udolog-cta a:hover{ color:#5a5a55 !important; }
+  /* テーマの外部リンクアイコン(::after)を無効化 */
+  .udolog-cta a[target="_blank"]::after, .udolog-cta a::after{
+    content:none !important; display:none !important; margin:0 !important; padding:0 !important; background:none !important;
+  }
   @media (max-width:420px){
     .udolog-cta__link{ flex-direction:column; text-align:center; gap:10px; }
     .udolog-cta__img{ width:64px; height:64px; }
@@ -96,14 +102,20 @@
   .udolog-cta__link:hover{ box-shadow:0 6px 20px rgba(138,85,16,.16); transform:translateY(-2px); }
   .udolog-cta__img{ width:72px; height:72px; flex:0 0 auto; }
   .udolog-cta__body{ min-width:0; }
-  .udolog-cta__eyebrow{ font-size:12px; font-weight:700; color:#BA7517; letter-spacing:.02em; margin:0 0 2px; }
-  .udolog-cta__title{ font-size:20px; font-weight:800; color:#6F440C; line-height:1.2; margin:0; }
-  .udolog-cta__desc{ font-size:13px; color:#5a5a55; line-height:1.6; margin:6px 0 12px; }
+  .udolog-cta__eyebrow{ font-size:12px; font-weight:700; color:#BA7517 !important; letter-spacing:.02em; margin:0 0 2px; }
+  .udolog-cta__title{ font-size:20px; font-weight:800; color:#6F440C !important; line-height:1.2; margin:0; }
+  .udolog-cta__desc{ font-size:13px; color:#5a5a55 !important; line-height:1.6; margin:6px 0 12px; }
   .udolog-cta__btn{
-    display:inline-block; background:#8A5510; color:#fff; font-size:14px; font-weight:700;
+    display:inline-block; background:#8A5510; color:#fff !important; font-size:14px; font-weight:700;
     padding:9px 18px; border-radius:999px; line-height:1;
   }
   .udolog-cta__link:hover .udolog-cta__btn{ background:#6F440C; }
+  /* フッター等のテーマ色に負けないよう色を固定 */
+  .udolog-cta a, .udolog-cta a:link, .udolog-cta a:visited, .udolog-cta a:hover{ color:#5a5a55 !important; }
+  /* テーマの外部リンクアイコン(::after)を無効化 */
+  .udolog-cta a[target="_blank"]::after, .udolog-cta a::after{
+    content:none !important; display:none !important; margin:0 !important; padding:0 !important; background:none !important;
+  }
   @media (max-width:420px){
     .udolog-cta__link{ flex-direction:column; text-align:center; gap:10px; }
     .udolog-cta__img{ width:64px; height:64px; }
@@ -141,14 +153,20 @@
   .udolog-cta__link:hover{ box-shadow:0 6px 20px rgba(138,85,16,.16); transform:translateY(-2px); }
   .udolog-cta__img{ width:72px; height:72px; flex:0 0 auto; }
   .udolog-cta__body{ min-width:0; }
-  .udolog-cta__eyebrow{ font-size:12px; font-weight:700; color:#BA7517; letter-spacing:.02em; margin:0 0 2px; }
-  .udolog-cta__title{ font-size:20px; font-weight:800; color:#6F440C; line-height:1.2; margin:0; }
-  .udolog-cta__desc{ font-size:13px; color:#5a5a55; line-height:1.6; margin:6px 0 12px; }
+  .udolog-cta__eyebrow{ font-size:12px; font-weight:700; color:#BA7517 !important; letter-spacing:.02em; margin:0 0 2px; }
+  .udolog-cta__title{ font-size:20px; font-weight:800; color:#6F440C !important; line-height:1.2; margin:0; }
+  .udolog-cta__desc{ font-size:13px; color:#5a5a55 !important; line-height:1.6; margin:6px 0 12px; }
   .udolog-cta__btn{
-    display:inline-block; background:#8A5510; color:#fff; font-size:14px; font-weight:700;
+    display:inline-block; background:#8A5510; color:#fff !important; font-size:14px; font-weight:700;
     padding:9px 18px; border-radius:999px; line-height:1;
   }
   .udolog-cta__link:hover .udolog-cta__btn{ background:#6F440C; }
+  /* フッター等のテーマ色に負けないよう色を固定 */
+  .udolog-cta a, .udolog-cta a:link, .udolog-cta a:visited, .udolog-cta a:hover{ color:#5a5a55 !important; }
+  /* テーマの外部リンクアイコン(::after)を無効化 */
+  .udolog-cta a[target="_blank"]::after, .udolog-cta a::after{
+    content:none !important; display:none !important; margin:0 !important; padding:0 !important; background:none !important;
+  }
   @media (max-width:420px){
     .udolog-cta__link{ flex-direction:column; text-align:center; gap:10px; }
     .udolog-cta__img{ width:64px; height:64px; }
