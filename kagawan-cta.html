@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>カガワン→うどログ CTAカード（貼り付け用スニペット）</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif; background:#FAFAF8; color:#1a1a1a; line-height:1.7; max-width:760px; margin:0 auto; padding:24px 16px 80px; }
+  h1 { font-size:1.3rem; }
+  h2 { font-size:1.05rem; margin-top:2.5rem; border-left:4px solid #BA7517; padding-left:10px; }
+  p.note { color:#666; font-size:.9rem; }
+  .demo { margin:1rem 0; }
+  pre { background:#2b2b28; color:#f4f4f0; padding:16px; border-radius:10px; overflow-x:auto; font-size:12.5px; line-height:1.6; }
+  code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+  .tip { background:#FFF8EE; border:1px solid #F0D9C0; border-radius:10px; padding:12px 16px; font-size:.92rem; }
+</style>
+</head>
+<body>
+
+<h1>カガワン → うどログ 導線カード</h1>
+<p class="note">WordPress の「カスタムHTML」ブロックに下記コードを貼るだけ。テーマCSSに依存しない自己完結スニペット（スマホ対応・画像はudolog.comから読込）。下は実際の表示プレビューです。</p>
+
+<div class="tip">
+  <strong>使い分け</strong><br>
+  ・<strong>(A) 汎用版</strong> … どのうどん記事にも置ける「うどログで記録しよう」カード。記事末やサイドバーに。<br>
+  ・<strong>(B) 店直リンク版</strong> … 特定店の記事に。<code>SLUG</code> と <code>店名</code> をその店のものに差し替える（slugは shops.csv 最終列）。本文の店紹介直後に。
+</div>
+
+
+<!-- ============================================================ -->
+<h2>(A) 汎用版 — プレビュー</h2>
+<div class="demo">
+
+<!-- ▼▼▼ ここから汎用版：WordPressにコピペ ▼▼▼ -->
+<div class="udolog-cta">
+  <a class="udolog-cta__link" href="https://udolog.com/" target="_blank" rel="noopener">
+    <img class="udolog-cta__img" src="https://udolog.com/images/udomaru-welcome.svg" alt="うどログのマスコット うどまる" width="72" height="72" loading="lazy">
+    <div class="udolog-cta__body">
+      <div class="udolog-cta__eyebrow">香川のうどん、食べたら記録しよう</div>
+      <div class="udolog-cta__title">うどログ</div>
+      <div class="udolog-cta__desc">お店ごとにスタンプが貯まる、さぬきうどんの記録アプリ。制覇率やおすすめ度もチェックできます。</div>
+      <span class="udolog-cta__btn">無料でうどログを始める</span>
+    </div>
+  </a>
+</div>
+<style>
+  .udolog-cta{ box-sizing:border-box; max-width:520px; margin:1.5em auto; }
+  .udolog-cta *{ box-sizing:border-box; }
+  .udolog-cta__link{
+    display:flex; gap:14px; align-items:center; text-decoration:none;
+    background:linear-gradient(135deg,#FFFDF9 0%,#FFF3DF 100%);
+    border:1px solid #F0D9C0; border-radius:16px; padding:16px 18px;
+    box-shadow:0 2px 10px rgba(138,85,16,.08); transition:box-shadow .18s ease, transform .18s ease;
+  }
+  .udolog-cta__link:hover{ box-shadow:0 6px 20px rgba(138,85,16,.16); transform:translateY(-2px); }
+  .udolog-cta__img{ width:72px; height:72px; flex:0 0 auto; }
+  .udolog-cta__body{ min-width:0; }
+  .udolog-cta__eyebrow{ font-size:12px; font-weight:700; color:#BA7517; letter-spacing:.02em; margin:0 0 2px; }
+  .udolog-cta__title{ font-size:20px; font-weight:800; color:#6F440C; line-height:1.2; margin:0; }
+  .udolog-cta__desc{ font-size:13px; color:#5a5a55; line-height:1.6; margin:6px 0 12px; }
+  .udolog-cta__btn{
+    display:inline-block; background:#8A5510; color:#fff; font-size:14px; font-weight:700;
+    padding:9px 18px; border-radius:999px; line-height:1;
+  }
+  .udolog-cta__link:hover .udolog-cta__btn{ background:#6F440C; }
+  @media (max-width:420px){
+    .udolog-cta__link{ flex-direction:column; text-align:center; gap:10px; }
+    .udolog-cta__img{ width:64px; height:64px; }
+  }
+</style>
+<!-- ▲▲▲ ここまで汎用版 ▲▲▲ -->
+
+</div>
+
+<h2>(A) 汎用版 — コピペ用コード</h2>
+<pre><code>&lt;div class="udolog-cta"&gt;
+  &lt;a class="udolog-cta__link" href="https://udolog.com/" target="_blank" rel="noopener"&gt;
+    &lt;img class="udolog-cta__img" src="https://udolog.com/images/udomaru-welcome.svg" alt="うどログのマスコット うどまる" width="72" height="72" loading="lazy"&gt;
+    &lt;div class="udolog-cta__body"&gt;
+      &lt;div class="udolog-cta__eyebrow"&gt;香川のうどん、食べたら記録しよう&lt;/div&gt;
+      &lt;div class="udolog-cta__title"&gt;うどログ&lt;/div&gt;
+      &lt;div class="udolog-cta__desc"&gt;お店ごとにスタンプが貯まる、さぬきうどんの記録アプリ。制覇率やおすすめ度もチェックできます。&lt;/div&gt;
+      &lt;span class="udolog-cta__btn"&gt;無料でうどログを始める&lt;/span&gt;
+    &lt;/div&gt;
+  &lt;/a&gt;
+&lt;/div&gt;
+&lt;style&gt;
+  .udolog-cta{ box-sizing:border-box; max-width:520px; margin:1.5em auto; }
+  .udolog-cta *{ box-sizing:border-box; }
+  .udolog-cta__link{
+    display:flex; gap:14px; align-items:center; text-decoration:none;
+    background:linear-gradient(135deg,#FFFDF9 0%,#FFF3DF 100%);
+    border:1px solid #F0D9C0; border-radius:16px; padding:16px 18px;
+    box-shadow:0 2px 10px rgba(138,85,16,.08); transition:box-shadow .18s ease, transform .18s ease;
+  }
+  .udolog-cta__link:hover{ box-shadow:0 6px 20px rgba(138,85,16,.16); transform:translateY(-2px); }
+  .udolog-cta__img{ width:72px; height:72px; flex:0 0 auto; }
+  .udolog-cta__body{ min-width:0; }
+  .udolog-cta__eyebrow{ font-size:12px; font-weight:700; color:#BA7517; letter-spacing:.02em; margin:0 0 2px; }
+  .udolog-cta__title{ font-size:20px; font-weight:800; color:#6F440C; line-height:1.2; margin:0; }
+  .udolog-cta__desc{ font-size:13px; color:#5a5a55; line-height:1.6; margin:6px 0 12px; }
+  .udolog-cta__btn{
+    display:inline-block; background:#8A5510; color:#fff; font-size:14px; font-weight:700;
+    padding:9px 18px; border-radius:999px; line-height:1;
+  }
+  .udolog-cta__link:hover .udolog-cta__btn{ background:#6F440C; }
+  @media (max-width:420px){
+    .udolog-cta__link{ flex-direction:column; text-align:center; gap:10px; }
+    .udolog-cta__img{ width:64px; height:64px; }
+  }
+&lt;/style&gt;</code></pre>
+
+
+<!-- ============================================================ -->
+<h2>(B) 店直リンク版 — プレビュー</h2>
+<p class="note"><code>SLUG</code>（例: <code>udonbakaichidai</code>）と店名2か所を、記事で紹介している店に差し替えてください。</p>
+<div class="demo">
+
+<!-- ▼▼▼ ここから店直リンク版：WordPressにコピペ（SLUG・店名を差し替え） ▼▼▼ -->
+<div class="udolog-cta udolog-cta--shop">
+  <a class="udolog-cta__link" href="https://udolog.com/shops/udonbakaichidai" target="_blank" rel="noopener">
+    <img class="udolog-cta__img" src="https://udolog.com/images/udomaru-welcome.svg" alt="うどログのマスコット うどまる" width="72" height="72" loading="lazy">
+    <div class="udolog-cta__body">
+      <div class="udolog-cta__eyebrow">この記事のお店をうどログで</div>
+      <div class="udolog-cta__title">手打十段うどん バカ一代</div>
+      <div class="udolog-cta__desc">みんなのおすすめ度・人気メニュー・口コミをチェック。食べたら記録して、あなたのスタンプ帳に１杯追加。</div>
+      <span class="udolog-cta__btn">このお店をうどログで見る</span>
+    </div>
+  </a>
+</div>
+<!-- ※CSSは汎用版の &lt;style&gt; を同じページに一度貼ってあれば共有されます。単独で置く場合は下の style も一緒に貼ってください。 -->
+<style>
+  .udolog-cta{ box-sizing:border-box; max-width:520px; margin:1.5em auto; }
+  .udolog-cta *{ box-sizing:border-box; }
+  .udolog-cta__link{
+    display:flex; gap:14px; align-items:center; text-decoration:none;
+    background:linear-gradient(135deg,#FFFDF9 0%,#FFF3DF 100%);
+    border:1px solid #F0D9C0; border-radius:16px; padding:16px 18px;
+    box-shadow:0 2px 10px rgba(138,85,16,.08); transition:box-shadow .18s ease, transform .18s ease;
+  }
+  .udolog-cta__link:hover{ box-shadow:0 6px 20px rgba(138,85,16,.16); transform:translateY(-2px); }
+  .udolog-cta__img{ width:72px; height:72px; flex:0 0 auto; }
+  .udolog-cta__body{ min-width:0; }
+  .udolog-cta__eyebrow{ font-size:12px; font-weight:700; color:#BA7517; letter-spacing:.02em; margin:0 0 2px; }
+  .udolog-cta__title{ font-size:20px; font-weight:800; color:#6F440C; line-height:1.2; margin:0; }
+  .udolog-cta__desc{ font-size:13px; color:#5a5a55; line-height:1.6; margin:6px 0 12px; }
+  .udolog-cta__btn{
+    display:inline-block; background:#8A5510; color:#fff; font-size:14px; font-weight:700;
+    padding:9px 18px; border-radius:999px; line-height:1;
+  }
+  .udolog-cta__link:hover .udolog-cta__btn{ background:#6F440C; }
+  @media (max-width:420px){
+    .udolog-cta__link{ flex-direction:column; text-align:center; gap:10px; }
+    .udolog-cta__img{ width:64px; height:64px; }
+  }
+</style>
+<!-- ▲▲▲ ここまで店直リンク版 ▲▲▲ -->
+
+</div>
+
+<h2>(B) 店直リンク版 — コピペ用コード</h2>
+<pre><code>&lt;div class="udolog-cta udolog-cta--shop"&gt;
+  &lt;a class="udolog-cta__link" href="https://udolog.com/shops/SLUG" target="_blank" rel="noopener"&gt;
+    &lt;img class="udolog-cta__img" src="https://udolog.com/images/udomaru-welcome.svg" alt="うどログのマスコット うどまる" width="72" height="72" loading="lazy"&gt;
+    &lt;div class="udolog-cta__body"&gt;
+      &lt;div class="udolog-cta__eyebrow"&gt;この記事のお店をうどログで&lt;/div&gt;
+      &lt;div class="udolog-cta__title"&gt;店名をここに&lt;/div&gt;
+      &lt;div class="udolog-cta__desc"&gt;みんなのおすすめ度・人気メニュー・口コミをチェック。食べたら記録して、あなたのスタンプ帳に１杯追加。&lt;/div&gt;
+      &lt;span class="udolog-cta__btn"&gt;このお店をうどログで見る&lt;/span&gt;
+    &lt;/div&gt;
+  &lt;/a&gt;
+&lt;/div&gt;</code></pre>
+<p class="note">※ CSS は汎用版(A)と共通。同じ記事に(A)を先に置いている場合は <code>&lt;style&gt;</code> の再掲は不要です。単独で使う記事では、(A)の <code>&lt;style&gt;</code> ブロックもこのカードの下に一緒に貼ってください。</p>
+
+</body>
+</html>
