@@ -4,10 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <base href="/">
-  <title>香川うどんランキング — うどログ</title>
-  <meta name="description" content="うどログ会員のおすすめ度・記録数から集計した香川のさぬきうどん店ランキング。">
-  <meta property="og:title" content="香川うどんランキング — うどログ">
-  <meta property="og:description" content="みんなのおすすめ度・記録数で見る香川うどん店ランキング。">
+  <title>香川県のさぬきうどんランキング — うどログ</title>
+  <meta name="description" content="うどログ会員のおすすめ度・記録数から集計した香川県のさぬきうどん店ランキング。">
+  <meta property="og:title" content="香川県のさぬきうどんランキング — うどログ">
+  <meta property="og:description" content="みんなのおすすめ度・記録数で見る香川県のさぬきうどん店ランキング。">
   <meta property="og:type" content="website">
   <link rel="stylesheet" href="tabler-icons.css">
   <style>
@@ -149,13 +149,13 @@
 </head>
 <body>
   <div class="page-header">
-    <span class="header-title">香川うどんランキング</span>
+    <span class="header-title">香川県のさぬきうどんランキング</span>
   </div>
 
   <div class="container">
     <div class="rank-tabs">
-      <button class="rank-tab active" data-type="rating" onclick="switchTab('rating')">おすすめ度</button>
-      <button class="rank-tab" data-type="records" onclick="switchTab('records')">よく記録されている</button>
+      <button class="rank-tab active" data-type="rating" onclick="switchTab('rating')">おすすめランキング</button>
+      <button class="rank-tab" data-type="records" onclick="switchTab('records')">記録数ランキング</button>
     </div>
     <p class="rank-intro" id="rankIntro">みんなのおすすめ度が高い順。店名をタップで詳細へ。</p>
     <div id="rankingList"></div>
@@ -217,7 +217,7 @@
         t.classList.toggle('active', t.dataset.type === type);
       });
       document.getElementById('rankIntro').textContent = (type === 'records')
-        ? 'みんながよく記録している（＝人気の）お店順。店名をタップで詳細へ。'
+        ? 'みんなの記録が多い順（＝人気の目安）。店名をタップで詳細へ。'
         : 'みんなのおすすめ度が高い順。店名をタップで詳細へ。';
       loadRanking();
     }
