@@ -720,6 +720,30 @@
 
       .cta-inner { padding: 4rem 1.25rem; }
     }
+
+    /* マスコット「うどまる」紹介 */
+    .mascot-section { text-align: center; }
+    .mascot-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 1.75rem;
+      margin-top: 2.5rem;
+    }
+    .mascot-item { width: 110px; }
+    .mascot-item img {
+      width: 96px;
+      height: 96px;
+      display: block;
+      margin: 0 auto;
+      filter: drop-shadow(0 8px 16px rgba(0,0,0,0.08));
+    }
+    .mascot-item figcaption {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-sub);
+      margin-top: 8px;
+    }
   </style>
   <!-- ファビコン -->
   <link rel="icon" href="favicon.ico" sizes="any">
@@ -965,6 +989,33 @@
       </div>
     </div>
   </div>
+
+  <!-- MASCOT -->
+  <section class="section mascot-section">
+    <div class="section-header" style="margin-bottom:0;">
+      <div class="label-tag">マスコット</div>
+      <h2 class="section-title">記録の相棒、うどまる。</h2>
+      <p class="section-desc" style="margin:0 auto;">記録したとき、バッジを獲得したとき、常連になったとき——いろんな場面で「うどまる」がいろんな表情で登場します。</p>
+    </div>
+    <div class="mascot-row">
+      <figure class="mascot-item">
+        <img src="images/udomaru-welcome.svg" alt="ようこそと手を振るうどまる" width="96" height="96">
+        <figcaption>ようこそ</figcaption>
+      </figure>
+      <figure class="mascot-item">
+        <img src="images/udomaru-eaten.svg" alt="記録できて笑顔のうどまる" width="96" height="96">
+        <figcaption>記録できた</figcaption>
+      </figure>
+      <figure class="mascot-item">
+        <img src="images/udomaru-achievement.svg" alt="バッジを獲得したうどまる" width="96" height="96">
+        <figcaption>バッジ獲得</figcaption>
+      </figure>
+      <figure class="mascot-item">
+        <img src="images/udomaru-streak.svg" alt="常連になったうどまる" width="96" height="96">
+        <figcaption>常連達成</figcaption>
+      </figure>
+    </div>
+  </section>
 
   <!-- FEED -->
   <section class="section feed-section">
