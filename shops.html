@@ -409,6 +409,23 @@
     .card-meta .open-badge { margin-left: auto; }
     .card-meta .open-badge + .type-badge { margin-left: 0; }
 
+    /* 記録済みバッジ（ログイン中・訪問した店） */
+    .done-badge {
+      flex-shrink: 0;
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 6px;
+      background: #DFF3E6;
+      color: #1E7B39;
+    }
+    .done-badge .chk { font-weight: 900; }
+    /* 記録済みカードは一目で分かるようにうっすら色分け */
+    .shop-card.done { background: #F6FBF7; border-color: #CFE9D7; }
+
     .card-meta {
       display: flex;
       align-items: center;
@@ -643,6 +660,13 @@
     <button class="cond-pill" data-cond="parking"><i class="ti ti-parking" aria-hidden="true"></i>駐車場あり</button>
   </div>
 
+  <!-- 記録の有無で絞り込み（ログイン中のみ表示） -->
+  <div class="cond-filters" id="visit-filters" style="display:none;">
+    <span class="cond-label">記録</span>
+    <button class="cond-pill" data-visit="undone">まだ行ってない</button>
+    <button class="cond-pill" data-visit="done"><span class="chk">✓</span>記録済み</button>
+  </div>
+
   <p class="cond-note show" id="cond-note">
     <i class="ti ti-info-circle" aria-hidden="true"></i>「営業中／時間外」は営業時間・定休日からの<strong>目安</strong>です。売り切れ終了・臨時休業・祝日は反映されません。お出かけ前に各店の情報をご確認ください。
   </p>
@@ -688,6 +712,7 @@
     let currentSort = 'kana';   // 既定は五十音順。'area'（id順）/ 'kana'（五十音順）/ 'near'（近い順）
     let condOpen = false;       // 今営業中（目安）で絞り込み
     let condParking = false;    // 駐車場あり で絞り込み
+    let condVisit = 'all';      // 記録の有無で絞り込み 'all'/'undone'(まだ)/'done'(記録済み)。ログイン中のみ
     let userPos = null;         // 現在地 {lat,lng}（近い順で許可を得た時だけ入る・保存しない）
 
     // 2点間の距離(km)：Haversine
@@ -791,7 +816,10 @@
         const matchQ = !q || s.name.includes(q) || (s.kana && s.kana.includes(q)) || s.city.includes(q) || s.dish.includes(q);
         const matchParking = !condParking || hasParking(s.parking);
         const matchOpen = !condOpen || openState(s, now) === 'open';
-        return matchArea && matchType && matchQ && matchParking && matchOpen;
+        const matchVisit = condVisit === 'all'
+          || (condVisit === 'done' && visited.has(s.id))
+          || (condVisit === 'undone' && !visited.has(s.id));
+        return matchArea && matchType && matchQ && matchParking && matchOpen && matchVisit;
       });
 
       // あいうえお順：よみ(kana)で日本語ソート。kanaが無ければ店名で代用
@@ -836,11 +864,12 @@
       grid.innerHTML = filtered.map(s => {
         const done = visited.has(s.id);
         return `
-          <div class="shop-card">
+          <div class="shop-card ${done ? 'done' : ''}">
             <div class="shop-name">${s.name}</div>
             <div class="card-meta">
               <i class="ti ti-map-pin" aria-hidden="true"></i>
               <span class="card-city">${s.city}</span>
+              ${done ? '<span class="done-badge"><span class="chk">✓</span>記録済み</span>' : ''}
               ${showDist && s._dist !== Infinity ? `<span class="dist-chip"><i class="ti ti-map-pin" aria-hidden="true"></i>${formatDistance(s._dist)}</span>` : ''}
               ${openBadge(s, now)}
               ${typeBadge(s.type)}
@@ -938,6 +967,17 @@
       render();
     });
 
+    // 記録の有無フィルタ（まだ行ってない／記録済み・排他トグル）
+    document.getElementById('visit-filters').addEventListener('click', e => {
+      const pill = e.target.closest('.cond-pill');
+      if (!pill) return;
+      const v = pill.dataset.visit;
+      condVisit = (condVisit === v) ? 'all' : v;   // 同じものを再タップで解除
+      document.querySelectorAll('#visit-filters .cond-pill').forEach(p =>
+        p.classList.toggle('active', condVisit !== 'all' && p.dataset.visit === condVisit));
+      render();
+    });
+
     // search
     const searchInput = document.getElementById('search');
     const searchClear = document.getElementById('search-clear');
@@ -969,6 +1009,8 @@
             visitCount[l.shopId] = (visitCount[l.shopId] || 0) + 1;
             visited.add(l.shopId);
           });
+          // 記録の有無フィルタはログイン中だけ出す
+          document.getElementById('visit-filters').style.display = 'flex';
         } catch (e) {}
       }
       render();
