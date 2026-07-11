@@ -893,6 +893,13 @@
         }
         // シェア用に今回の記録内容を保持し、完了モーダルを表示
         lastRecord = { name: shopName, city: shopCity, menus: menus };
+        // その日2杯目以降は「満腹うどまる」＋「今日◯杯目！」でお祝い
+        const dayCount = res.dayCount || 1;
+        const isFull = dayCount >= 2;
+        document.querySelector('.share-udomaru').src =
+          isFull ? 'images/udomaru-full.svg' : 'images/udomaru-eaten.svg';
+        document.querySelector('.share-title').textContent =
+          isFull ? `今日${dayCount}杯目！` : '記録を投稿しました！';
         document.getElementById('shareOverlay').classList.add('show');
       } catch (err) {
         showToast(err.message || (isEdit ? '更新に失敗しました' : '記録に失敗しました'));

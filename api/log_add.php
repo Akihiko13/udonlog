@@ -39,8 +39,20 @@ $st = db()->prepare(
 $st->execute([$u['id'], $shop_id, ($menus !== '' ? $menus : null), ($comment !== '' ? $comment : null), $visit, $photo, $isPub]);
 $id = (int)db()->lastInsertId();
 
+// その日の何杯目か（この記録を含む）。訪問日があればその日で、無ければ本日(created_at)で数える。
+// 完了演出で「2杯目以降は満腹うどまる」に出し分けるのに使う。
+if ($visit !== null) {
+  $cst = db()->prepare('SELECT COUNT(*) FROM logs WHERE user_id = ? AND visit_date = ?');
+  $cst->execute([$u['id'], $visit]);
+} else {
+  $cst = db()->prepare('SELECT COUNT(*) FROM logs WHERE user_id = ? AND DATE(created_at) = CURDATE()');
+  $cst->execute([$u['id']]);
+}
+$dayCount = (int)$cst->fetchColumn();
+
 json_out([
   'ok'  => true,
+  'dayCount' => $dayCount,   // その日の通算杯数（この記録を含む）
   'log' => [
     'id'        => $id,
     'shopId'    => $shop_id,
