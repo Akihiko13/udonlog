@@ -224,6 +224,61 @@
       color: var(--white);
     }
 
+    /* CONDITION PILLS（こだわり条件・複数トグル可） */
+    .cond-filters {
+      padding: 0 1.5rem 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      border-bottom: 0.5px solid var(--border);
+      background: var(--bg);
+    }
+    .cond-filters::-webkit-scrollbar { display: none; }
+    .cond-label {
+      flex-shrink: 0;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .cond-pill {
+      flex-shrink: 0;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 13px;
+      font-size: 12px;
+      font-weight: 500;
+      border: 0.5px solid var(--border);
+      border-radius: 99px;
+      cursor: pointer;
+      background: var(--white);
+      color: var(--text-sub);
+      font-family: inherit;
+      transition: all 0.15s;
+    }
+    .cond-pill i { font-size: 14px; }
+    .cond-pill.active {
+      background: var(--amber-light);
+      border-color: var(--amber);
+      color: var(--amber-dark);
+      font-weight: 700;
+    }
+
+    /* 営業中フィルタの注意書き（目安である旨） */
+    .cond-note {
+      display: none;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 8px 1.5rem 0;
+      font-size: 11.5px;
+      line-height: 1.5;
+      color: var(--text-muted);
+    }
+    .cond-note.show { display: block; }
+    .cond-note i { font-size: 13px; vertical-align: -2px; margin-right: 3px; }
+
     /* GRID */
     .grid-wrap {
       max-width: 900px;
@@ -527,6 +582,16 @@
     <button class="type-pill" data-type="製麺所">製麺所系</button>
   </div>
 
+  <div class="cond-filters" id="cond-filters">
+    <span class="cond-label">こだわり</span>
+    <button class="cond-pill" data-cond="open"><i class="ti ti-clock" aria-hidden="true"></i>今営業中</button>
+    <button class="cond-pill" data-cond="parking"><i class="ti ti-parking" aria-hidden="true"></i>駐車場あり</button>
+  </div>
+
+  <p class="cond-note" id="cond-note">
+    <i class="ti ti-info-circle" aria-hidden="true"></i>「今営業中」は営業時間・定休日からの<strong>目安</strong>です。売り切れ終了・臨時休業・祝日は反映されません。お出かけ前に各店の情報をご確認ください。
+  </p>
+
   <div class="grid-wrap">
     <div class="result-bar">
       <div class="result-label" id="result-label"></div>
@@ -565,6 +630,63 @@
     let currentType = '全て';
     let searchQuery = '';
     let currentSort = 'kana';   // 既定は五十音順。'area'（id順）/ 'kana'（五十音順）
+    let condOpen = false;       // 今営業中（目安）で絞り込み
+    let condParking = false;    // 駐車場あり で絞り込み
+
+    // --- 「駐車場あり」判定：parking が「なし〜」で始まらなければ有りとみなす ---
+    function hasParking(p) {
+      if (!p) return false;
+      return !/^\s*なし/.test(p);
+    }
+
+    // --- 「今営業中（目安）」判定 -------------------------------------------
+    // 営業時間(hours)と定休日(closed)は自由記述のため、あくまで目安。
+    // 売り切れ終了・臨時休・祝日例外は判定できない。
+    const WD = ['日', '月', '火', '水', '木', '金', '土'];
+
+    // その月の第何週の曜日か（1〜5）
+    function nthWeekOfMonth(d) { return Math.floor((d.getDate() - 1) / 7) + 1; }
+
+    // 今日が定休日か（曜日休のみ判定。「第2・第4水曜」等の週指定にも対応）
+    function isClosedToday(closedRaw, now) {
+      if (!closedRaw) return false;
+      if (closedRaw.includes('無休')) return false;   // 年中無休
+      const wd = WD[now.getDay()];
+      if (!closedRaw.includes(wd)) return false;
+      // 「第N」指定が今日の曜日に付いていれば、その週だけ休み
+      const m = closedRaw.match(new RegExp('((?:第[1-5][・･]?)+)' + wd + '曜'));
+      if (m) {
+        const weeks = (m[1].match(/[1-5]/g) || []).map(Number);
+        return weeks.includes(nthWeekOfMonth(now));
+      }
+      return true;   // 週指定なし＝毎週その曜日が定休
+    }
+
+    // 現在が営業時間内か（true/false）。判定不能なら null
+    function isWithinHours(hoursRaw, now) {
+      if (!hoursRaw) return null;
+      const h = hoursRaw.replace(/[（(][^）)]*[）)]/g, '');   // 補足（売り切れ次第終了）等を除去
+      const re = /(\d{1,2}):(\d{2})\s*[〜～~\-]\s*(\d{1,2}):(\d{2})/g;
+      const cur = now.getHours() * 60 + now.getMinutes();
+      let found = false, open = false, m;
+      while ((m = re.exec(h))) {
+        found = true;
+        const start = (+m[1]) * 60 + (+m[2]);
+        let end = (+m[3]) * 60 + (+m[4]);
+        if (end <= start) end += 1440;   // 日跨ぎ
+        if ((cur >= start && cur < end) || (cur + 1440 >= start && cur + 1440 < end)) open = true;
+      }
+      return found ? open : null;
+    }
+
+    // 総合判定：'open' / 'closed' / 'unknown'
+    function openState(shop, now) {
+      if (isClosedToday(shop.closed, now)) return 'closed';
+      const within = isWithinHours(shop.hours, now);
+      if (within === true) return 'open';
+      if (within === false) return 'closed';
+      return 'unknown';   // 時間が読めない店は「営業中」と断定しない
+    }
     // 訪問記録（ログイン時にサーバーから取得して「店ごとの杯数」「記録済み店舗」を集計）
     let logs = [];
     let visitCount = {};
@@ -578,12 +700,15 @@
 
     function render() {
       const q = searchQuery.trim();
+      const now = new Date();
       const filtered = SHOPS.filter(s => {
         if (s.status === '閉店') return false;   // 閉店した店は一覧・検索に出さない
         const matchArea = currentArea === '全て' || s.city === currentArea;
         const matchType = currentType === '全て' || s.type === currentType;
         const matchQ = !q || s.name.includes(q) || (s.kana && s.kana.includes(q)) || s.city.includes(q) || s.dish.includes(q);
-        return matchArea && matchType && matchQ;
+        const matchParking = !condParking || hasParking(s.parking);
+        const matchOpen = !condOpen || openState(s, now) === 'open';
+        return matchArea && matchType && matchQ && matchParking && matchOpen;
       });
 
       // あいうえお順：よみ(kana)で日本語ソート。kanaが無ければ店名で代用
@@ -675,6 +800,17 @@
       document.querySelectorAll('.type-pill').forEach(p => p.classList.remove('active'));
       pill.classList.add('active');
       currentType = pill.dataset.type;
+      render();
+    });
+
+    // condition filters（複数トグル可）
+    document.getElementById('cond-filters').addEventListener('click', e => {
+      const pill = e.target.closest('.cond-pill');
+      if (!pill) return;
+      const on = pill.classList.toggle('active');
+      if (pill.dataset.cond === 'open') condOpen = on;
+      if (pill.dataset.cond === 'parking') condParking = on;
+      document.getElementById('cond-note').classList.toggle('show', condOpen);
       render();
     });
 
