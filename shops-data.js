@@ -118,7 +118,7 @@ const SHOPS = [
   { id:109, name:"はなまるうどん×吉野家 ゆめタウン高松店", kana:"はなまるうどんよしのや ゆめたうんたかまつてん", city:"高松市", type:"セルフ", dish:"", hours:"10:00-21:00", closed:"年中無休", parking:"あり", slug:"hanamaruudon-yoshinoya-yume-town-takamatsu", lat:34.315942, lng:134.043169 },
   { id:110, name:"はなまるうどん 多肥店", kana:"はなまるうどん たひてん", city:"高松市", type:"セルフ", dish:"", hours:"【平日】10:00-21:00【土日】7:00-21:00", closed:"年中無休", parking:"あり", slug:"hanamaruudon-tahi", lat:34.298214, lng:134.057507 },
   { id:111, name:"はなまるうどん 田町店", kana:"はなまるうどん たまちてん", city:"高松市", type:"セルフ", dish:"", hours:"10:00-21:30", closed:"年中無休", parking:"あり", slug:"hanamaruudon-tamachi", lat:34.338571, lng:134.049245 },
-  { id:112, name:"はなまるうどん TKMT本店", kana:"はなまるうどん たかまつほんてん", city:"高松市", type:"セルフ", dish:"", hours:"2026年7月中旬オープン予定", closed:"年中無休", parking:"あり", slug:"hanamaruudon-tkmt-honten", lat:34.329548, lng:134.063934 },
+  { id:112, name:"はなまるうどん TKMT本店", kana:"はなまるうどん たかまつほんてん", city:"高松市", type:"セルフ", dish:"", hours:"2026年7月中旬オープン予定", closed:"年中無休", parking:"あり", slug:"hanamaruudon-tkmt-honten", lat:34.328842, lng:134.065042 },
   { id:113, name:"はなまるうどん 高松三条店", kana:"はなまるうどん たかまつさんじょうてん", city:"高松市", type:"セルフ", dish:"", hours:"10:00-21:30", closed:"年中無休", parking:"あり", slug:"hanamaruudon-takamatsu-sanjo", lat:34.315212, lng:134.046351 },
   { id:114, name:"はなまるうどん 高松中央インター店", kana:"はなまるうどん たかまつちゅうおういんたーてん", city:"高松市", type:"セルフ", dish:"", hours:"10:00-22:00", closed:"年中無休", parking:"あり", slug:"hanamaruudon-takamatsu-chuo-inter", lat:34.310251, lng:134.072913 },
   { id:115, name:"はなまるうどん 丸亀城西店", kana:"はなまるうどん まるがめじょうせいてん", city:"丸亀市", type:"セルフ", dish:"", hours:"10:00-22:00", closed:"年中無休", parking:"あり", slug:"hanamaruudon-marugame-jonishi", lat:34.283041, lng:133.796510 },
