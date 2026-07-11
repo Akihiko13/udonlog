@@ -426,6 +426,71 @@
     /* 記録済みカードは一目で分かるようにうっすら色分け */
     .shop-card.done { background: #F6FBF7; border-color: #CFE9D7; }
 
+    /* スポットから近い順で探す */
+    .spot-bar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 1.5rem;
+      background: var(--white);
+      border-bottom: 0.5px solid var(--border);
+    }
+    .spot-bar-label {
+      flex-shrink: 0;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--amber-dark);
+    }
+    .spot-bar-label i { font-size: 15px; }
+    .spot-select {
+      flex: 1;
+      min-width: 0;
+      max-width: 340px;
+      padding: 9px 12px;
+      border: 0.5px solid var(--border);
+      border-radius: 10px;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 14px;
+      font-family: inherit;
+      outline: none;
+    }
+    .spot-select:focus { border-color: var(--amber); background: var(--white); }
+    /* 選択中スポットのバナー */
+    .spot-banner {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 1.5rem;
+      background: var(--amber-light);
+      border-bottom: 0.5px solid var(--amber-border, #F0D9C0);
+      font-size: 13px;
+      color: var(--amber-darker);
+    }
+    .spot-banner i { font-size: 16px; color: var(--amber); flex-shrink: 0; }
+    .spot-banner > span { flex: 1; min-width: 0; }
+    .spot-banner strong { font-weight: 700; }
+    .spot-reset {
+      flex-shrink: 0;
+      background: var(--white);
+      border: 0.5px solid var(--amber-border, #F0D9C0);
+      color: var(--amber-dark);
+      font-size: 12px;
+      font-weight: 700;
+      padding: 5px 12px;
+      border-radius: 99px;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .spot-reset:hover { background: #fbf3e6; }
+    @media (max-width: 600px) {
+      .spot-bar { flex-wrap: wrap; row-gap: 8px; }
+      .spot-select { max-width: none; width: 100%; }
+    }
+
     .card-meta {
       display: flex;
       align-items: center;
@@ -671,6 +736,19 @@
     <i class="ti ti-info-circle" aria-hidden="true"></i>「営業中／時間外」は営業時間・定休日からの<strong>目安</strong>です。売り切れ終了・臨時休業・祝日は反映されません。お出かけ前に各店の情報をご確認ください。
   </p>
 
+  <!-- 観光地・駅から近い順で探す -->
+  <div class="spot-bar" id="spot-bar" style="display:none;">
+    <label class="spot-bar-label" for="spot-select"><i class="ti ti-map-pin" aria-hidden="true"></i>スポットから探す</label>
+    <select class="spot-select" id="spot-select" aria-label="観光地・駅から近い順で探す">
+      <option value="">観光地・駅を選ぶ…</option>
+    </select>
+  </div>
+  <div class="spot-banner" id="spot-banner" style="display:none;">
+    <i class="ti ti-map-pin" aria-hidden="true"></i>
+    <span><strong id="spot-banner-label"></strong> の近くのお店（近い順）</span>
+    <button type="button" class="spot-reset" id="spot-reset">解除</button>
+  </div>
+
   <div class="grid-wrap">
     <div class="result-bar">
       <div class="result-label" id="result-label"></div>
@@ -704,6 +782,7 @@
   <div class="toast" id="toast"></div>
 
   <script src="shops-data.js"></script>
+  <script src="landmarks.js"></script>
   <script>
 
     let currentArea = '全て';
@@ -714,6 +793,7 @@
     let condParking = false;    // 駐車場あり で絞り込み
     let condVisit = 'all';      // 記録の有無で絞り込み 'all'/'undone'(まだ)/'done'(記録済み)。ログイン中のみ
     let userPos = null;         // 現在地 {lat,lng}（近い順で許可を得た時だけ入る・保存しない）
+    let nearRef = null;         // 近い順の基準点 {lat,lng,label}。現在地 or 観光地
 
     // 2点間の距離(km)：Haversine
     function distanceKm(a, b) {
@@ -827,14 +907,23 @@
         filtered.sort((a, b) =>
           (a.kana || a.name).localeCompare(b.kana || b.name, 'ja')
         );
-      } else if (currentSort === 'near' && userPos) {
-        // 近い順：現在地からの距離を計算して昇順。座標が無い店は末尾へ
+      } else if (currentSort === 'near' && nearRef) {
+        // 近い順：基準点（現在地 or 観光地）からの距離を計算して昇順。座標が無い店は末尾へ
         filtered.forEach(s => {
-          s._dist = (s.lat != null && s.lng != null) ? distanceKm(userPos, s) : Infinity;
+          s._dist = (s.lat != null && s.lng != null) ? distanceKm(nearRef, s) : Infinity;
         });
         filtered.sort((a, b) => a._dist - b._dist);
       }
-      const showDist = currentSort === 'near' && userPos;
+      const showDist = currentSort === 'near' && nearRef;
+
+      // 観光地スポット選択中はバナー表示（現在地の時は出さない）
+      const spotBanner = document.getElementById('spot-banner');
+      if (currentSort === 'near' && nearRef && nearRef.label && nearRef.label !== '現在地') {
+        document.getElementById('spot-banner-label').textContent = nearRef.label;
+        spotBanner.style.display = 'flex';
+      } else {
+        spotBanner.style.display = 'none';
+      }
 
       const grid = document.getElementById('shops-grid');
       const empty = document.getElementById('empty');
@@ -909,6 +998,12 @@
       document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       currentSort = sort;
+      // 近い順以外に切り替えたらスポット選択を解除
+      if (sort !== 'near') {
+        const ss = document.getElementById('spot-select');
+        if (ss) ss.value = '';
+        if (nearRef && nearRef.label !== '現在地') nearRef = null;
+      }
       render();
     }
 
@@ -919,7 +1014,12 @@
         showToast('店舗の位置情報を準備中です。もう少しお待ちください');
         return;
       }
-      if (userPos) { setActiveSort(btn, 'near'); return; }   // 取得済みなら再利用
+      document.getElementById('spot-select').value = '';   // スポット選択を解除して現在地基準へ
+      if (userPos) {                                        // 取得済みなら再利用
+        nearRef = { lat: userPos.lat, lng: userPos.lng, label: '現在地' };
+        setActiveSort(btn, 'near');
+        return;
+      }
       if (!navigator.geolocation) {
         showToast('お使いの端末では現在地を取得できません');
         return;
@@ -928,6 +1028,7 @@
       navigator.geolocation.getCurrentPosition(
         pos => {
           userPos = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+          nearRef = { lat: userPos.lat, lng: userPos.lng, label: '現在地' };
           setActiveSort(btn, 'near');
           showToast('現在地から近い順に並べました');
         },
@@ -945,6 +1046,48 @@
       if (!btn) return;
       if (btn.dataset.sort === 'near') { selectNearSort(btn); return; }
       setActiveSort(btn, btn.dataset.sort);
+    });
+
+    // === スポット（観光地・駅）から近い順で探す ===
+    // 座標付きの観光地だけを選択肢に出す（未取得なら選択UIごと隠す）
+    (function populateSpots() {
+      if (typeof LANDMARKS === 'undefined') return;
+      const withCoord = LANDMARKS.filter(l => l.lat != null && l.lng != null);
+      if (!withCoord.length) return;
+      const sel = document.getElementById('spot-select');
+      const addGroup = (label, items) => {
+        if (!items.length) return;
+        const og = document.createElement('optgroup');
+        og.label = label;
+        items.forEach(l => {
+          const o = document.createElement('option');
+          o.value = String(l.id);
+          o.textContent = l.name;
+          og.appendChild(o);
+        });
+        sel.appendChild(og);
+      };
+      addGroup('観光スポット', withCoord.filter(l => l.category === '観光'));
+      addGroup('駅・空港・港', withCoord.filter(l => l.category !== '観光'));
+      document.getElementById('spot-bar').style.display = 'flex';
+    })();
+
+    // スポットを選ぶ → その地点を基準に近い順
+    document.getElementById('spot-select').addEventListener('change', e => {
+      const id = parseInt(e.target.value);
+      if (!id) return;   // 「選ぶ…」に戻したときは何もしない（解除は解除ボタンで）
+      const lm = (typeof LANDMARKS !== 'undefined') ? LANDMARKS.find(l => l.id === id) : null;
+      if (!lm || lm.lat == null || lm.lng == null) { showToast('この地点は準備中です'); return; }
+      nearRef = { lat: lm.lat, lng: lm.lng, label: lm.name };
+      setActiveSort(document.querySelector('.sort-btn[data-sort="near"]'), 'near');
+      showToast(`${lm.name}から近い順に並べました`);
+    });
+
+    // スポット解除 → 五十音順に戻す
+    document.getElementById('spot-reset').addEventListener('click', () => {
+      nearRef = null;
+      document.getElementById('spot-select').value = '';
+      setActiveSort(document.querySelector('.sort-btn[data-sort="kana"]'), 'kana');
     });
 
     // type filter
