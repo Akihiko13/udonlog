@@ -41,9 +41,10 @@ login / register / forgot-password / reset-password / news / privacy / terms
 - **スキーマ変更は phpMyAdmin で手動適用**。追加分は `api/migrate_*.sql`（comments/follows/notifications）を用意。新テーブルを足したら migrate_*.sql も作り、引き継ぎ相手に「先にDB実行」を明示すること。
 
 ## 店舗データの更新フロー
-1. `shops.csv` を編集（列: id,name,kana,city,type,dish,hours,closed,status,blog,parking,slug。type=セルフ/一般/製麺所、status空=営業中/「閉店」）。
-2. `python3 build-shops-data.py` を実行 → `shops-data.js` を再生成（現在 **217店**）。
-3. `sitemap.xml` に新店URL `https://udolog.com/shops/{slug}` を追記（自動生成スクリプトは無い＝手動）。
+1. `shops.csv` を編集（列: id,name,kana,city,type,dish,hours,closed,status,blog,parking,slug,lat,lng。type=セルフ/一般/製麺所、status空=営業中/「閉店」）。
+2. （座標）新店を足したら `python3 geocode-shops.py` で `lat`/`lng` を付与（「現在地から近い順」用）。Google Geocoding APIを使うので `export GOOGLE_GEOCODING_API_KEY="キー"` が必要（**キーは環境変数のみ・gitに含めない**）。空欄の店だけ処理する再実行前提。精度が粗い店・失敗店はログに出るので手直しする。
+3. `python3 build-shops-data.py` を実行 → `shops-data.js` を再生成（現在 **217店**）。lat/lng があれば数値として出力される。
+4. `sitemap.xml` に新店URL `https://udolog.com/shops/{slug}` を追記（自動生成スクリプトは無い＝手動）。
 
 ## アイコン（Tabler サブセット・自前ホスト）
 - アイコンはCDNではなく**サブセットフォント自前ホスト**（`tabler-icons.css` + `fonts/*.woff2`、使用56種のみ・約10KB）。
@@ -56,7 +57,7 @@ login / register / forgot-password / reset-password / news / privacy / terms
 - `udonlog/` 直下（*.html, *.js, 画像, favicon類, sitemap.xml 等）→ **`public_html/` 直下**
 - `udonlog/api/*.php` → **`public_html/api/`**
 - `udonlog/uploads/...` → **`public_html/uploads/...`**
-- `DEVLOG.md` / `*.sql` / `build-shops-data.py` / `shops.csv` はWebに不要（DB用・開発用）。
+- `DEVLOG.md` / `*.sql` / `build-shops-data.py` / `geocode-shops.py` / `shops.csv` はWebに不要（DB用・開発用）。
 
 ## ローカルでの動作確認（PHPが無い前提）
 - 静的サーバー: `python3 -m http.server <port>`（udonlogディレクトリで）。Claude の Preview で開いて確認。

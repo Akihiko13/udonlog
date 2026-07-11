@@ -23,6 +23,9 @@
 #   blog   … ブログ記事のURL（任意）。入れると店舗詳細に「ブログで詳しく読む」ボタンが出る。
 #            空欄ならボタンは表示されない。
 #   parking … 駐車場（"あり" / "なし" / 空欄=不明）。店舗詳細の基本情報に表示。
+#   lat/lng … 緯度・経度（任意）。「現在地から近い順」検索に使用。
+#            geocode-shops.py（Google Geocoding）で自動取得して埋める。空欄なら
+#            距離計算の対象外（近い順では末尾に回る）。手で直しても可。
 # ===========================================================================
 
 import csv
@@ -79,6 +82,8 @@ def main():
             blog = (row.get('blog') or '').strip()
             parking = (row.get('parking') or '').strip()
             slug = (row.get('slug') or '').strip()
+            lat_raw = (row.get('lat') or '').strip()
+            lng_raw = (row.get('lng') or '').strip()
 
             # 検証
             if not id_raw.isdigit():
@@ -94,10 +99,19 @@ def main():
             if type_ not in VALID_TYPES:
                 errors.append(f'{i}行目「{name}」: type が不正です（{type_!r}）→ セルフ/一般/製麺所 のいずれか')
 
+            # 緯度・経度（両方そろっていて数値の時だけ採用）
+            lat = lng = None
+            if lat_raw or lng_raw:
+                try:
+                    lat, lng = float(lat_raw), float(lng_raw)
+                except ValueError:
+                    errors.append(f'{i}行目「{name}」: lat/lng が数値ではありません（{lat_raw!r},{lng_raw!r}）')
+
             rows.append({
                 'id': id_, 'name': name, 'kana': kana, 'city': city, 'type': type_,
                 'dish': dish, 'hours': hours, 'closed': closed, 'status': status,
                 'blog': blog, 'parking': parking, 'slug': slug,
+                'lat': lat, 'lng': lng,
             })
 
     if errors:
@@ -132,6 +146,9 @@ def main():
             parts.append(f'parking:"{esc(r["parking"])}"')
         if r['slug']:
             parts.append(f'slug:"{esc(r["slug"])}"')
+        if r['lat'] is not None and r['lng'] is not None:
+            parts.append(f'lat:{r["lat"]:.6f}')
+            parts.append(f'lng:{r["lng"]:.6f}')
         lines.append('  { ' + ', '.join(parts) + ' },')
 
     with open(OUT_FILE, 'w', encoding='utf-8') as f:
