@@ -62,6 +62,16 @@
 
     .rank-intro { color: var(--text-sub); font-size: 13px; margin-bottom: 1rem; }
 
+    /* 読み込み失敗時の再試行ボタン */
+    .rank-retry {
+      display: inline-flex; align-items: center; gap: 5px;
+      margin-top: 12px; padding: 8px 18px;
+      background: none; border: 0.5px solid var(--amber); border-radius: 99px;
+      color: var(--amber-dark); font-size: 13px; font-weight: 600;
+      font-family: inherit; cursor: pointer;
+    }
+    .rank-retry:hover { background: var(--amber-light); }
+
     /* おすすめ度／記録数 タブ */
     .rank-tabs { display: flex; margin-bottom: 1rem; border-bottom: 0.5px solid var(--border); }
     .rank-tab {
@@ -158,7 +168,7 @@
       <button class="rank-tab active" data-type="rating" onclick="switchTab('rating')">おすすめランキング</button>
       <button class="rank-tab" data-type="records" onclick="switchTab('records')">記録数ランキング</button>
     </div>
-    <p class="rank-intro" id="rankIntro">みんなのおすすめ度が高い順。店名をタップで詳細へ。</p>
+    <p class="rank-intro" id="rankIntro">みんなのおすすめ度が高い順。店名をタップで詳細へ。※評価が集まるまでの参考順位です。</p>
     <div id="rankingList"></div>
     <div id="rankingStatus" class="rank-status"><i class="ti ti-loader-2"></i>読み込み中…</div>
   </div>
@@ -219,7 +229,7 @@
       });
       document.getElementById('rankIntro').textContent = (type === 'records')
         ? 'みんなの記録が多い順（＝人気の目安）。店名をタップで詳細へ。'
-        : 'みんなのおすすめ度が高い順。店名をタップで詳細へ。';
+        : 'みんなのおすすめ度が高い順。店名をタップで詳細へ。※評価が集まるまでの参考順位です。';
       loadRanking();
     }
 
@@ -239,7 +249,9 @@
       } catch (e) {
         if (myToken !== token) return;
         statusEl.className = 'rank-empty';
-        statusEl.innerHTML = 'ランキングの読み込みに失敗しました。';
+        statusEl.innerHTML = 'ランキングの読み込みに失敗しました。' +
+          '<br><button type="button" class="rank-retry" onclick="loadRanking()">' +
+          '<i class="ti ti-refresh"></i>再試行</button>';
         return;
       }
       if (myToken !== token) return;   // タブが切り替わっていたら破棄
