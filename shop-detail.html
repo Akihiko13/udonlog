@@ -893,7 +893,7 @@
         <span class="info-label">営業時間</span>
         <span class="info-value">
           <span id="infoHours">—</span>
-          <span class="hours-note" id="hoursNote" style="display:none;">「営業中／時間外」は営業時間・定休日からの目安です。売り切れ終了・臨時休業・祝日は反映されません。</span>
+          <span class="hours-note" id="hoursNote" style="display:none;">「営業中／時間外」は目安です（売り切れ終了・臨時休業・祝日は反映されません）。</span>
         </span>
       </div>
       <div class="info-row">
@@ -1092,7 +1092,9 @@
       document.getElementById('headerTitle').textContent = shop.name;
       document.getElementById('shopName').textContent = shop.name;
       document.getElementById('shopCity').textContent = shop.city;
-      document.getElementById('infoType').textContent = shop.type + '式';
+      // 表示名は一覧カードと統一（セルフ／一般店／製麺所）。「一般式」のような表記を防ぐ
+      const typeLabel = shop.type === '一般' ? '一般店' : shop.type;
+      document.getElementById('infoType').textContent = typeLabel;
       document.getElementById('infoCity').textContent = shop.city;
       // 営業時間・定休日は店ごとのデータ（未設定なら案内文を表示）
       document.getElementById('infoHours').textContent = shop.hours || '店舗にご確認ください';
@@ -1101,7 +1103,7 @@
 
       // タイプバッジ
       const badge = document.getElementById('shopTypeBadge');
-      badge.textContent = shop.type;
+      badge.textContent = typeLabel;
       if (shop.type === 'セルフ') badge.className = 'type-badge type-self';
       else if (shop.type === '一般') badge.className = 'type-badge type-ippan';
       else badge.className = 'type-badge type-men';

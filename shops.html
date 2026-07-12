@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>お店を選ぶ — うどログ</title>
+  <title>お店を探す — うどログ</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="tabler-icons.css">
@@ -299,6 +299,8 @@
     .result-label {
       font-size: 13px;
       color: var(--text-muted);
+      /* 検索後の自動スクロール先。固定ヘッダー＋ページ見出しに隠れない位置で止める */
+      scroll-margin-top: 122px;
     }
 
     /* 現在地から近い順に並べるボタン（近い順のとき以外に表示） */
@@ -703,7 +705,7 @@
       <i class="ti ti-arrow-left" aria-hidden="true"></i>
       もどる
     </a>
-    <span class="nav-title">お店を選ぶ</span>
+    <span class="nav-title">お店を探す</span>
     <a href="mypage.html" class="nav-count" id="nav-count"></a>
   </nav>
 
@@ -742,9 +744,9 @@
 
   <div class="type-filters" id="type-filters">
     <button class="type-pill active" data-type="全て">すべての種類</button>
-    <button class="type-pill" data-type="セルフ">セルフ式</button>
+    <button class="type-pill" data-type="セルフ">セルフ</button>
     <button class="type-pill" data-type="一般">一般店</button>
-    <button class="type-pill" data-type="製麺所">製麺所系</button>
+    <button class="type-pill" data-type="製麺所">製麺所</button>
   </div>
 
   <div class="cond-filters" id="cond-filters">
@@ -761,7 +763,7 @@
   </div>
 
   <p class="cond-note show" id="cond-note">
-    <i class="ti ti-info-circle" aria-hidden="true"></i>「営業中／時間外」は営業時間・定休日からの<strong>目安</strong>です。売り切れ終了・臨時休業・祝日は反映されません。お出かけ前に各店の情報をご確認ください。
+    <i class="ti ti-info-circle" aria-hidden="true"></i>「営業中／時間外」は<strong>目安</strong>です（売り切れ終了・臨時休業・祝日は反映されません）。
   </p>
 
   <!-- 観光地・駅から近い順で探す -->
@@ -1150,10 +1152,22 @@
     const searchInput = document.getElementById('search');
     const searchClear = document.getElementById('search-clear');
 
+    // 検索結果は絞り込みUIの下にあり、スマホでは打っても結果が見えない。
+    // 入力が少し落ち着いたら件数表示までスクロールして結果を見せる（画面内なら何もしない）
+    let searchScrollTimer = null;
     searchInput.addEventListener('input', () => {
       searchQuery = searchInput.value;
       searchClear.style.display = searchQuery ? 'block' : 'none';
       render();
+      clearTimeout(searchScrollTimer);
+      if (searchQuery.trim()) {
+        searchScrollTimer = setTimeout(() => {
+          const r = document.getElementById('result-label').getBoundingClientRect();
+          if (r.top > window.innerHeight * 0.5 || r.top < 0) {
+            document.getElementById('result-label').scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        }, 700);
+      }
     });
 
     searchClear.addEventListener('click', () => {
