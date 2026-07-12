@@ -683,7 +683,10 @@
 
     .post-photo {
       width: 100%;
-      height: 200px;
+      /* 固定200pxだとPCで超横長に切り抜かれ丼の上下が欠けるため、
+         4:3の比率で見せる（縦に間延びしないよう上限だけ設ける） */
+      aspect-ratio: 4 / 3;
+      max-height: 420px;
       border-radius: 8px;
       margin-bottom: 8px;
       overflow: hidden;
