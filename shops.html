@@ -465,8 +465,8 @@
       color: var(--amber-darker);
     }
     .spot-banner { flex-wrap: wrap; row-gap: 8px; }
-    .spot-banner i { font-size: 16px; color: var(--amber); flex-shrink: 0; }
-    .spot-banner > span { flex: 1; min-width: 0; }
+    .spot-banner .spot-banner-text { flex: 1; min-width: 0; }
+    .spot-banner-text i { font-size: 16px; color: var(--amber); margin-right: 5px; vertical-align: -2px; }
     .spot-banner strong { font-weight: 700; }
     .spot-here {
       flex-shrink: 0;
@@ -501,6 +501,8 @@
     @media (max-width: 600px) {
       .spot-bar { flex-wrap: wrap; row-gap: 8px; }
       .spot-select { max-width: none; width: 100%; }
+      /* 長い「現在地から…」ボタンが入るので、店名テキストは1行目に全幅→ボタンは下段へ */
+      .spot-banner .spot-banner-text { flex-basis: 100%; }
     }
 
     .card-meta {
@@ -755,9 +757,8 @@
     </select>
   </div>
   <div class="spot-banner" id="spot-banner" style="display:none;">
-    <i class="ti ti-map-pin" aria-hidden="true"></i>
-    <span><strong id="spot-banner-label"></strong> の近くのお店（近い順）</span>
-    <button type="button" class="spot-here" id="spot-here"><i class="ti ti-map-pin" aria-hidden="true"></i>現在地から</button>
+    <span class="spot-banner-text"><i class="ti ti-map-pin" aria-hidden="true"></i><strong id="spot-banner-label"></strong> の近くのお店（近い順）</span>
+    <button type="button" class="spot-here" id="spot-here"><i class="ti ti-map-pin" aria-hidden="true"></i>現在地から近い順番に並べ替える</button>
     <button type="button" class="spot-reset" id="spot-reset">解除</button>
   </div>
 
