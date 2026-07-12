@@ -181,6 +181,8 @@
     }
     .open-badge.open   { background: #E6F4EA; color: #1E7B39; }
     .open-badge.closed { background: #F0F0EE; color: #8A8A82; }
+    /* 定休日は「今日は行っても開かない」ので時間外(グレー)と区別して薄赤に */
+    .open-badge.dayoff { background: #FBEDEB; color: #B3423A; }
     /* 「営業中」の緑ドットだけを静かに脈打たせて“今やってる感”を出す */
     .open-badge.open::before {
       animation: open-dot-pulse 1.8s ease-out infinite;
@@ -1030,8 +1032,9 @@
         el.textContent = '営業中';
         el.className = 'open-badge open';
       } else {
-        el.textContent = isClosedToday(shop.closed, new Date()) ? '定休日' : '時間外';
-        el.className = 'open-badge closed';
+        const dayoff = isClosedToday(shop.closed, new Date());
+        el.textContent = dayoff ? '定休日' : '時間外';
+        el.className = 'open-badge ' + (dayoff ? 'dayoff' : 'closed');
       }
       el.style.display = 'inline-flex';
       if (note) note.style.display = 'block';   // 目安の注記も表示

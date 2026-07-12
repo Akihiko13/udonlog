@@ -403,6 +403,8 @@
     }
     .open-badge.open { background: #E6F4EA; color: #1E7B39; }
     .open-badge.closed { background: #F0F0EE; color: #8A8A82; }
+    /* 定休日は「今日は行っても開かない」ので時間外(グレー)と区別して薄赤に */
+    .open-badge.dayoff { background: #FBEDEB; color: #B3423A; }
     /* 「営業中」の緑ドットだけを静かに脈打たせて“今やってる感”を出す */
     .open-badge.open::before {
       animation: open-dot-pulse 1.8s ease-out infinite;
@@ -896,8 +898,8 @@
       const st = openState(shop, now);
       if (st === 'open') return '<span class="open-badge open">営業中</span>';
       if (st === 'closed') {
-        const label = isClosedToday(shop.closed, now) ? '定休日' : '時間外';
-        return `<span class="open-badge closed">${label}</span>`;
+        const dayoff = isClosedToday(shop.closed, now);
+        return `<span class="open-badge ${dayoff ? 'dayoff' : 'closed'}">${dayoff ? '定休日' : '時間外'}</span>`;
       }
       return '';
     }
