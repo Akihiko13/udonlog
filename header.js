@@ -21,7 +21,13 @@
   // ガクッと下がるのを防ぐ（JSでの後付けをやめCSSで最初から確保）。
   var css = `
     body { padding-top: 54px; }
+    /* ロゴヘッダーの高さ。モバイルの下スクロール中は0にして
+       各ページのsticky見出し(top: var(--ulog-top))も一緒にせり上げる */
+    :root { --ulog-top: 54px; }
+    html.ulog-headhide { --ulog-top: 0px; }
+    html.ulog-headhide .ulog-header { transform: translateY(-100%); }
     .ulog-header {
+      transition: transform 0.22s ease;
       position: fixed;
       top: 0;
       left: 0;
@@ -686,5 +692,25 @@
       }).observe(document.body, { childList: true, subtree: true });
     }
     if (document.body) start(); else document.addEventListener('DOMContentLoaded', start);
+  })();
+
+  // --- モバイル: 下スクロール中はロゴヘッダーを隠して画面を広く使う ------------
+  // 上に少し戻すか、ページ上部(80px未満)に来たら再表示。
+  // 各ページのsticky見出しは top: var(--ulog-top) で追従する（CSS変数を切替）。
+  (function autoHideHeader() {
+    var mq = window.matchMedia('(max-width: 640px)');
+    var lastY = window.pageYOffset;
+    var acc = 0;   // 同方向スクロールの累積量（小さな揺れで切り替わらないように）
+    window.addEventListener('scroll', function () {
+      var root = document.documentElement;
+      if (!mq.matches) { root.classList.remove('ulog-headhide'); return; }
+      var y = window.pageYOffset;
+      var d = y - lastY;
+      lastY = y;
+      if (y < 80) { root.classList.remove('ulog-headhide'); acc = 0; return; }
+      acc = (d > 0) === (acc > 0) ? acc + d : d;
+      if (acc > 24) root.classList.add('ulog-headhide');
+      else if (acc < -24) root.classList.remove('ulog-headhide');
+    }, { passive: true });
   })();
 })();
