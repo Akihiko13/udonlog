@@ -401,6 +401,19 @@
     }
     .open-badge.open { background: #E6F4EA; color: #1E7B39; }
     .open-badge.closed { background: #F0F0EE; color: #8A8A82; }
+    /* 「営業中」の緑ドットだけを静かに脈打たせて“今やってる感”を出す */
+    .open-badge.open::before {
+      animation: open-dot-pulse 1.8s ease-out infinite;
+    }
+    @keyframes open-dot-pulse {
+      0%   { box-shadow: 0 0 0 0 rgba(30,123,57,0.5); }
+      70%  { box-shadow: 0 0 0 5px rgba(30,123,57,0); }
+      100% { box-shadow: 0 0 0 0 rgba(30,123,57,0); }
+    }
+    /* 動きを減らす設定の人には止める */
+    @media (prefers-reduced-motion: reduce) {
+      .open-badge.open::before { animation: none; }
+    }
     /* 営業中バッジをエリア行の右端側へ（種類バッジの左隣に並べる） */
     .card-meta .open-badge { margin-left: auto; }
     .card-meta .open-badge + .type-badge { margin-left: 0; }
