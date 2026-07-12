@@ -470,9 +470,27 @@
       font-size: 13px;
       color: var(--amber-darker);
     }
+    .spot-banner { flex-wrap: wrap; row-gap: 8px; }
     .spot-banner i { font-size: 16px; color: var(--amber); flex-shrink: 0; }
     .spot-banner > span { flex: 1; min-width: 0; }
     .spot-banner strong { font-weight: 700; }
+    .spot-here {
+      flex-shrink: 0;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: var(--amber-dark);
+      color: #fff;
+      border: none;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 6px 13px;
+      border-radius: 99px;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .spot-here i { font-size: 13px; color: #fff; }
+    .spot-here:hover { background: var(--amber-darker); }
     .spot-reset {
       flex-shrink: 0;
       background: var(--white);
@@ -746,6 +764,7 @@
   <div class="spot-banner" id="spot-banner" style="display:none;">
     <i class="ti ti-map-pin" aria-hidden="true"></i>
     <span><strong id="spot-banner-label"></strong> の近くのお店（近い順）</span>
+    <button type="button" class="spot-here" id="spot-here"><i class="ti ti-map-pin" aria-hidden="true"></i>現在地から</button>
     <button type="button" class="spot-reset" id="spot-reset">解除</button>
   </div>
 
@@ -754,7 +773,7 @@
       <div class="result-label" id="result-label"></div>
       <div class="sort-toggle" id="sort-toggle">
         <button class="sort-btn active" data-sort="kana">五十音順</button>
-        <button class="sort-btn" data-sort="near"><i class="ti ti-map-pin" aria-hidden="true"></i>近い順</button>
+        <button class="sort-btn" data-sort="near"><i class="ti ti-map-pin" aria-hidden="true"></i>現在地から</button>
       </div>
     </div>
     <div class="shops-grid" id="shops-grid"></div>
@@ -992,10 +1011,19 @@
       render();
     });
 
-    // sort toggle（あいうえお順／近い順）
-    function setActiveSort(btn, sort) {
-      document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
+    // sort toggle（五十音順／現在地から）＋スポット基準
+    // ハイライトは「現在地基準の近い順」の時だけ『現在地から』を点灯。
+    // スポット基準の時はどちらも点灯させず、バナーを状態表示にする（＝現在地に切替できると分かる）。
+    function updateSortButtons() {
+      document.querySelectorAll('.sort-btn').forEach(b => {
+        let on = false;
+        if (b.dataset.sort === 'kana') on = (currentSort === 'kana');
+        else if (b.dataset.sort === 'near') on = (currentSort === 'near' && nearRef && nearRef.label === '現在地');
+        b.classList.toggle('active', on);
+      });
+    }
+
+    function setSort(sort) {
       currentSort = sort;
       // 近い順以外に切り替えたらスポット選択を解除
       if (sort !== 'near') {
@@ -1003,11 +1031,12 @@
         if (ss) ss.value = '';
         if (nearRef && nearRef.label !== '現在地') nearRef = null;
       }
+      updateSortButtons();
       render();
     }
 
-    // 近い順：現在地の許可を得てから並べ替え（拒否・非対応時は元の並びのまま）
-    function selectNearSort(btn) {
+    // 現在地から近い順：位置情報の許可を得てから並べ替え（拒否・非対応時は元の並びのまま）
+    function selectNearSort() {
       // 座標がまだ1件も無い（ジオコーディング前）は位置情報を求めず案内だけ
       if (!SHOPS.some(s => s.lat != null && s.lng != null)) {
         showToast('店舗の位置情報を準備中です。もう少しお待ちください');
@@ -1016,7 +1045,7 @@
       document.getElementById('spot-select').value = '';   // スポット選択を解除して現在地基準へ
       if (userPos) {                                        // 取得済みなら再利用
         nearRef = { lat: userPos.lat, lng: userPos.lng, label: '現在地' };
-        setActiveSort(btn, 'near');
+        setSort('near');
         return;
       }
       if (!navigator.geolocation) {
@@ -1028,7 +1057,7 @@
         pos => {
           userPos = { lat: pos.coords.latitude, lng: pos.coords.longitude };
           nearRef = { lat: userPos.lat, lng: userPos.lng, label: '現在地' };
-          setActiveSort(btn, 'near');
+          setSort('near');
           showToast('現在地から近い順に並べました');
         },
         err => {
@@ -1043,9 +1072,11 @@
     document.getElementById('sort-toggle').addEventListener('click', e => {
       const btn = e.target.closest('.sort-btn');
       if (!btn) return;
-      if (btn.dataset.sort === 'near') { selectNearSort(btn); return; }
-      setActiveSort(btn, btn.dataset.sort);
+      if (btn.dataset.sort === 'near') { selectNearSort(); return; }
+      setSort(btn.dataset.sort);
     });
+    // スポット選択中バナーの「現在地から」も同じ動作（スポット→現在地の切替導線）
+    document.getElementById('spot-here').addEventListener('click', selectNearSort);
 
     // === スポット（観光地・駅）から近い順で探す ===
     // 座標付きの観光地だけを選択肢に出す（未取得なら選択UIごと隠す）
@@ -1078,7 +1109,7 @@
       const lm = (typeof LANDMARKS !== 'undefined') ? LANDMARKS.find(l => l.id === id) : null;
       if (!lm || lm.lat == null || lm.lng == null) { showToast('この地点は準備中です'); return; }
       nearRef = { lat: lm.lat, lng: lm.lng, label: lm.name };
-      setActiveSort(document.querySelector('.sort-btn[data-sort="near"]'), 'near');
+      setSort('near');
       showToast(`${lm.name}から近い順に並べました`);
     });
 
@@ -1086,7 +1117,7 @@
     document.getElementById('spot-reset').addEventListener('click', () => {
       nearRef = null;
       document.getElementById('spot-select').value = '';
-      setActiveSort(document.querySelector('.sort-btn[data-sort="kana"]'), 'kana');
+      setSort('kana');
     });
 
     // type filter
