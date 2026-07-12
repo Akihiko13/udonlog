@@ -291,6 +291,15 @@
       /* モバイルは通知タブに集約するので、ヘッダー右上のベルは隠す
          （renderBellのinline display:flexを上書きするため!important）*/
       .ulog-bell { display: none !important; }
+
+      /* iOS Safariは16px未満の入力欄にフォーカスすると画面を自動ズームし、
+         ズームが戻らないことも多い。モバイルの入力欄は一律16pxにして防ぐ
+         （各ページの個別指定(13〜15px)より優先させるため!important）*/
+      input[type="text"], input[type="email"], input[type="password"],
+      input[type="search"], input[type="number"], input[type="date"],
+      input:not([type]), textarea, select {
+        font-size: 16px !important;
+      }
     }
   `;
 
