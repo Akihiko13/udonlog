@@ -299,31 +299,25 @@
       color: var(--text-muted);
     }
 
-    .sort-toggle {
-      display: flex;
-      border: 1px solid var(--border);
-      border-radius: 99px;
-      overflow: hidden;
+    /* 現在地から近い順に並べるボタン（近い順のとき以外に表示） */
+    .near-btn {
       flex-shrink: 0;
-    }
-
-    .sort-btn {
-      background: #fff;
-      border: none;
-      padding: 6px 14px;
-      font-size: 12px;
-      color: var(--text-sub);
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: var(--white);
+      border: 1px solid var(--amber);
+      color: var(--amber-dark);
+      font-size: 13px;
+      font-weight: 700;
+      padding: 8px 16px;
+      border-radius: 99px;
       cursor: pointer;
       font-family: inherit;
+      transition: background 0.15s;
     }
-
-    .sort-btn.active {
-      background: var(--amber);
-      color: #fff;
-      font-weight: 600;
-    }
-
-    .sort-btn i { font-size: 13px; vertical-align: -1px; margin-right: 2px; }
+    .near-btn i { font-size: 14px; }
+    .near-btn:hover { background: var(--amber-light); }
 
     /* 現在地からの距離チップ（近い順のとき表示） */
     .dist-chip {
@@ -649,10 +643,9 @@
       .card-meta { flex-wrap: wrap; row-gap: 5px; }
       .card-meta .open-badge, .card-meta .open-badge + .type-badge { margin-left: 0; }
       .open-badge { padding: 2px 7px; }
-      /* 並び替えが3つになり幅が要るので、結果バーは折り返し可に */
+      /* 結果バーは折り返し可・ボタンは右寄せ */
       .result-bar { flex-wrap: wrap; row-gap: 8px; }
-      .sort-toggle { margin-left: auto; }
-      .sort-btn { padding: 6px 11px; }
+      .near-btn { margin-left: auto; }
       /* 記録済みボタンは狭いので「もう一杯！／（記録数：N杯）」の2行に。
          2行目は小さめにして、未記録の「食べた！」ボタンとの高さ差を抑える */
       .btn-taberu .taberu-count { display: block; font-size: 11px; font-weight: 600; }
@@ -771,10 +764,7 @@
   <div class="grid-wrap">
     <div class="result-bar">
       <div class="result-label" id="result-label"></div>
-      <div class="sort-toggle" id="sort-toggle">
-        <button class="sort-btn active" data-sort="kana">五十音順</button>
-        <button class="sort-btn" data-sort="near"><i class="ti ti-map-pin" aria-hidden="true"></i>現在地から</button>
-      </div>
+      <button type="button" class="near-btn" id="near-btn"><i class="ti ti-map-pin" aria-hidden="true"></i>現在地から近い順に並べる</button>
     </div>
     <div class="shops-grid" id="shops-grid"></div>
     <div class="empty" id="empty">
@@ -934,14 +924,19 @@
       }
       const showDist = currentSort === 'near' && nearRef;
 
-      // 観光地スポット選択中はバナー表示（現在地の時は出さない）
+      // 近い順の状態バナー（現在地・スポットとも表示。解除で五十音順に戻せる）
+      const nearActive = currentSort === 'near' && nearRef;
       const spotBanner = document.getElementById('spot-banner');
-      if (currentSort === 'near' && nearRef && nearRef.label && nearRef.label !== '現在地') {
+      if (nearActive) {
         document.getElementById('spot-banner-label').textContent = nearRef.label;
+        // 「現在地から」ボタンはスポット基準の時だけ（すでに現在地なら不要）
+        document.getElementById('spot-here').style.display = (nearRef.label === '現在地') ? 'none' : '';
         spotBanner.style.display = 'flex';
       } else {
         spotBanner.style.display = 'none';
       }
+      // 「現在地から近い順に並べる」ボタンは近い順でない時だけ出す（近い順中はバナーが状態表示）
+      document.getElementById('near-btn').style.display = nearActive ? 'none' : '';
 
       const grid = document.getElementById('shops-grid');
       const empty = document.getElementById('empty');
@@ -1011,18 +1006,8 @@
       render();
     });
 
-    // sort toggle（五十音順／現在地から）＋スポット基準
-    // ハイライトは「現在地基準の近い順」の時だけ『現在地から』を点灯。
-    // スポット基準の時はどちらも点灯させず、バナーを状態表示にする（＝現在地に切替できると分かる）。
-    function updateSortButtons() {
-      document.querySelectorAll('.sort-btn').forEach(b => {
-        let on = false;
-        if (b.dataset.sort === 'kana') on = (currentSort === 'kana');
-        else if (b.dataset.sort === 'near') on = (currentSort === 'near' && nearRef && nearRef.label === '現在地');
-        b.classList.toggle('active', on);
-      });
-    }
-
+    // 並び替え：既定は五十音順、'near'で近い順（基準は現在地 or スポット）。
+    // 近い順の状態はバナーで表示し、解除で五十音順に戻す。
     function setSort(sort) {
       currentSort = sort;
       // 近い順以外に切り替えたらスポット選択を解除
@@ -1031,7 +1016,6 @@
         if (ss) ss.value = '';
         if (nearRef && nearRef.label !== '現在地') nearRef = null;
       }
-      updateSortButtons();
       render();
     }
 
@@ -1069,13 +1053,8 @@
       );
     }
 
-    document.getElementById('sort-toggle').addEventListener('click', e => {
-      const btn = e.target.closest('.sort-btn');
-      if (!btn) return;
-      if (btn.dataset.sort === 'near') { selectNearSort(); return; }
-      setSort(btn.dataset.sort);
-    });
-    // スポット選択中バナーの「現在地から」も同じ動作（スポット→現在地の切替導線）
+    // 「現在地から近い順に並べる」ボタン、およびスポット選択中バナーの「現在地から」
+    document.getElementById('near-btn').addEventListener('click', selectNearSort);
     document.getElementById('spot-here').addEventListener('click', selectNearSort);
 
     // === スポット（観光地・駅）から近い順で探す ===
