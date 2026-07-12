@@ -1085,7 +1085,16 @@
     }
 
     if (!shop) {
-      document.body.innerHTML = '<div style="padding:2rem;text-align:center;"><p>店舗が見つかりませんでした。</p><a href="shops.html">店舗一覧へ戻る</a></div>';
+      // body全体を差し替えると共通ヘッダー・フッターごと消えて素のページになるため、
+      // コンテンツ部分だけをブランド調のエラー表示に差し替える
+      document.getElementById('headerTitle').textContent = '店舗が見つかりません';
+      document.querySelector('.container').innerHTML =
+        '<div style="text-align:center; padding:56px 1.5rem 72px;">' +
+          '<img src="images/udomaru-hungry.svg" alt="" width="96" height="96" style="display:block; margin:0 auto 14px;">' +
+          '<p style="font-size:15px; color:#555; margin:0 0 20px; line-height:1.7;">お探しの店舗が見つかりませんでした。<br>URLが変わったか、掲載が終了した可能性があります。</p>' +
+          '<a href="shops.html" style="display:inline-flex; align-items:center; gap:6px; background:#8A5510; color:#fff; text-decoration:none; font-size:14px; font-weight:600; padding:11px 22px; border-radius:99px;">' +
+            '<i class="ti ti-search"></i>お店を探す</a>' +
+        '</div>';
     } else {
       // 基本情報を表示
       document.title = `${shop.name} — うどログ`;
