@@ -707,6 +707,9 @@
       .stats-inner { grid-template-columns: 1fr; }
       .stat-item { border-right: none; border-bottom: 0.5px solid var(--border); padding: 1.5rem; }
       .stat-item:last-child { border-bottom: none; }
+      /* 狭い画面で「網羅予\n定」「記\n録」と単語の途中で折れないよう縮小
+         （2番目のstat-numのインラインfont-size:31pxより優先させるため!important） */
+      .stat-num { font-size: 26px !important; }
 
       .section { padding: 3.5rem 1.25rem; }
       .problem-section { padding: 3.5rem 1.25rem; }
@@ -784,7 +787,7 @@
           <span class="accent">全部覚えてる？</span>
         </h1>
         <p class="hero-body">
-          「あの店、また行きたいけど名前が思い出せない」<br>
+          「あの店、また行きたいけど<span style="white-space:nowrap">名前が思い出せない」</span><br>
           日常すぎて記憶に残らないさぬきうどんを、<br>記録して・つながる。
         </p>
         <div class="hero-actions">
