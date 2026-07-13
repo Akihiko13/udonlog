@@ -14,6 +14,7 @@ const API = (function () {
   let _csrf = '';
   let _user = null;
   let _googleClientId = '';
+  let _mapsApiKey = '';
   const base = 'api/';
 
   async function _json(res) {
@@ -34,6 +35,7 @@ const API = (function () {
       _user = d.user || null;
       _csrf = d.csrf || '';
       if ('googleClientId' in d) _googleClientId = d.googleClientId || '';
+      if ('mapsApiKey' in d) _mapsApiKey = d.mapsApiKey || '';
       return d;
     })();
     return _ready;
@@ -73,6 +75,7 @@ const API = (function () {
     get user() { return _user; },
     get csrf() { return _csrf; },
     get googleClientId() { return _googleClientId; },
+    get mapsApiKey() { return _mapsApiKey; },
     isLoggedIn() { return !!_user; },
   };
 })();

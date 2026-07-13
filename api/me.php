@@ -9,5 +9,6 @@ json_out([
   'user' => $me,   // 未ログインなら null
   'csrf' => csrf_token(),
   'googleClientId' => $CONFIG['google_client_id'] ?? '',   // Googleログイン用（公開情報）
+  'mapsApiKey' => $CONFIG['maps_api_key'] ?? '',           // 地図表示用（リファラー制限前提で公開）
   'notifUnread' => $me ? unread_notif_count((int)$me['id']) : 0,   // 未読通知数（ヘッダーのバッジ用）
 ]);

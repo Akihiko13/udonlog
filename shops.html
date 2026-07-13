@@ -340,6 +340,67 @@
     }
     .dist-chip i { font-size: 12px; }
 
+    /* 一覧／地図 切り替え（キーが無い時はJSで非表示） */
+    .view-toggle {
+      flex-shrink: 0;
+      display: inline-flex;
+      background: var(--white);
+      border: 1px solid var(--amber);
+      border-radius: 99px;
+      padding: 2px;
+      gap: 2px;
+    }
+    .view-toggle button {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      border: 0;
+      background: transparent;
+      color: var(--amber-dark);
+      font-size: 13px;
+      font-weight: 700;
+      font-family: inherit;
+      padding: 6px 14px;
+      border-radius: 99px;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+    }
+    .view-toggle button i { font-size: 15px; }
+    .view-toggle button.active {
+      background: var(--amber);
+      color: #fff;
+    }
+
+    /* 地図表示エリア */
+    .map-wrap { display: none; }
+    .map-wrap.show { display: block; }
+    #shops-map {
+      width: 100%;
+      height: 60vh;
+      min-height: 380px;
+      border-radius: 14px;
+      border: 0.5px solid var(--border);
+      overflow: hidden;
+      background: #eee;
+    }
+    /* 地図の吹き出し（InfoWindow）内 */
+    .map-pop { font-family: inherit; max-width: 220px; }
+    .map-pop-name { font-size: 14px; font-weight: 800; color: #1a1a1a; margin-bottom: 4px; line-height: 1.35; }
+    .map-pop-meta { font-size: 11px; color: #666; margin-bottom: 8px; }
+    .map-pop-actions { display: flex; gap: 6px; }
+    .map-pop-actions a {
+      flex: 1;
+      text-align: center;
+      font-size: 12px;
+      font-weight: 700;
+      text-decoration: none;
+      padding: 6px 8px;
+      border-radius: 8px;
+      white-space: nowrap;
+    }
+    .map-pop-detail { color: var(--amber-dark); border: 1px solid var(--amber); background: #fff; }
+    .map-pop-taberu { color: #fff; background: var(--amber); }
+
     .shops-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
@@ -786,8 +847,13 @@
     <div class="result-bar">
       <div class="result-label" id="result-label"></div>
       <button type="button" class="near-btn" id="near-btn"><i class="ti ti-map-pin" aria-hidden="true"></i>現在地から近い順に並べる</button>
+      <div class="view-toggle" id="view-toggle" style="display:none;">
+        <button type="button" data-view="list" class="active"><i class="ti ti-list" aria-hidden="true"></i>一覧</button>
+        <button type="button" data-view="map"><i class="ti ti-map-2" aria-hidden="true"></i>地図</button>
+      </div>
     </div>
     <div class="shops-grid" id="shops-grid"></div>
+    <div class="map-wrap" id="map-wrap"><div id="shops-map"></div></div>
     <div class="empty" id="empty">
       <img src="images/udomaru-hungry.svg" alt="うどまる" width="110" height="110" style="display:block;margin:0 auto 6px;">
       <p>該当するお店が見つかりませんでした</p>
@@ -812,6 +878,7 @@
 
   <script src="shops-data.js"></script>
   <script src="landmarks.js"></script>
+  <script src="map.js"></script>
   <script>
 
     let currentArea = '全て';
@@ -823,6 +890,13 @@
     let condVisit = 'all';      // 記録の有無で絞り込み 'all'/'undone'(まだ)/'done'(記録済み)。ログイン中のみ
     let userPos = null;         // 現在地 {lat,lng}（近い順で許可を得た時だけ入る・保存しない）
     let nearRef = null;         // 近い順の基準点 {lat,lng,label}。現在地 or 観光地
+
+    // 地図表示（Google Maps）関連。キーが無い環境ではトグルを出さない。
+    let viewMode = 'list';      // 'list'（一覧）/ 'map'（地図）
+    let mapHandle = null;       // UdonMap.create の戻り（地図は初回の地図表示時に一度だけ生成）
+    let lastFiltered = [];      // 直近の絞り込み結果（地図のピン用）
+    let lastShowDist = false;   // 直近が近い順で距離表示ありか
+    let lastNow = new Date();   // 直近の営業状態判定の基準時刻
 
     // 2点間の距離(km)：Haversine
     function distanceKm(a, b) {
@@ -977,9 +1051,15 @@
       }
       label.textContent = `${filtered.length}件のお店`;
 
+      // 地図表示用に、いま絞り込まれた結果と状態を保持しておく
+      lastFiltered = filtered;
+      lastShowDist = showDist;
+      lastNow = now;
+      if (viewMode === 'map') updateMap();
+
       if (filtered.length === 0) {
         grid.innerHTML = '';
-        empty.style.display = 'block';
+        empty.style.display = (viewMode === 'list') ? 'block' : 'none';
         return;
       }
 
@@ -1016,6 +1096,88 @@
       toast.classList.add('show');
       setTimeout(() => toast.classList.remove('show'), 2200);
     }
+
+    // === 地図表示 ===
+    // 直近の絞り込み結果 lastFiltered を地図のピンに反映する。
+    // 地図は初回だけ UdonMap.create で作り、以降はピンだけ差し替える。
+    function updateMap() {
+      if (!mapHandle) return;
+      const withCoords = lastFiltered.filter(s => s.lat != null && s.lng != null);
+      const markers = withCoords.map(s => {
+        const done = visited.has(s.id);
+        const dist = (lastShowDist && s._dist != null && s._dist !== Infinity)
+          ? `・${formatDistance(s._dist)}` : '';
+        const detailHref = `shops/${s.slug || ('shop' + s.id)}`;
+        const recHref = `record.html?id=${s.id}&slug=${encodeURIComponent(s.slug || '')}&name=${encodeURIComponent(s.name)}&city=${encodeURIComponent(s.city)}&type=${encodeURIComponent(s.type)}`;
+        const html = `
+          <div class="map-pop">
+            <div class="map-pop-name">${escapeHtml(s.name)}</div>
+            <div class="map-pop-meta">${escapeHtml(s.city)}・${escapeHtml(s.type)}${done ? '・✓記録済み' : ''}${dist}</div>
+            <div class="map-pop-actions">
+              <a class="map-pop-detail" href="${detailHref}">詳細</a>
+              <a class="map-pop-taberu" href="${recHref}">${done ? 'もう一杯！' : '食べた！'}</a>
+            </div>
+          </div>`;
+        return { lat: s.lat, lng: s.lng, title: s.name, html };
+      });
+      UdonMap.setMarkers(mapHandle, markers);
+      // 近い順で基準点があればそこを中心に、なければ全ピンが入るよう調整
+      if (nearRef) {
+        UdonMap.setUserMarker(mapHandle, nearRef.label === '現在地' ? nearRef : null);
+        UdonMap.panTo(mapHandle, { lat: nearRef.lat, lng: nearRef.lng }, 13);
+      } else if (withCoords.length) {
+        UdonMap.fitBounds(mapHandle, withCoords);
+      }
+    }
+
+    function escapeHtml(str) {
+      return String(str || '').replace(/[&<>"']/g, c =>
+        ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    }
+
+    // 一覧⇄地図の切り替え
+    async function setView(mode) {
+      viewMode = mode;
+      const grid = document.getElementById('shops-grid');
+      const mapWrap = document.getElementById('map-wrap');
+      const empty = document.getElementById('empty');
+      document.querySelectorAll('#view-toggle button').forEach(b =>
+        b.classList.toggle('active', b.dataset.view === mode));
+
+      if (mode === 'map') {
+        grid.style.display = 'none';
+        empty.style.display = 'none';
+        mapWrap.classList.add('show');
+        // 地図ライブラリの読み込みと生成は初回だけ
+        if (!mapHandle) {
+          const ok = await UdonMap.ensureLoaded();
+          if (!ok) {
+            showToast('地図を読み込めませんでした');
+            setView('list');
+            return;
+          }
+          mapHandle = UdonMap.create(document.getElementById('shops-map'), { zoom: 11 });
+        }
+        updateMap();
+      } else {
+        mapWrap.classList.remove('show');
+        grid.style.display = '';
+        render();   // 一覧に戻ったら再描画（空状態の出し分けも含めて）
+      }
+    }
+
+    // 地図トグルはキーがある時だけ表示。イベントも配線。
+    (function initViewToggle() {
+      const toggle = document.getElementById('view-toggle');
+      // API.refresh 済み前提で mapsApiKey を判定（header.js が最初に refresh する）
+      const show = () => { if (API.mapsApiKey) toggle.style.display = ''; };
+      API.refresh().then(show).catch(() => {});
+      toggle.addEventListener('click', e => {
+        const btn = e.target.closest('button');
+        if (!btn) return;
+        setView(btn.dataset.view);
+      });
+    })();
 
     // area filter
     document.getElementById('area-filters').addEventListener('click', e => {
