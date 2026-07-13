@@ -372,8 +372,27 @@
     }
 
     /* 地図表示エリア */
-    .map-wrap { display: none; }
+    .map-wrap { display: none; position: relative; }
     .map-wrap.show { display: block; }
+    /* 色分けの凡例（地図の右上に重ねる） */
+    .map-legend {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      z-index: 5;
+      display: flex;
+      gap: 10px;
+      background: rgba(255,255,255,0.95);
+      border: 0.5px solid var(--border);
+      border-radius: 8px;
+      padding: 6px 10px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.12);
+      font-size: 11px;
+      font-weight: 700;
+      color: #444;
+    }
+    .map-legend-item { display: inline-flex; align-items: center; gap: 4px; }
+    .map-legend-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
     #shops-map {
       width: 100%;
       height: 60vh;
@@ -853,7 +872,13 @@
       </div>
     </div>
     <div class="shops-grid" id="shops-grid"></div>
-    <div class="map-wrap" id="map-wrap"><div id="shops-map"></div></div>
+    <div class="map-wrap" id="map-wrap">
+      <div id="shops-map"></div>
+      <div class="map-legend" id="map-legend" style="display:none;">
+        <span class="map-legend-item"><span class="map-legend-dot" style="background:#1E7B39;"></span>記録済み</span>
+        <span class="map-legend-item"><span class="map-legend-dot" style="background:#BA7517;"></span>まだ</span>
+      </div>
+    </div>
     <div class="empty" id="empty">
       <img src="images/udomaru-hungry.svg" alt="うどまる" width="110" height="110" style="display:block;margin:0 auto 6px;">
       <p>該当するお店が見つかりませんでした</p>
@@ -1118,9 +1143,15 @@
               <a class="map-pop-taberu" href="${recHref}">${done ? 'もう一杯！' : '食べた！'}</a>
             </div>
           </div>`;
-        return { lat: s.lat, lng: s.lng, title: s.name, html };
+        // ピンの色：記録済み=緑（一覧の「記録済み」バッジと同色）／未記録=アンバー。
+        // 未ログイン時は visited が空なので自然に全てアンバーになる。
+        const color = done ? '#1E7B39' : '#BA7517';
+        return { lat: s.lat, lng: s.lng, title: s.name, color, html };
       });
       UdonMap.setMarkers(mapHandle, markers);
+      // 色分けの凡例はログイン中（記録済みが存在しうる時）だけ表示
+      document.getElementById('map-legend').style.display =
+        (API.isLoggedIn && API.isLoggedIn()) ? 'flex' : 'none';
       // 近い順で基準点があればそこを中心に、なければ全ピンが入るよう調整
       if (nearRef) {
         UdonMap.setUserMarker(mapHandle, nearRef.label === '現在地' ? nearRef : null);

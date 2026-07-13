@@ -54,6 +54,22 @@
     });
   }
 
+  // 色付きのピン画像（SVGデータURI）。記録済み/未記録などの塗り分けに使う。
+  // 外部リクエストなしで色を自由に指定でき、ピン形状（しずく型）も保てる。
+  function coloredPinIcon(color) {
+    const svg =
+      '<svg xmlns="http://www.w3.org/2000/svg" width="28" height="40" viewBox="0 0 24 34">' +
+        '<path d="M12 0C5.4 0 0 5.4 0 12c0 9 12 22 12 22s12-13 12-22C24 5.4 18.6 0 12 0z" ' +
+          'fill="' + color + '" stroke="#fff" stroke-width="1.5"/>' +
+        '<circle cx="12" cy="12" r="4.3" fill="#fff"/>' +
+      '</svg>';
+    return {
+      url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(svg),
+      scaledSize: new google.maps.Size(28, 40),
+      anchor: new google.maps.Point(14, 40),   // しずくの先端を座標に合わせる
+    };
+  }
+
   const UdonMap = {
     // 地図ライブラリを読み込む。キーが無い/読み込み失敗なら false を返す（例外は投げない）。
     ensureLoaded: async function () {
@@ -98,16 +114,18 @@
     },
 
     // ピンを一括設置。既存ピンは消してから置き直す。
-    // markers: [{lat,lng,title,html(省略可・InfoWindowのHTML),onClick(省略可)}]
+    // markers: [{lat,lng,title,color(省略可・ピンの色),html(省略可・InfoWindowのHTML),onClick(省略可)}]
     setMarkers: function (h, markers) {
       UdonMap.clearMarkers(h);
       (markers || []).forEach(function (m) {
         if (m.lat == null || m.lng == null) return;
-        const marker = new google.maps.Marker({
+        const opts = {
           position: { lat: m.lat, lng: m.lng },
           map: h.map,
           title: m.title || '',
-        });
+        };
+        if (m.color) opts.icon = coloredPinIcon(m.color);   // 色指定があれば色付きピン、無ければ既定
+        const marker = new google.maps.Marker(opts);
         marker.addListener('click', function () {
           if (m.html) {
             h.infoWindow.setContent(m.html);
