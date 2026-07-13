@@ -393,6 +393,25 @@
     }
     .map-legend-item { display: inline-flex; align-items: center; gap: 4px; }
     .map-legend-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+    /* 現在地ボタン（地図右下・Googleのコントロール層に配置される） */
+    .map-locate {
+      width: 40px;
+      height: 40px;
+      margin: 0 10px 10px 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #fff;
+      border: none;
+      border-radius: 8px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+      cursor: pointer;
+      color: #5f6368;
+      transition: color 0.15s, background 0.15s;
+    }
+    .map-locate:hover { background: #f5f5f5; color: var(--amber-dark); }
+    .map-locate.active { color: #1a73e8; }
+    .map-locate i { font-size: 22px; }
     #shops-map {
       width: 100%;
       height: 60vh;
@@ -878,6 +897,9 @@
         <span class="map-legend-item"><span class="map-legend-dot" style="background:#1E7B39;"></span>記録済み</span>
         <span class="map-legend-item"><span class="map-legend-dot" style="background:#BA7517;"></span>まだ</span>
       </div>
+      <button type="button" class="map-locate" id="map-locate" title="現在地を表示" aria-label="現在地を表示" style="display:none;">
+        <i class="ti ti-current-location" aria-hidden="true"></i>
+      </button>
     </div>
     <div class="empty" id="empty">
       <img src="images/udomaru-hungry.svg" alt="うどまる" width="110" height="110" style="display:block;margin:0 auto 6px;">
@@ -1166,6 +1188,35 @@
         ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
     }
 
+    // 地図の現在地ボタン：位置情報の許可を得て、自分の位置を地図に表示＆中心化する。
+    // 「近い順」の並べ替えとは独立（並びは変えない・位置は保存しない）。
+    function locateOnMap() {
+      const btn = document.getElementById('map-locate');
+      if (!navigator.geolocation) { showToast('お使いの端末では現在地を取得できません'); return; }
+      // 取得済みなら即座に寄せる
+      if (userPos) {
+        UdonMap.setUserMarker(mapHandle, userPos);
+        UdonMap.panTo(mapHandle, userPos, 14);
+        btn.classList.add('active');
+        return;
+      }
+      showToast('現在地を取得しています…');
+      navigator.geolocation.getCurrentPosition(
+        pos => {
+          userPos = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+          UdonMap.setUserMarker(mapHandle, userPos);
+          UdonMap.panTo(mapHandle, userPos, 14);
+          btn.classList.add('active');
+        },
+        err => {
+          showToast(err && err.code === 1
+            ? '現在地の利用が許可されませんでした'
+            : '現在地を取得できませんでした');
+        },
+        { enableHighAccuracy: true, timeout: 10000 }
+      );
+    }
+
     // 一覧⇄地図の切り替え
     async function setView(mode) {
       viewMode = mode;
@@ -1188,6 +1239,11 @@
             return;
           }
           mapHandle = UdonMap.create(document.getElementById('shops-map'), { zoom: 11 });
+          // 現在地ボタンを地図の右下（Googleのコントロール層）に常設
+          const locateBtn = document.getElementById('map-locate');
+          locateBtn.style.display = 'flex';
+          locateBtn.addEventListener('click', locateOnMap);
+          UdonMap.addControl(mapHandle, locateBtn, 'RIGHT_BOTTOM');
         }
         updateMap();
       } else {

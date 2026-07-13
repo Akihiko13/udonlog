@@ -173,6 +173,15 @@
       h.map.fitBounds(b, 48);   // 余白48px
     },
 
+    // 地図上に自前のコントロール（DOM要素）を配置する。
+    // position は 'RIGHT_BOTTOM' 等（google.maps.ControlPosition のキー名）。
+    // el はGoogleのコントロール層に移設され、既存コントロール（ズーム等）と自動で整列する。
+    addControl: function (h, el, position) {
+      const CP = google.maps.ControlPosition;
+      const pos = (position && CP[position] != null) ? CP[position] : CP.RIGHT_BOTTOM;
+      h.map.controls[pos].push(el);
+    },
+
     panTo: function (h, pos, zoom) {
       if (!pos) return;
       h.map.panTo(pos);

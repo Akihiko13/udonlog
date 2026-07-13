@@ -21,6 +21,7 @@
 .ti-circle-x:before{content:"\ea6a"}
 .ti-clock:before{content:"\ea70"}
 .ti-crown:before{content:"\ed12"}
+.ti-current-location:before{content:"\ecef"}
 .ti-external-link:before{content:"\ea99"}
 .ti-eye:before{content:"\ea9a"}
 .ti-eye-off:before{content:"\ecf0"}
@@ -33,7 +34,6 @@
 .ti-login:before{content:"\eba7"}
 .ti-mail:before{content:"\eae5"}
 .ti-mail-check:before{content:"\f939"}
-.ti-map:before{content:"\eae9"}
 .ti-map-2:before{content:"\eae7"}
 .ti-map-pin:before{content:"\eae8"}
 .ti-message:before{content:"\eaef"}
