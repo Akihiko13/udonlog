@@ -4,6 +4,8 @@ require __DIR__ . '/lib.php';
 require_post();
 require_csrf();
 
+clear_remember_token();   // ログイン保持トークンも失効（このデバイス）
+
 $_SESSION = [];
 if (ini_get('session.use_cookies')) {
   $p = session_get_cookie_params();

@@ -34,4 +34,8 @@ if (password_verify($new, $row['password_hash'])) {
 $st = db()->prepare('UPDATE users SET password_hash = ? WHERE id = ?');
 $st->execute([password_hash($new, PASSWORD_DEFAULT), $u['id']]);
 
+// ログイン保持トークンを全失効（他端末を締め出す）→ この端末だけ再発行して維持
+clear_all_remember_tokens((int)$u['id']);
+issue_remember_token((int)$u['id']);
+
 json_out(['ok' => true]);

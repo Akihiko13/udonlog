@@ -7,6 +7,11 @@ declare(strict_types=1);
 
 $CONFIG = require __DIR__ . '/config.php';
 
+// ログイン保持（remember me）用の定数。※constは実行順で定義されるため、
+// try_remember_login() を呼ぶ前（このファイル冒頭）に置く必要がある。
+const REMEMBER_COOKIE = 'udolog_remember';
+const REMEMBER_DAYS   = 60;
+
 // --- セッション（安全なCookie設定）---
 $https = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off');
 session_set_cookie_params([
@@ -18,6 +23,10 @@ session_set_cookie_params([
 ]);
 session_name('udolog_sid');
 session_start();
+
+// セッションが無ければ、remember クッキーからログイン復元を試みる（1リクエスト1回）。
+// 関数はファイル後半で定義しているが、PHPはトップレベル関数を巻き上げるので呼べる。
+try_remember_login();
 
 // --- DB接続（PDO・プリペアドステートメント）---
 function db(): PDO {
@@ -166,6 +175,99 @@ function require_login(): array {
 function login_user(int $uid): void {
   session_regenerate_id(true);   // ログイン時にセッションID再発行（固定化対策）
   $_SESSION['uid'] = $uid;
+  issue_remember_token($uid);    // ログイン保持（remember me）トークンを発行
+}
+
+// --- ログイン保持（remember me）トークン ---
+// セッションはサーバー側で一定時間後にGCされ、クッキーもブラウザ終了で消えるため、
+// 長期クッキー＋DBトークンでログインを保持する。selector:validator 方式で、
+// validator はハッシュ保存（生値は保存しない）。ローテーションは「復元時のみ」。
+function remember_cookie_set(string $selector, string $validator, int $maxAgeSec): void {
+  global $https;
+  setcookie(REMEMBER_COOKIE, $selector . ':' . $validator, [
+    'expires'  => time() + $maxAgeSec,
+    'path'     => '/',
+    'httponly' => true,
+    'secure'   => $https,
+    'samesite' => 'Lax',
+  ]);
+}
+function remember_cookie_clear(): void {
+  global $https;
+  setcookie(REMEMBER_COOKIE, '', [
+    'expires'  => time() - 42000,
+    'path'     => '/',
+    'httponly' => true,
+    'secure'   => $https,
+    'samesite' => 'Lax',
+  ]);
+  unset($_COOKIE[REMEMBER_COOKIE]);
+}
+
+// 新しいトークンを発行してクッキーに保存。ついでに期限切れトークンを掃除。
+function issue_remember_token(int $uid): void {
+  $selector  = bin2hex(random_bytes(9));    // 18桁hex
+  $validator = bin2hex(random_bytes(32));   // 64桁hex
+  $expires   = date('Y-m-d H:i:s', time() + REMEMBER_DAYS * 86400);
+  $ua        = mb_substr((string)($_SERVER['HTTP_USER_AGENT'] ?? ''), 0, 255);
+  $pdo = db();
+  $pdo->prepare('DELETE FROM auth_tokens WHERE expires_at < NOW()')->execute();   // 掃除
+  $st = $pdo->prepare('INSERT INTO auth_tokens (user_id, selector, validator_hash, expires_at, user_agent) VALUES (?,?,?,?,?)');
+  $st->execute([$uid, $selector, hash('sha256', $validator), $expires, ($ua !== '' ? $ua : null)]);
+  remember_cookie_set($selector, $validator, REMEMBER_DAYS * 86400);
+}
+
+// セッションが無い時、remember クッキーからログインを復元する（lib.php冒頭で1回呼ぶ）。
+function try_remember_login(): void {
+  if (!empty($_SESSION['uid'])) return;                       // 既にログイン中
+  $cookie = (string)($_COOKIE[REMEMBER_COOKIE] ?? '');
+  if ($cookie === '' || strpos($cookie, ':') === false) return;   // クッキー無し
+  [$selector, $validator] = explode(':', $cookie, 2);
+  if (!preg_match('/^[0-9a-f]{18}$/', $selector) || !preg_match('/^[0-9a-f]{64}$/', $validator)) {
+    remember_cookie_clear();
+    return;
+  }
+  $pdo = db();
+  $st = $pdo->prepare('SELECT id, user_id, validator_hash, expires_at FROM auth_tokens WHERE selector = ? LIMIT 1');
+  $st->execute([$selector]);
+  $row = $st->fetch();
+  if (!$row) { remember_cookie_clear(); return; }             // 該当トークン無し
+  if (strtotime((string)$row['expires_at']) < time()) {       // 期限切れ
+    $pdo->prepare('DELETE FROM auth_tokens WHERE id = ?')->execute([(int)$row['id']]);
+    remember_cookie_clear();
+    return;
+  }
+  if (!hash_equals((string)$row['validator_hash'], hash('sha256', $validator))) {
+    // 不一致：並行リクエストのローテーション競合の可能性があるため、
+    // このリクエストでは復元せず、トークンも消さない（誤ログアウト防止を優先）。
+    return;
+  }
+  // 有効 → セッション復元＋validatorをローテーション（期限も延長）
+  $uid = (int)$row['user_id'];
+  session_regenerate_id(true);
+  $_SESSION['uid'] = $uid;
+  $newValidator = bin2hex(random_bytes(32));
+  $newExpires   = date('Y-m-d H:i:s', time() + REMEMBER_DAYS * 86400);
+  $pdo->prepare('UPDATE auth_tokens SET validator_hash = ?, expires_at = ? WHERE id = ?')
+      ->execute([hash('sha256', $newValidator), $newExpires, (int)$row['id']]);
+  remember_cookie_set($selector, $newValidator, REMEMBER_DAYS * 86400);
+}
+
+// このデバイスの remember トークンを失効（ログアウト・退会時）。
+function clear_remember_token(): void {
+  $cookie = (string)($_COOKIE[REMEMBER_COOKIE] ?? '');
+  if ($cookie !== '' && strpos($cookie, ':') !== false) {
+    [$selector] = explode(':', $cookie, 2);
+    if (preg_match('/^[0-9a-f]{18}$/', $selector)) {
+      db()->prepare('DELETE FROM auth_tokens WHERE selector = ?')->execute([$selector]);
+    }
+  }
+  remember_cookie_clear();
+}
+
+// 指定ユーザーの全 remember トークンを失効（パスワード変更/再設定時＝他端末を締め出す）。
+function clear_all_remember_tokens(int $uid): void {
+  db()->prepare('DELETE FROM auth_tokens WHERE user_id = ?')->execute([$uid]);
 }
 
 // --- 通知 ---

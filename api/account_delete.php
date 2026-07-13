@@ -42,6 +42,9 @@ if (!empty($row['avatar'])) {
   if (is_file($path)) @unlink($path);
 }
 
+// ログイン保持トークンのクッキーを消す（DB行は users 削除の CASCADE で既に消える）
+clear_remember_token();
+
 // セッション破棄（ログアウト状態に）
 $_SESSION = [];
 if (ini_get('session.use_cookies')) {
