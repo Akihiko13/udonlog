@@ -470,25 +470,20 @@
 
     .btn-primary:hover { background: #6F440C; }
 
-    .btn-secondary {
-      flex: 1;
-      background: var(--white);
-      color: var(--text);
-      border: 0.5px solid var(--border);
-      padding: 12px;
-      border-radius: 10px;
-      font-size: 14px;
-      font-weight: 500;
-      cursor: pointer;
-      text-decoration: none;
+    /* 地図下の控えめな導線：Googleマップの店ページ（写真・口コミ）へ */
+    .map-place-link {
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 6px;
-      transition: background 0.15s;
+      gap: 4px;
+      margin-top: 8px;
+      color: var(--text-muted, #888);
+      font-size: 12px;
+      text-decoration: none;
+      transition: color 0.15s;
     }
-
-    .btn-secondary:hover { background: #f5f5f0; }
+    .map-place-link:hover { color: var(--amber-dark); text-decoration: underline; }
+    .map-place-link i { font-size: 13px; opacity: 0.7; }
 
     /* ブログ記事リンク（記事がある店だけ表示） */
     .btn-blog {
@@ -890,9 +885,6 @@
         <a id="recordBtn" href="#" class="btn-primary">
           <i class="ti ti-plus"></i> お店を記録する
         </a>
-        <a id="mapBtn" href="#" target="_blank" rel="noopener" class="btn-secondary">
-          <i class="ti ti-map"></i> 地図を見る
-        </a>
       </div>
 
       <!-- ブログ記事リンク（shop.blog がある店だけ表示） -->
@@ -944,6 +936,9 @@
         <div id="detail-map"></div>
         <a id="routeBtn" href="#" target="_blank" rel="noopener" class="btn-route">
           <i class="ti ti-map-pin"></i>Googleマップでルートを見る<i class="ti ti-external-link" style="font-size:14px;opacity:.7"></i>
+        </a>
+        <a id="placeBtn" href="#" target="_blank" rel="noopener" class="map-place-link">
+          Googleマップの店ページ（写真・口コミ）を見る<i class="ti ti-external-link"></i>
         </a>
       </div>
     </div>
@@ -1175,9 +1170,6 @@
         recordBtn.href =
           `record.html?id=${shop.id}&slug=${encodeURIComponent(shop.slug || '')}&name=${encodeURIComponent(shop.name)}&city=${encodeURIComponent(shop.city)}&type=${encodeURIComponent(shop.type)}`;
       }
-      document.getElementById('mapBtn').href =
-        `https://www.google.com/maps/search/${encodeURIComponent(shop.name + ' ' + shop.city)}`;
-
       // ブログ記事リンク（shop.blog が登録されている店だけボタンを表示）
       if (shop.blog) {
         const blogBtn = document.getElementById('blogBtn');
@@ -1204,6 +1196,9 @@
       // ルート案内リンク（キー不要・常に有効）
       document.getElementById('routeBtn').href =
         `https://www.google.com/maps/dir/?api=1&destination=${shop.lat},${shop.lng}`;
+      // Googleマップの店ページ（写真・口コミ）への控えめな導線
+      document.getElementById('placeBtn').href =
+        `https://www.google.com/maps/search/${encodeURIComponent(shop.name + ' ' + shop.city)}`;
       section.style.display = 'block';
 
       // 埋め込み地図はキーがある時だけ
