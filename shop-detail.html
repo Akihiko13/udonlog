@@ -470,20 +470,27 @@
 
     .btn-primary:hover { background: #6F440C; }
 
-    /* 地図下の控えめな導線：Googleマップの店ページ（写真・口コミ）へ */
+    /* 地図下の補助ボタン：Googleマップの店ページ（写真・口コミ）へ。
+       ルートボタンより一段控えめ（枠線なし・淡い背景・小さめ）＝主従を保ちつつ押しやすく。 */
     .map-place-link {
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 4px;
+      gap: 6px;
+      width: 100%;
       margin-top: 8px;
-      color: var(--text-muted, #888);
-      font-size: 12px;
+      background: #F5F2EE;
+      color: var(--text-muted, #777);
+      border: none;
+      padding: 11px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 600;
       text-decoration: none;
-      transition: color 0.15s;
+      transition: background 0.15s, color 0.15s;
     }
-    .map-place-link:hover { color: var(--amber-dark); text-decoration: underline; }
-    .map-place-link i { font-size: 13px; opacity: 0.7; }
+    .map-place-link:hover { background: #EDE8E1; color: var(--amber-dark); }
+    .map-place-link i { font-size: 14px; opacity: 0.7; }
 
     /* ブログ記事リンク（記事がある店だけ表示） */
     .btn-blog {
