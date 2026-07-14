@@ -1,4 +1,4 @@
-/* Tabler Icons 3.44.0 サブセット版（58種類・build-tabler-subset.py で自動生成） */
+/* Tabler Icons 3.44.0 サブセット版（59種類・build-tabler-subset.py で自動生成） */
 @font-face{font-family:"tabler-icons";font-style:normal;font-weight:400;font-display:block;src:url("fonts/tabler-icons-subset.woff2?v=3.44.0") format("woff2")}
 .ti{font-family:"tabler-icons" !important;speak:none;font-style:normal;font-weight:normal;font-variant:normal;text-transform:none;line-height:1;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
 .ti-alert-triangle:before{content:"\ea06"}
@@ -51,6 +51,7 @@
 .ti-settings:before{content:"\eb20"}
 .ti-star:before{content:"\eb2e"}
 .ti-trash:before{content:"\eb41"}
+.ti-trophy:before{content:"\eb45"}
 .ti-user:before{content:"\eb4d"}
 .ti-user-circle:before{content:"\ef68"}
 .ti-user-plus:before{content:"\eb4b"}
