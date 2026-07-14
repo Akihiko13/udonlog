@@ -720,7 +720,10 @@
       /* 固定200pxだとPCで超横長に切り抜かれ丼の上下が欠けるため、
          4:3の比率で見せる（縦に間延びしないよう上限だけ設ける） */
       aspect-ratio: 4 / 3;
-      max-height: 420px;
+      /* PCで写真が大きすぎて1投稿が画面いっぱいにならないよう、写真の幅を抑えて
+         高さを下げる（4:3は保つので丼は切れない）。左寄せで本文と揃える。 */
+      max-width: 440px;
+      max-height: 330px;
       border-radius: 8px;
       margin-bottom: 8px;
       overflow: hidden;
