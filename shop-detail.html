@@ -715,6 +715,37 @@
       margin-bottom: 6px;
     }
 
+    /* この店の写真グリッド（みんなの投稿の上部・食べログ的なギャラリー） */
+    .photo-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 4px;
+      margin-bottom: 16px;
+    }
+    .photo-grid-item {
+      aspect-ratio: 1;
+      border-radius: 6px;
+      overflow: hidden;
+      background: #eee;
+      cursor: pointer;
+      position: relative;
+    }
+    .photo-grid-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    /* 9枚を超える分は最後のタイルに「+N」を重ねる */
+    .photo-grid-more::after {
+      content: "+" attr(data-more);
+      position: absolute;
+      inset: 0;
+      pointer-events: none;   /* 下のimgのタップ（拡大）を妨げない */
+      background: rgba(0,0,0,0.5);
+      color: #fff;
+      font-size: 20px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
     .post-photo {
       width: 100%;
       /* 固定200pxだとPCで超横長に切り抜かれ丼の上下が欠けるため、
@@ -959,6 +990,8 @@
         <div class="section-title" style="margin-bottom:0">みんなの投稿</div>
         <span style="font-size:13px;color:#888;" id="postsCount"></span>
       </div>
+      <!-- 写真グリッド（写真付き投稿が3件以上ある時だけJSで表示・タップで拡大） -->
+      <div class="photo-grid" id="photoGrid" style="display:none;"></div>
       <div id="postsList"></div>
       <button class="btn-more" onclick="showToast('会員登録後にすべての投稿を見ることができます')">
         もっと見る <i class="ti ti-chevron-down"></i>
@@ -1338,6 +1371,7 @@
       allPosts = posts || [];
       shownPosts = 0;
       document.getElementById('postsCount').textContent = allPosts.length ? `${allPosts.length}件` : '';
+      renderPhotoGrid();
       const postsEl = document.getElementById('postsList');
       const moreBtn = document.querySelector('.btn-more');
       if (moreBtn) moreBtn.style.display = 'none';
@@ -1359,6 +1393,25 @@
       }
       postsEl.innerHTML = '';
       appendMorePosts();
+    }
+
+    // この店の写真グリッド：写真付き投稿のサムネを上部に並べる（食べログ的なギャラリー）。
+    // 写真が3枚以上ある時だけ表示（1〜2枚だと下の投稿カードと重複感が出るため）。
+    // 9枚を超える分は最後のタイルに「+N」を重ねる。タップで拡大（既存の openPhoto を流用）。
+    function renderPhotoGrid() {
+      const grid = document.getElementById('photoGrid');
+      const photoPosts = allPosts.filter(p => p.photoUrl);
+      if (photoPosts.length < 3) { grid.style.display = 'none'; grid.innerHTML = ''; return; }
+      const MAX = 9;
+      const shown = photoPosts.slice(0, MAX);
+      const extra = photoPosts.length - MAX;
+      grid.innerHTML = shown.map((p, i) => {
+        const more = (i === MAX - 1 && extra > 0);
+        return `<div class="photo-grid-item${more ? ' photo-grid-more' : ''}"${more ? ` data-more="${extra}"` : ''}>` +
+          `<img src="${escapeHtml(p.photoUrl)}" alt="投稿写真" loading="lazy" onclick="openPhoto(this.src)" onerror="this.parentNode.style.display='none'">` +
+        `</div>`;
+      }).join('');
+      grid.style.display = 'grid';
     }
 
     // 1件分のカードHTML
