@@ -63,6 +63,52 @@
 
     .feed-intro { color: var(--text-sub); font-size: 13px; margin-bottom: 1rem; }
 
+    /* PC：フィード＋右サイドバーの2カラム（中央寄せ）で広い画面の余白を活用。
+       狭い画面ではサイドバーを隠し、従来どおりの単カラム（container 500px）に。 */
+    .feed-side { display: none; }
+    @media (min-width: 900px) {
+      .feed-layout {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        gap: 24px;
+        max-width: 860px;
+        margin: 0 auto;
+      }
+      /* 列幅を500pxで固定（中身が空でも縮まないよう flex-basis を明示） */
+      .feed-layout > .container { margin: 0; flex: 0 0 500px; box-sizing: border-box; }
+      .feed-side {
+        display: block;
+        width: 280px;
+        flex-shrink: 0;
+        position: sticky;
+        top: calc(var(--ulog-top, 54px) + 68px);   /* stickyなpage-headerの下に追従 */
+        padding-top: 1.5rem;
+      }
+      /* PCではフィード先頭のランキングは隠し、サイドバーに集約（重複回避） */
+      #feedRank { display: none !important; }
+    }
+    /* サイドのCTAカード */
+    .side-card {
+      background: var(--white);
+      border: 0.5px solid var(--amber-border);
+      border-radius: 14px;
+      padding: 16px;
+      margin-top: 14px;
+      text-align: center;
+    }
+    .side-card-title { font-size: 15px; font-weight: 800; color: #1a1a1a; margin-bottom: 4px; }
+    .side-card-desc { font-size: 12px; color: var(--text-sub); line-height: 1.5; margin-bottom: 12px; }
+    .side-card-btn {
+      display: flex; align-items: center; justify-content: center; gap: 5px;
+      background: var(--amber-dark); color: #fff; font-weight: 700; font-size: 14px;
+      padding: 10px; border-radius: 10px; text-decoration: none;
+    }
+    .side-card-btn:hover { background: var(--amber-darker); }
+    .side-card-btn i { font-size: 18px; }
+    .side-card-link { display: inline-block; margin-top: 8px; font-size: 12px; color: var(--amber-dark); text-decoration: none; }
+    .side-card-link:hover { text-decoration: underline; }
+
     /* 人気店ランキングTOP3（フィード先頭の発見導線） */
     .feed-rank {
       background: var(--white);
@@ -316,6 +362,7 @@
     <span class="header-title">新着投稿</span>
   </div>
 
+  <div class="feed-layout">
   <div class="container">
     <div class="feed-tabs">
       <button class="feed-tab active" data-mode="new" onclick="switchFeed('new')">新着</button>
@@ -334,6 +381,19 @@
     <div id="feedStatus"></div>
     <!-- 無限スクロールの見張り役（画面に入ると次の30件を自動読み込み） -->
     <div id="feedSentinel" aria-hidden="true"></div>
+  </div>
+
+    <!-- PCのみ右サイドバー（広い画面の余白を活用）。狭い画面ではCSSで非表示 -->
+    <aside class="feed-side">
+      <div class="feed-rank" id="sideRank" style="display:none;">
+        <div class="feed-rank-head">
+          <span class="feed-rank-title"><i class="ti ti-trophy"></i>人気のお店</span>
+          <a class="feed-rank-more" href="ranking.html">もっと<i class="ti ti-chevron-right"></i></a>
+        </div>
+        <div id="sideRankList"></div>
+      </div>
+      <div class="side-card" id="sideCta"></div>
+    </aside>
   </div>
 
   <div class="photo-lightbox" id="photoLightbox" onclick="closePhoto()">
@@ -430,8 +490,8 @@
         </div>`;
     }
 
-    // 人気店ランキングTOP3をフィード先頭に出す（記録数＝type=records）。
-    // 閉店店を除いた上位3件がそろった時だけ表示（寂しく見えないように）。失敗時は静かに非表示。
+    // 人気店ランキングTOP3（記録数＝type=records）。閉店店を除いた上位3件がそろった時だけ表示。
+    // モバイルはフィード先頭(#feedRank)、PCは右サイドバー(#sideRank)に同じ内容を出す（CSSで出し分け）。
     async function loadRankingHighlight() {
       try {
         const res = await API.get('ranking.php?type=records');
@@ -441,7 +501,7 @@
           .slice(0, 3);
         if (items.length < 3) return;   // 3件そろわなければ出さない
         const medal = ['top1', 'top2', 'top3'];
-        document.getElementById('feedRankList').innerHTML = items.map((x, i) => {
+        const rowsHtml = items.map((x, i) => {
           const shop = x.shop;
           const href = 'shops/' + (shop.slug || ('shop' + shop.id));
           return `<a class="feed-rank-row" href="${escapeHtml(href)}">
@@ -451,8 +511,28 @@
             <span class="feed-rank-val">${x.it.records}杯</span>
           </a>`;
         }).join('');
-        document.getElementById('feedRank').style.display = '';
+        ['feedRank', 'sideRank'].forEach(id => {
+          const wrap = document.getElementById(id);
+          if (!wrap) return;
+          wrap.querySelector('[id$="RankList"]').innerHTML = rowsHtml;
+          wrap.style.display = '';   // 実際にどちらが見えるかはCSS(メディアクエリ)が決める
+        });
       } catch (e) { /* 失敗時は何も出さない */ }
+    }
+
+    // サイドバーのCTAカード（ログイン状態で出し分け）。
+    function renderSideCta() {
+      const box = document.getElementById('sideCta');
+      if (!box) return;
+      const li = API.isLoggedIn && API.isLoggedIn();
+      box.innerHTML = li
+        ? `<div class="side-card-title">うどん、食べた？</div>
+           <div class="side-card-desc">お店を選んで、その一杯を記録しよう。</div>
+           <a class="side-card-btn" href="shops.html"><i class="ti ti-plus"></i>うどんを記録する</a>`
+        : `<div class="side-card-title">うどんログを始めよう</div>
+           <div class="side-card-desc">食べたうどんを記録して、制覇率やスタンプを集めよう。</div>
+           <a class="side-card-btn" href="register.html">無料ではじめる</a>
+           <a class="side-card-link" href="login.html">ログイン</a>`;
     }
 
     // 次の30件を取得して追記
@@ -621,6 +701,7 @@
     // 初回読み込みが終わってから監視を始める（refresh前にIOが発火して
     // いいね状態が欠けるのを防ぐ）。
     API.refresh().catch(() => {}).finally(async () => {
+      renderSideCta();          // PCサイドバーのCTA（ログイン状態で出し分け）
       loadRankingHighlight();   // ランキングTOP3（独立・失敗しても無視）
       await loadMore();
       setupInfiniteScroll();
