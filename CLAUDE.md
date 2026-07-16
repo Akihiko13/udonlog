@@ -37,9 +37,10 @@ login / register / forgot-password / reset-password / news / privacy / terms
 - 設定は `config.php`（DB接続・Google Client ID・**Maps APIキー(`maps_api_key`)** 等、**gitignore・本番のみ**。雛形 `config.sample.php`）。地図キーはGoogleログインとは別キー推奨・**Cloud Console側でHTTPリファラー制限(udolog.com)＋Maps JavaScript APIのみに制限**して発行する（未設定でも `?? ''` で壊れない＝地図が出ないだけ）。
 
 ### DB（api/schema.sql・InnoDB/utf8mb4）
-テーブル: `users, auth_identities, logs, ratings, password_resets, favorite_shops, likes, comments, follows, notifications, email_verifications`。
+テーブル: `users, auth_identities, logs, ratings, password_resets, favorite_shops, likes, comments, follows, notifications, email_verifications, auth_tokens`。
 - 投稿=`logs`（1杯1件）。`logs.comment` は投稿者自身のひとこと感想（≠返信）。写真は別ファイル保存（`record_photo_url`）。
 - 交流: `likes` / `comments`(本文140字) / `follows` / `notifications`(type=comment|follow|like)。
+- ログイン保持: `auth_tokens`（remember me・selector/validator方式・validatorはSHA-256保存・60日）。`lib.php` が冒頭 `try_remember_login()` でセッション無時に自動復元。発行=login_user共通、失効=logout/退会/パスワード変更・再設定。**本番は先に `api/migrate_auth_tokens.sql` を実行**。
 - **スキーマ変更は phpMyAdmin で手動適用**。追加分は `api/migrate_*.sql`（comments/follows/notifications）を用意。新テーブルを足したら migrate_*.sql も作り、引き継ぎ相手に「先にDB実行」を明示すること。
 
 ## 店舗データの更新フロー
@@ -83,6 +84,13 @@ login / register / forgot-password / reset-password / news / privacy / terms
 記録・スタンプ帳・達成バッジ(4軸25種)・エリア制覇率 / 会員登録(メール認証・Googleログイン)・公開プロフィール(username URL) /
 新着フィード(無限スクロール)・お店の詳細(みんなの投稿・人気メニュー・おすすめ度) / いいね・コメント(140字)・フォロー(新着に「フォロー中」タブ)・フォロワー/フォロー中一覧・通知(ベル＋未読バッジ)・相対時間表示(フィード/投稿/コメント/通知)。
 
+### 地図・フィード・その他（2026-07-13〜15 追加）
+- **地図表示（Google Maps）**：`map.js`(UdonMap・プロバイダ非依存の抽象化層)。お店を探す(shops.html)に一覧/地図トグル＝絞り込み結果をピンに反映・**記録済み=緑/未記録=アンバーで色分け＋凡例**・**地図右下に現在地ボタン常設**。店舗詳細に単店地図＋「ルートを見る」＋Googleマップ店ページ導線。キーは config.php(`maps_api_key`)→me.php→API.mapsApiKey。※**クラスタリングは見送り**（店400軒〜or不便の声で着手）。
+- **ログイン保持（remember me）**：上記DB参照。
+- **新着フィード**：先頭に「人気店ランキングTOP3」カード(記録数・閉店除外・3件以上で表示)。**PC(≥900px)のみ右サイドバー**(ランキング＋記録CTA)で500px列の左右余白を活用（`.container`は`flex:0 0 500px`固定、モバイルは従来の単カラム）。
+- **お店詳細「みんなの投稿」**：写真グリッド(3枚以上で3列サムネ・タップで拡大・9枚超は+N)＋従来の投稿リストの二段構え。
+- **404ページ**：`404.html`(うどまる＋導線・共通ヘッダー/フッター)。`.htaccess`に`ErrorDocument 404 /404.html`。
+
 ### お店を探す(shops.html)の検索・絞り込み（2026-07-11 追加）
 - **絞り込み**：エリア・種類（既存）＋「こだわり」(今営業中／駐車場あり)＋「記録」(まだ行ってない／記録済み・ログイン中のみ)。
 - **営業中/時間外/定休日バッジ**：hours/closed から現在の営業状態を推定して一覧カード・店舗詳細に表示（判定関数 `openState` 等を両ファイルに配置。目安である旨の注記あり。営業中の緑ドットは脈動アニメ）。
@@ -91,9 +99,17 @@ login / register / forgot-password / reset-password / news / privacy / terms
 - **記録済み/まだ行ってない**：ログイン中は記録済み店に緑「✓記録済み」バッジ＋色分け、絞り込みも可。
 
 ## 未実装の候補（優先度目安）
-- 地図表示、行きたいリスト（保存）
+- 行きたいリスト（保存）
+- ローディングのうどまる化（現在は ti-loader-2。後回し中）
+- マーカークラスタリング（見送り中・店400軒〜or不便の声で着手）
 - Google連携のみユーザーの「パスワード新規設定」（forgot フローの拡張が最小コスト）
 - 観光地「スポットから近い順」の任意地点対応（現状は事前登録リストのみ。任意住所はGoogle都度課金＋キャッシュが要る）
+
+## 引き継ぎ時の注意（本番未反映の状態・2026-07-15時点）
+このセッションのコードは全て commit＋GitHub push 済みだが、**本番（エックスサーバー）へのアップロードは未実施**。次の対応が保留：
+1. **remember me**：**先に `api/migrate_auth_tokens.sql` を phpMyAdmin で実行** → その後 `api/` の8ファイル(lib/login/logout/register/google_auth/password_change/password_reset/account_delete)をアップ。
+2. 地図・フィード・404等のフロント変更ファイル群（*.html, map.js, shops-data.js, sitemap.xml, news.js, tabler-icons.css, fonts/, .htaccess, 404.html）を public_html にアップ。
+3. Maps APIキーの1日クォータ上限は有料アカウント移行時（トライアル終了・2026-10-11頃）に設定（予算アラート¥1,000は設定済み）。
 
 ## ハマりどころメモ
 - ページ独自の `nav{}`/`footer{}` が共有部品(`<nav class=ulog-*>`/`<footer class=ulog-footer>`)に漏れる → 共有側で主要プロパティを明示リセット済み。
