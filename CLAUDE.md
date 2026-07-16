@@ -44,7 +44,7 @@ login / register / forgot-password / reset-password / news / privacy / terms
 - **スキーマ変更は phpMyAdmin で手動適用**。追加分は `api/migrate_*.sql`（comments/follows/notifications）を用意。新テーブルを足したら migrate_*.sql も作り、引き継ぎ相手に「先にDB実行」を明示すること。
 
 ## 店舗データの更新フロー
-1. `shops.csv` を編集（列: id,name,kana,city,type,hours,closed,status,blog,parking,slug,lat,lng。type=セルフ/一般/製麺所、status空=営業中/「閉店」）。
+1. `shops.csv` を編集（列: id,name,kana,city,type,hours,closed,parking,slug,lat,lng,blog,status。**列順は不問**＝DictReaderがヘッダー名で読むので並べ替え自由。type=セルフ/一般/製麺所、status空=営業中/「閉店」）。
 2. （座標）新店を足したら `python3 geocode-shops.py` で `lat`/`lng` を付与（「現在地から近い順」用）。Google Geocoding APIを使うので `export GOOGLE_GEOCODING_API_KEY="キー"` が必要（**キーは環境変数のみ・gitに含めない**）。空欄の店だけ処理する再実行前提。精度が粗い店・失敗店はログに出るので手直しする。
 3. `python3 build-shops-data.py` を実行 → `shops-data.js` を再生成（現在 **245店**）。lat/lng があれば数値として出力される。
    - 観光地（「スポットから近い順」用）を足す時は `landmarks.csv` を編集 → `python3 build-landmarks.py`（座標未取得ぶんがあれば同じくキーが必要・引きにくい施設は script内 `QUERY_OVERRIDE`）→ `landmarks.js` 再生成。座標付きの観光地だけ検索候補に出る。
