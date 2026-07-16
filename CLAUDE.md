@@ -105,11 +105,9 @@ login / register / forgot-password / reset-password / news / privacy / terms
 - Google連携のみユーザーの「パスワード新規設定」（forgot フローの拡張が最小コスト）
 - 観光地「スポットから近い順」の任意地点対応（現状は事前登録リストのみ。任意住所はGoogle都度課金＋キャッシュが要る）
 
-## 引き継ぎ時の注意（本番未反映の状態・2026-07-15時点）
-このセッションのコードは全て commit＋GitHub push 済みだが、**本番（エックスサーバー）へのアップロードは未実施**。次の対応が保留：
-1. **remember me**：**先に `api/migrate_auth_tokens.sql` を phpMyAdmin で実行** → その後 `api/` の8ファイル(lib/login/logout/register/google_auth/password_change/password_reset/account_delete)をアップ。
-2. 地図・フィード・404等のフロント変更ファイル群（*.html, map.js, shops-data.js, sitemap.xml, news.js, tabler-icons.css, fonts/, .htaccess, 404.html）を public_html にアップ。
-3. Maps APIキーの1日クォータ上限は有料アカウント移行時（トライアル終了・2026-10-11頃）に設定（予算アラート¥1,000は設定済み）。
+## 引き継ぎメモ（2026-07-15時点）
+- 2026-07-13〜15の変更（地図・remember-me・フィード改善・245店・404）は**本番反映済み**（DBの`auth_tokens`作成＋全ファイルアップ完了）。git＝GitHub＝本番が一致。
+- Maps APIキーの1日クォータ上限は有料アカウント移行時（トライアル終了・2026-10-11頃）に設定予定（予算アラート¥1,000は設定済み）。
 
 ## ハマりどころメモ
 - ページ独自の `nav{}`/`footer{}` が共有部品(`<nav class=ulog-*>`/`<footer class=ulog-footer>`)に漏れる → 共有側で主要プロパティを明示リセット済み。
