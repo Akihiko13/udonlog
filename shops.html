@@ -323,6 +323,7 @@
     }
     .near-btn i { font-size: 14px; }
     .near-btn:hover { background: var(--amber-light); }
+    .near-btn-short { display: none; }  /* モバイルでフルラベルの代わりに表示 */
 
     /* 現在地からの距離チップ（近い順のとき表示） */
     .dist-chip {
@@ -764,9 +765,13 @@
       .card-meta { flex-wrap: wrap; row-gap: 5px; }
       .card-meta .open-badge, .card-meta .open-badge + .type-badge { margin-left: 0; }
       .open-badge { padding: 2px 7px; }
-      /* 結果バーは折り返し可・ボタンは右寄せ */
-      .result-bar { flex-wrap: wrap; row-gap: 8px; }
-      .near-btn { margin-left: auto; }
+      /* 結果バー：件数を単独行、その下に 左=一覧/地図トグル・右=近い順 で整列 */
+      .result-bar { flex-wrap: wrap; row-gap: 10px; }
+      .result-label { order: 1; flex-basis: 100%; }  /* 件数は上に単独行 */
+      .view-toggle { order: 2; }                       /* 左（主役） */
+      .near-btn { order: 3; margin-left: auto; }       /* 右（補助） */
+      .near-btn-full { display: none; }                /* モバイルはラベル短縮 */
+      .near-btn-short { display: inline; }
       /* 記録済みボタンは狭いので「もう一杯！／（記録数：N杯）」の2行に。
          2行目は小さめにして、未記録の「食べた！」ボタンとの高さ差を抑える */
       .btn-taberu .taberu-count { display: block; font-size: 11px; font-weight: 600; }
@@ -884,7 +889,7 @@
   <div class="grid-wrap">
     <div class="result-bar">
       <div class="result-label" id="result-label"></div>
-      <button type="button" class="near-btn" id="near-btn"><i class="ti ti-map-pin" aria-hidden="true"></i>現在地から近い順に並べる</button>
+      <button type="button" class="near-btn" id="near-btn"><i class="ti ti-map-pin" aria-hidden="true"></i><span class="near-btn-full">現在地から近い順に並べる</span><span class="near-btn-short">近い順</span></button>
       <div class="view-toggle" id="view-toggle" style="display:none;">
         <button type="button" data-view="list" class="active"><i class="ti ti-list" aria-hidden="true"></i>一覧</button>
         <button type="button" data-view="map"><i class="ti ti-map-2" aria-hidden="true"></i>地図</button>
