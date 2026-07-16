@@ -6,6 +6,9 @@
 #   （バージョン番号 ?v= を毎回上げて全HTMLを上げ直す必要がなくなる）。
 # 画像（favicon等）は変更が少ないのでキャッシュを許可（表示が速い）。
 # ===========================================================================
+# 存在しないページはブランド調の404ページを表示（404ステータスは維持）
+ErrorDocument 404 /404.html
+
 <IfModule mod_headers.c>
   <FilesMatch "\.(html|js|css)$">
     Header set Cache-Control "no-cache, must-revalidate"
