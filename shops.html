@@ -1043,7 +1043,7 @@
         if (s.status === '閉店') return false;   // 閉店した店は一覧・検索に出さない
         const matchArea = currentArea === '全て' || s.city === currentArea;
         const matchType = currentType === '全て' || s.type === currentType;
-        const matchQ = !q || s.name.includes(q) || (s.kana && s.kana.includes(q)) || s.city.includes(q) || s.dish.includes(q);
+        const matchQ = !q || s.name.includes(q) || (s.kana && s.kana.includes(q)) || s.city.includes(q);
         const matchParking = !condParking || hasParking(s.parking);
         const matchOpen = !condOpen || openState(s, now) === 'open';
         const matchVisit = condVisit === 'all'

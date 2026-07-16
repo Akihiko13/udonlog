@@ -13,7 +13,6 @@
 #   name   … 店名（必須）
 #   city   … 市町（必須）
 #   type   … セルフ / 一般 / 製麺所 のいずれか（必須）
-#   dish   … 代表メニュー（任意）
 #   kana   … よみ（あいうえお順の並べ替え用。ひらがな。例：手打ちうどん いわせ → いわせ）
 #   hours  … 営業時間（任意。空欄なら詳細ページで「店舗にご確認ください」）
 #   closed … 定休日（任意。同上）
@@ -75,7 +74,6 @@ def main():
             kana = (row.get('kana') or '').strip()
             city = (row.get('city') or '').strip()
             type_ = (row.get('type') or '').strip()
-            dish = (row.get('dish') or '').strip()
             hours = (row.get('hours') or '').strip()
             closed = (row.get('closed') or '').strip()
             status = (row.get('status') or '').strip()
@@ -109,7 +107,7 @@ def main():
 
             rows.append({
                 'id': id_, 'name': name, 'kana': kana, 'city': city, 'type': type_,
-                'dish': dish, 'hours': hours, 'closed': closed, 'status': status,
+                'hours': hours, 'closed': closed, 'status': status,
                 'blog': blog, 'parking': parking, 'slug': slug,
                 'lat': lat, 'lng': lng,
             })
@@ -132,7 +130,6 @@ def main():
             f'kana:"{esc(r["kana"])}"',
             f'city:"{esc(r["city"])}"',
             f'type:"{esc(r["type"])}"',
-            f'dish:"{esc(r["dish"])}"',
         ]
         if r['hours']:
             parts.append(f'hours:"{esc(r["hours"])}"')
