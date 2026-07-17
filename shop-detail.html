@@ -275,7 +275,8 @@
       display: flex;
       align-items: center;
       gap: 10px;
-      flex-wrap: nowrap;        /* ラベル・星・文言を1行に保つ */
+      /* 収まる幅では1行、収まらなければ案内文を折り返す（枠外にはみ出さない） */
+      flex-wrap: wrap;
     }
 
     .my-rating-label {
