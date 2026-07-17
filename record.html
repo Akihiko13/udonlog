@@ -917,7 +917,7 @@
     function shareToX() {
       if (!lastRecord) return;
       const menuText = lastRecord.menus.length ? lastRecord.menus.join('・') + 'を' : '';
-      const text = `🥢${lastRecord.name}（${lastRecord.city}）で${menuText}食べました！\n#うどログ`;
+      const text = `${lastRecord.name}（${lastRecord.city}）で${menuText}食べました！\n#うどログ`;
       // 店舗詳細ページの絶対URL（現在のホストに合わせて生成）
       const shopPath = shopSlug ? ('shops/' + shopSlug) : ('shop-detail.html?id=' + shopId);
       const shopUrl = new URL(shopPath, location.href).href;
