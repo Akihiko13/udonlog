@@ -286,6 +286,19 @@
       font-weight: 600;
     }
 
+    /* この店でよく記録されるメニューの見出し */
+    .shop-menu-label {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      margin-top: 12px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #8A5510;
+    }
+    .shop-menu-label[hidden] { display: none; }
+    .shop-menu-label i { font-size: 14px; }
+
     /* 公開設定 */
     .visibility-options {
       display: flex;
@@ -523,6 +536,11 @@
           <span class="optional">複数選択可</span>
         </label>
         <div class="menu-chips" id="menuChips"></div>
+        <!-- この店で実際に記録されたメニュー（定番リストに無いものだけ・自動） -->
+        <div class="shop-menu-label" id="shopMenuLabel" hidden>
+          <i class="ti ti-star" aria-hidden="true"></i>この店でよく記録されるメニュー
+        </div>
+        <div class="menu-chips" id="menuChipsShop" style="margin-top:8px;"></div>
         <input type="text" id="menuOther" placeholder="その他（自由入力）" maxlength="30" style="margin-top:10px;">
       </div>
 
@@ -644,6 +662,46 @@
       }
     }
 
+    // この店で実際に記録されたメニューを取得し、定番リストに無いものを
+    // 追加の選択肢チップとして出す（手入力を減らす・記録が増えるほど充実）。
+    // 失敗しても定番リストだけで動くよう握りつぶす。
+    async function loadShopMenus(id) {
+      if (!id || id <= 0) return;
+      let data;
+      try {
+        data = await API.get('shop_logs.php?shop_id=' + id);
+      } catch (e) { return; }
+      const popular = (data && data.popularMenus) || [];
+      // 定番リストにも既存の追加チップにも無く、バッチ内で重複もしないものだけ（最大12件）
+      const extras = [];
+      const seen = new Set();
+      for (const item of popular) {
+        const name = (item && item.name || '').trim();
+        if (!name || seen.has(name)) continue;
+        if (MENU_OPTIONS.indexOf(name) >= 0) continue;
+        if (document.querySelector('.menu-chip[data-menu="' + cssEsc(name) + '"]')) continue;
+        seen.add(name);
+        extras.push(name);
+        if (extras.length >= 12) break;
+      }
+      if (!extras.length) return;
+      const wrap = document.getElementById('menuChipsShop');
+      // onclickはインライン展開せず、要素にリスナーを付ける（メニュー名に'や"が
+      // 入っても壊れない）。data-menuはHTMLエスケープして属性に持たせる。
+      wrap.insertAdjacentHTML('beforeend', extras.map(m =>
+        `<span class="menu-chip" data-menu="${escAttr(m)}">${escHtml(m)}</span>`
+      ).join(''));
+      wrap.querySelectorAll('.menu-chip:not([data-bound])').forEach(el => {
+        el.setAttribute('data-bound', '1');
+        el.addEventListener('click', () => toggleMenu(el.dataset.menu, el));
+      });
+      document.getElementById('shopMenuLabel').hidden = false;
+    }
+    // メニュー名を各文脈で安全に埋め込むヘルパー
+    function cssEsc(s){ return (window.CSS && CSS.escape) ? CSS.escape(s) : s; }
+    function escHtml(s){ return s.replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+    function escAttr(s){ return s.replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
     // URLパラメータからお店情報を取得（編集モードでは後で記録から上書き）
     const params = new URLSearchParams(location.search);
     const editId = parseInt(params.get('edit'), 10);
@@ -696,7 +754,8 @@
         }
       } catch (e) { return; /* API不達時は何もしない */ }
 
-      if (!isEdit) return;
+      // 新規記録：この店で記録されたメニューを追加の選択肢として読み込む
+      if (!isEdit) { await loadShopMenus(shopId); return; }
 
       let data;
       try {
@@ -711,13 +770,16 @@
       if (s) { shopName = s.name; shopCity = s.city; shopType = s.type; shopSlug = s.slug || ''; }
       applyShopBadge();
 
-      // メニュー：定番チップは選択状態に、それ以外は自由入力欄へ
+      // この店で記録されたメニューを追加チップとして描画（下の一致判定より前に）
+      await loadShopMenus(shopId);
+
+      // メニュー：チップ（定番＋この店の追加分）にあるものは選択状態、無ければ自由入力欄へ
       const others = [];
       (log.menus || []).forEach(m => {
-        if (MENU_OPTIONS.indexOf(m) >= 0) {
+        const chip = document.querySelector('.menu-chip[data-menu="' + cssEsc(m) + '"]');
+        if (chip) {
           selectedMenus.add(m);
-          const chip = document.querySelector('.menu-chip[data-menu="' + (window.CSS && CSS.escape ? CSS.escape(m) : m) + '"]');
-          if (chip) chip.classList.add('selected');
+          chip.classList.add('selected');
         } else {
           others.push(m);
         }
