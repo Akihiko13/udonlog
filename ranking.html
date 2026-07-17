@@ -168,7 +168,7 @@
       <button class="rank-tab active" data-type="rating" onclick="switchTab('rating')">おすすめランキング</button>
       <button class="rank-tab" data-type="records" onclick="switchTab('records')">記録数ランキング</button>
     </div>
-    <p class="rank-intro" id="rankIntro">みんなのおすすめ度が高い順。店名をタップで詳細へ。※評価が集まるまでの参考順位です。</p>
+    <p class="rank-intro" id="rankIntro">みんなのおすすめ度が高い順。店名を選ぶと詳細へ。※評価が集まるまでの参考順位です。</p>
     <div id="rankingList"></div>
     <div id="rankingStatus" class="rank-status"><i class="ti ti-loader-2"></i>読み込み中…</div>
   </div>
@@ -228,8 +228,8 @@
         t.classList.toggle('active', t.dataset.type === type);
       });
       document.getElementById('rankIntro').textContent = (type === 'records')
-        ? 'みんなの記録が多い順（＝人気の目安）。店名をタップで詳細へ。'
-        : 'みんなのおすすめ度が高い順。店名をタップで詳細へ。※評価が集まるまでの参考順位です。';
+        ? 'みんなの記録が多い順（＝人気の目安）。店名を選ぶと詳細へ。'
+        : 'みんなのおすすめ度が高い順。店名を選ぶと詳細へ。※評価が集まるまでの参考順位です。';
       loadRanking();
     }
 
