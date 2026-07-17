@@ -79,13 +79,23 @@ out_font_f = os.path.join(HERE, "fonts", "tabler-icons-filled-subset.woff2")
 if cp_filled:
     subset_font(fetch(f"{CDN}/fonts/tabler-icons-filled.woff2"), cp_filled.values(), out_font_f)
 
+# フォント内容のハッシュ。?v= に付けてキャッシュを破棄する
+# （アイコンを追加してサブセットを作り直すとURLが自動で変わり、
+#  ブラウザが古いフォントをキャッシュしたまま新グリフが欠ける事故を防ぐ）
+def content_hash(path):
+    import hashlib
+    with open(path, "rb") as fp:
+        return hashlib.md5(fp.read()).hexdigest()[:8]
+hash_outline = content_hash(out_font)
+hash_filled = content_hash(out_font_f) if cp_filled else ""
+
 # --- 4. サブセットCSSを生成 -------------------------------------------------
 # font-display:block … フォント読込中に豆腐文字を出さない（アイコンは代替不能なため）
 n = len(cp) + len(cp_filled)
 css = [
     f"/* Tabler Icons {VERSION} サブセット版（{n}種類・build-tabler-subset.py で自動生成） */",
     '@font-face{font-family:"tabler-icons";font-style:normal;font-weight:400;font-display:block;'
-    f'src:url("fonts/tabler-icons-subset.woff2?v={VERSION}") format("woff2")}}',
+    f'src:url("fonts/tabler-icons-subset.woff2?v={VERSION}.{hash_outline}") format("woff2")}}',
     '.ti{font-family:"tabler-icons" !important;speak:none;font-style:normal;font-weight:normal;'
     "font-variant:normal;text-transform:none;line-height:1;-webkit-font-smoothing:antialiased;"
     "-moz-osx-font-smoothing:grayscale}",
@@ -95,7 +105,7 @@ for name in sorted(cp):
 if cp_filled:
     css.append(
         '@font-face{font-family:"tabler-icons-filled";font-style:normal;font-weight:400;font-display:block;'
-        f'src:url("fonts/tabler-icons-filled-subset.woff2?v={VERSION}") format("woff2")}}'
+        f'src:url("fonts/tabler-icons-filled-subset.woff2?v={VERSION}.{hash_filled}") format("woff2")}}'
     )
     for name in sorted(cp_filled):
         css.append(
