@@ -905,7 +905,7 @@
           <button class="my-star" type="button" data-val="4" onclick="setMyRating(4)">★</button>
           <button class="my-star" type="button" data-val="5" onclick="setMyRating(5)">★</button>
         </div>
-        <div class="my-rating-text" id="myRatingText">星を選んで評価</div>
+        <div class="my-rating-text" id="myRatingText" data-touch-text="タップして評価" data-mouse-text="星を選んで評価">タップして評価</div>
       </div>
 
       <!-- あなたの訪問回数（この店をこれまで何回記録したか） -->
@@ -1591,7 +1591,7 @@
         b.classList.toggle('active', i < val);
       });
       document.getElementById('myRatingText').textContent =
-        val > 0 ? MY_RATING_LABELS[val] : '星を選んで評価';
+        val > 0 ? MY_RATING_LABELS[val] : ulogPointerText('タップして評価', '星を選んで評価');
     }
 
     // 評価UIの初期化（サーバーから取得した自分の集計に基づく）

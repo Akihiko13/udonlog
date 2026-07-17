@@ -16,6 +16,27 @@
   var shopsLoading = false;
   var shopsWaiters = [];
 
+  // --- 操作の言い回しを端末で出し分ける（タッチ端末=「タップ」/ マウス=PC向け）---
+  // マウス主体（PC）は (hover:hover) かつ (pointer:fine)。スマホ・タブレットは
+  // タッチ扱いになり従来どおり「タップ」表記のままにする。
+  var ULOG_IS_MOUSE = !!(window.matchMedia &&
+    window.matchMedia('(hover: hover) and (pointer: fine)').matches);
+  // 呼び出し側で touch用/mouse用の文言を渡すと、端末に応じた方を返す。
+  window.ulogPointerText = function (touchText, mouseText) {
+    return ULOG_IS_MOUSE ? mouseText : touchText;
+  };
+  // 静的テキストは data-touch-text / data-mouse-text を持たせておけば自動で反映。
+  function applyPointerText() {
+    var els = document.querySelectorAll('[data-touch-text][data-mouse-text]');
+    for (var i = 0; i < els.length; i++) {
+      els[i].textContent = ULOG_IS_MOUSE
+        ? els[i].getAttribute('data-mouse-text')
+        : els[i].getAttribute('data-touch-text');
+    }
+  }
+  if (document.readyState !== 'loading') applyPointerText();
+  else document.addEventListener('DOMContentLoaded', applyPointerText);
+
   // --- ヘッダー用スタイル（他ページのCSSと衝突しないよう ulog- 接頭辞で統一）---
   // body の padding-top をここで確保しておくことで、ヘッダー挿入時に本文が
   // ガクッと下がるのを防ぐ（JSでの後付けをやめCSSで最初から確保）。
