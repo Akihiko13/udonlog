@@ -200,7 +200,7 @@
 
     .toggle-pw {
       position: absolute;
-      right: 12px;
+      right: 4px;
       top: 50%;
       transform: translateY(-50%);
       background: none;
@@ -208,6 +208,12 @@
       cursor: pointer;
       color: #888;
       font-size: 17px;
+      /* タップ領域を44×44に（アイコンは中央寄せで見た目位置はほぼ維持） */
+      width: 44px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       padding: 0;
       line-height: 1;
     }

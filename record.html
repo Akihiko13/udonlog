@@ -35,8 +35,8 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      width: 36px;
-      height: 36px;
+      width: 40px;
+      height: 40px;
       border-radius: 50%;
       background: #fff;
       border: 0.5px solid #e5e5e0;
@@ -125,6 +125,9 @@
       color: #8A5510;
       text-decoration: none;
       flex-shrink: 0;
+      /* タップ領域を広げる（右端に寄せているので上下と左に余白） */
+      padding: 10px 4px 10px 12px;
+      margin-right: -4px;
     }
 
     .change-shop:hover { text-decoration: underline; }
@@ -267,7 +270,7 @@
       background: #fff;
       color: #555;
       border-radius: 99px;
-      padding: 7px 14px;
+      padding: 9px 16px;
       font-size: 13px;
       cursor: pointer;
       transition: all 0.12s;

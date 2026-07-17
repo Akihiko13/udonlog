@@ -53,8 +53,8 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      width: 36px;
-      height: 36px;
+      width: 40px;
+      height: 40px;
       border-radius: 50%;
       background: var(--white);
       border: 0.5px solid var(--border);
@@ -286,15 +286,16 @@
       white-space: nowrap;
     }
 
-    .my-stars { display: flex; gap: 3px; flex-shrink: 0; }
+    .my-stars { display: flex; gap: 0; flex-shrink: 0; margin-left: -8px; }
 
     .my-star {
       background: none;
       border: none;
       cursor: pointer;
-      font-size: 22px;
+      font-size: 24px;
       color: #e0d8cc;
-      padding: 0;
+      /* タップ領域を約40pxに（padding で間隔も確保） */
+      padding: 8px;
       line-height: 1;
       transition: color 0.1s, transform 0.1s;
     }
