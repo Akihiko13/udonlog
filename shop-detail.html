@@ -285,6 +285,8 @@
       color: #8a6a3a;
       flex-shrink: 0;
       white-space: nowrap;
+      /* PC/タブレットでは見出しとして1行目に単独で置き、星と案内文を2行目に */
+      flex-basis: 100%;
     }
 
     .my-stars { display: flex; gap: 0; flex-shrink: 0; margin-left: -8px; }
@@ -818,6 +820,7 @@
       /* モバイルは幅が足りず無理に1行にすると窮屈なので、星を見せて自然に折り返す
          （ラベル＋星で1行、案内文/評価語が2行目）。フォントは通常サイズに戻す。 */
       .my-rating { flex-wrap: wrap; gap: 12px; }
+      /* ラベルは見出しとして1行目に（flex-basis:100%は基本ルールから継承） */
       .my-rating-label { font-size: 14px; }
       .my-star { font-size: 26px; }
       .my-rating-text { font-size: 13px; }
