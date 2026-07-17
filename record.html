@@ -748,8 +748,34 @@
       vd.max = today;
     })();
 
-    // 戻るボタン（編集はマイページへ、新規はお店一覧へ）
-    document.getElementById('backBtn').href = isEdit ? 'mypage.html' : 'shops.html';
+    // 戻るボタン
+    // 編集はマイページ固定。新規は「来たページ」に戻す（店詳細から来たら店詳細へ）。
+    // 参照元が同一オリジンの通常ページなら1つ前へ戻り、認証ページ経由や
+    // 参照元不明のときは従来どおりお店を探すページにフォールバックする。
+    (function setupBackButton() {
+      const backBtn = document.getElementById('backBtn');
+      if (isEdit) { backBtn.href = 'mypage.html'; return; }
+
+      let useHistory = false;
+      const ref = document.referrer;
+      if (ref) {
+        try {
+          const u = new URL(ref);
+          // login等の認証ページや、record自身は「戻る先」に不適
+          const skip = /\/(login|register|forgot-password|reset-password|record)\.html$/;
+          if (u.origin === location.origin && !skip.test(u.pathname) && history.length > 1) {
+            backBtn.href = ref;      // フォールバック（中クリック等）
+            useHistory = true;
+          }
+        } catch (e) { /* URL解析失敗時はフォールバック */ }
+      }
+      if (!useHistory) { backBtn.href = 'shops.html'; return; }
+
+      backBtn.addEventListener('click', function (e) {
+        e.preventDefault();
+        history.back();          // 実際に1つ前へ戻す（スクロール位置も保たれる）
+      });
+    })();
 
     // 編集モードの見た目（見出し・ボタン・「変更」リンク非表示）
     if (isEdit) {
