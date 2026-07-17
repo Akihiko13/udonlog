@@ -16,9 +16,12 @@ $st->execute([$id, $u['id']]);
 if (!$st->fetch()) json_error('記録が見つかりません', 404);
 
 // メニュー（最低1つ必須・log_add.php と同じ扱い）
+// 各メニュー内の「・」は区切りと衝突するため全角スペースに置換して無害化する。
 $menus = $in['menus'] ?? '';
 if (is_array($menus)) {
-  $menus = implode('・', array_filter(array_map(function ($m) { return trim((string)$m); }, $menus), 'strlen'));
+  $menus = implode('・', array_filter(array_map(function ($m) {
+    return str_replace('・', '　', trim((string)$m));
+  }, $menus), 'strlen'));
 }
 $menus = trim((string)$menus);
 if ($menus === '') json_error('食べたうどんを選んでください');

@@ -10,9 +10,13 @@ $shop_id = (int)($in['shop_id'] ?? 0);
 if ($shop_id <= 0) json_error('店舗が指定されていません');
 
 // メニュー（配列なら「・」で連結して保存）。食べたうどんは最低1つ必須
+// 「・」はメニュー間の区切り文字なので、各メニュー内の「・」（自由入力に混ざると
+// 人気メニュー集計で誤って分割される）は全角スペースに置換して無害化する。
 $menus = $in['menus'] ?? '';
 if (is_array($menus)) {
-  $menus = implode('・', array_filter(array_map(function ($m) { return trim((string)$m); }, $menus), 'strlen'));
+  $menus = implode('・', array_filter(array_map(function ($m) {
+    return str_replace('・', '　', trim((string)$m));
+  }, $menus), 'strlen'));
 }
 $menus = trim((string)$menus);
 if ($menus === '') json_error('食べたうどんを選んでください');
