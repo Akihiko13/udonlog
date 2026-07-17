@@ -299,6 +299,18 @@
     .shop-menu-label[hidden] { display: none; }
     .shop-menu-label i { font-size: 14px; }
 
+    /* その他（自由入力）の注意書き */
+    .menu-other-note {
+      display: flex;
+      align-items: flex-start;
+      gap: 6px;
+      margin-top: 8px;
+      font-size: 12px;
+      line-height: 1.5;
+      color: #888;
+    }
+    .menu-other-note i { color: #BA7517; font-size: 14px; margin-top: 1px; flex-shrink: 0; }
+
     /* 公開設定 */
     .visibility-options {
       display: flex;
@@ -542,6 +554,10 @@
         </div>
         <div class="menu-chips" id="menuChipsShop" style="margin-top:8px;"></div>
         <input type="text" id="menuOther" placeholder="その他（自由入力）" maxlength="30" style="margin-top:10px;">
+        <p class="menu-other-note">
+          <i class="ti ti-info-circle" aria-hidden="true"></i>
+          入力したメニューは、他の人の選択肢にも表示されることがあります。みんなに分かる名前だと親切です。
+        </p>
       </div>
 
       <!-- 感想 -->
